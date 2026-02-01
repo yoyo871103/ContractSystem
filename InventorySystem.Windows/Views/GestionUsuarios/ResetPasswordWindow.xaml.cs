@@ -22,7 +22,8 @@ public partial class ResetPasswordWindow : Window
     /// <summary>
     /// Contraseña temporal introducida o generada (solo tiene valor si DialogResult == true).
     /// </summary>
-    public string ContraseñaTemporal => TxtPassword.Password ?? "";
+    public string ContraseñaTemporal =>
+        TxtPasswordVisible.Visibility == Visibility.Visible ? (TxtPasswordVisible.Text ?? "") : (TxtPassword.Password ?? "");
 
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -32,9 +33,40 @@ public partial class ResetPasswordWindow : Window
         }
     }
 
+    private void TxtPasswordVisible_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        if (TxtPassword.Password != TxtPasswordVisible.Text)
+            TxtPassword.Password = TxtPasswordVisible.Text ?? "";
+    }
+
+    private void BtnVerPassword_Click(object sender, RoutedEventArgs e)
+    {
+        if (TxtPasswordVisible.Visibility == Visibility.Visible)
+        {
+            TxtPassword.Password = TxtPasswordVisible.Text ?? "";
+            TxtPassword.Visibility = Visibility.Visible;
+            TxtPasswordVisible.Visibility = Visibility.Collapsed;
+            TxtPasswordVisible.Clear();
+            IconoOjo.Text = "\uE890";
+            BtnVerPassword.ToolTip = "Mostrar contraseña";
+        }
+        else
+        {
+            TxtPasswordVisible.Text = TxtPassword.Password ?? "";
+            TxtPasswordVisible.Visibility = Visibility.Visible;
+            TxtPassword.Visibility = Visibility.Collapsed;
+            IconoOjo.Text = "\uED1A";
+            BtnVerPassword.ToolTip = "Ocultar contraseña";
+            TxtPasswordVisible.Focus();
+        }
+    }
+
     private void BtnGenerar_Click(object sender, RoutedEventArgs e)
     {
-        TxtPassword.Password = GenerarContraseñaTemporal();
+        var pwd = GenerarContraseñaTemporal();
+        TxtPassword.Password = pwd;
+        if (TxtPasswordVisible.Visibility == Visibility.Visible)
+            TxtPasswordVisible.Text = pwd;
     }
 
     private static string GenerarContraseñaTemporal()
@@ -68,7 +100,8 @@ public partial class ResetPasswordWindow : Window
 
     private void BtnAceptar_Click(object sender, RoutedEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(TxtPassword.Password) || TxtPassword.Password.Length < 6)
+        var pwd = ContraseñaTemporal;
+        if (string.IsNullOrWhiteSpace(pwd) || pwd.Length < 6)
         {
             MessageBox.Show("La contraseña temporal debe tener al menos 6 caracteres.", "Resetear contraseña",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
