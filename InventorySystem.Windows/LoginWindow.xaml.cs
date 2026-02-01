@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
+using InventorySystem.Application.Configuration;
+using InventorySystem.Domain;
 
 namespace InventorySystem.Windows
 {
@@ -12,7 +14,32 @@ namespace InventorySystem.Windows
         public LoginWindow()
         {
             InitializeComponent();
-            ActualizarTextoConnexion("(no configurada)");
+            CargarTextoConnexionActual();
+        }
+
+        private void CargarTextoConnexionActual()
+        {
+            var store = App.Services?.GetService(typeof(IConnectionConfigurationStore)) as IConnectionConfigurationStore;
+            if (store == null || !store.HasConnectionConfigured)
+            {
+                ActualizarTextoConnexion("(no configurada)");
+                return;
+            }
+            var settings = store.GetSettings();
+            if (settings == null)
+            {
+                ActualizarTextoConnexion("(no configurada)");
+                return;
+            }
+            var texto = settings.Provider switch
+            {
+                DatabaseProvider.SqlServer => "SQL Server",
+                DatabaseProvider.Sqlite when !string.IsNullOrEmpty(settings.SqliteDatabasePath)
+                    => System.IO.Path.GetFileName(settings.SqliteDatabasePath),
+                DatabaseProvider.Sqlite => "SQLite",
+                _ => "(no configurada)"
+            };
+            ActualizarTextoConnexion(texto);
         }
 
         /// <summary>
@@ -33,8 +60,14 @@ namespace InventorySystem.Windows
 
         private void BtnConfigConexion_Click(object sender, RoutedEventArgs e)
         {
-            // Por ahora solo visual: no se implementa configuración de conexión
-            MessageBox.Show("Configuración de conexión (próximamente).", "Conexión", MessageBoxButton.OK);
+            var configWindow = new ConnectionConfigWindow
+            {
+                Owner = this
+            };
+            if (configWindow.ShowDialog() == true)
+            {
+                CargarTextoConnexionActual();
+            }
         }
 
         private void BtnCerrar_Click(object sender, RoutedEventArgs e)

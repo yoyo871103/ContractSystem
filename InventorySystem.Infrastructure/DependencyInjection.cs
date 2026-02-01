@@ -1,3 +1,4 @@
+using InventorySystem.Application.Configuration;
 using InventorySystem.Infrastructure.Configuration;
 using InventorySystem.Infrastructure.Database;
 using InventorySystem.Infrastructure.DatabaseSetup;
@@ -33,6 +34,7 @@ public static class DependencyInjection
             });
 
         services.AddSingleton<IConnectionConfigurationStore, FileConnectionConfigurationStore>();
+        services.AddSingleton<ISqlServerConnectionService, SqlServerConnectionService>();
         services.AddSingleton<IDatabaseSetupService, CompositeDatabaseSetupService>();
         services.AddTransient<IApplicationDbContextFactory, ApplicationDbContextFactory>();
 
