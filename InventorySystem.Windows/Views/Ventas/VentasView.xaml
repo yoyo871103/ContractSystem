@@ -1,0 +1,178 @@
+<UserControl x:Class="InventorySystem.Windows.Views.Ventas.VentasView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="500" d:DesignWidth="700"
+             Background="White">
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Título de la vista -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+            <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="28"
+                       Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+            <TextBlock Text="Ventas" FontSize="22" FontWeight="SemiBold"
+                       Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Selector de almacén -->
+        <Border Grid.Row="1" Background="{StaticResource BrushBackground}" Padding="16" Margin="0,0,0,16"
+                BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*" MinWidth="200"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Almacén desde el cual vender"
+                           Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"
+                           Margin="0,0,16,0"/>
+                <ComboBox Grid.Column="1" Height="32" VerticalContentAlignment="Center"
+                          Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1">
+                    <ComboBoxItem Content="Almacén Central"/>
+                    <ComboBoxItem Content="Almacén Norte"/>
+                    <ComboBoxItem Content="Almacén Sur"/>
+                </ComboBox>
+            </Grid>
+        </Border>
+
+        <!-- Carrito / Detalle de venta -->
+        <Border Grid.Row="2" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                CornerRadius="4" Margin="0,0,0,16">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" Background="{StaticResource BrushBackground}" Padding="12,10"
+                        BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1"
+                        CornerRadius="4,4,0,0">
+                    <Grid>
+                        <TextBlock Text="Detalle de la venta (carrito)" FontWeight="SemiBold"
+                                   Foreground="{StaticResource BrushTextInactive}"/>
+                        <Button HorizontalAlignment="Right" Content="Agregar artículo"
+                                Background="{StaticResource BrushAccent}" Foreground="White"
+                                BorderThickness="0" Padding="12,6" Cursor="Hand"/>
+                    </Grid>
+                </Border>
+                <DataGrid Grid.Row="1" x:Name="CarritoGrid" IsReadOnly="True"
+                          AutoGenerateColumns="False" HeadersVisibility="Column"
+                          BorderThickness="0" GridLinesVisibility="None"
+                          RowBackground="White" AlternatingRowBackground="{StaticResource BrushBackground}"
+                          CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False"
+                          SelectionMode="Single" SelectionUnit="FullRow"
+                          MinHeight="120">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="{StaticResource BrushBackground}"/>
+                            <Setter Property="Foreground" Value="{StaticResource BrushTextInactive}"/>
+                            <Setter Property="Padding" Value="12,10"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource BrushBorder}"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Padding" Value="0,4"/>
+                            <Style.Triggers>
+                                <!-- Seleccionada y con foco: blanco sobre accent -->
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True"/>
+                                        <Condition Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType=DataGrid}}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="Background" Value="{StaticResource BrushAccent}"/>
+                                </MultiDataTrigger>
+                                <!-- Seleccionada sin foco (maximizar, etc.): texto oscuro, fondo claro -->
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True"/>
+                                        <Condition Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType=DataGrid}}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Foreground" Value="{StaticResource BrushTextInactive}"/>
+                                    <Setter Property="Background" Value="{StaticResource BrushHover}"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="12,8"/>
+                            <Setter Property="Foreground" Value="{StaticResource BrushTextInactive}"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True"/>
+                                        <Condition Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType=DataGrid}}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True"/>
+                                        <Condition Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType=DataGrid}}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Foreground" Value="{StaticResource BrushTextInactive}"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Artículo" Binding="{Binding Articulo}" Width="*"/>
+                        <DataGridTextColumn Header="Cantidad" Binding="{Binding Cantidad}" Width="80"/>
+                        <DataGridTextColumn Header="Precio unit." Binding="{Binding PrecioUnitario}" Width="100"/>
+                        <DataGridTextColumn Header="Descuento %" Binding="{Binding DescuentoPorcentaje}" Width="90"/>
+                        <DataGridTextColumn Header="Subtotal" Binding="{Binding Subtotal}" Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- Descuento general y total -->
+        <Border Grid.Row="3" Background="{StaticResource BrushBackground}" Padding="16" Margin="0,0,0,16"
+                BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="140"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Descuento general" Foreground="{StaticResource BrushTextInactive}"
+                               VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBox Width="60" Height="28" VerticalContentAlignment="Center" Text="0"
+                             BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"/>
+                    <TextBlock Text="%" Foreground="{StaticResource BrushTextInactive}"
+                               VerticalAlignment="Center" Margin="4,0,0,0"/>
+                </StackPanel>
+                <TextBlock Grid.Column="1" Text="Total venta:" FontWeight="SemiBold"
+                           Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"
+                           Margin="24,0,12,0" FontSize="14"/>
+                <TextBlock Grid.Column="2" x:Name="TxtTotal" Text="0,00" FontWeight="Bold"
+                           Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center"
+                           FontSize="18" HorizontalAlignment="Right"/>
+            </Grid>
+        </Border>
+
+        <!-- Acciones -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Cancelar" Background="Transparent" Foreground="{StaticResource BrushTextInactive}"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" Padding="20,10"
+                    Margin="0,0,12,0" Cursor="Hand"/>
+            <Button x:Name="BtnFinalizarVenta" Content="Finalizar venta" Background="{StaticResource BrushAccent}" Foreground="White"
+                    BorderThickness="0" Padding="20,10" Cursor="Hand" Click="BtnFinalizarVenta_Click"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

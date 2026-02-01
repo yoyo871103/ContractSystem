@@ -1,12 +1,237 @@
-﻿<Window x:Class="InventorySystem.Windows.MainWindow"
+<Window x:Class="InventorySystem.Windows.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:InventorySystem.Windows"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Sistema de Inventario" Height="600" Width="1000"
+        MinWidth="800" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" ResizeMode="CanResize"
+        Background="{StaticResource BrushBackground}"
+        AllowsTransparency="False"
+        Closing="MainWindow_Closing">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="28"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
+        <!-- Barra de título personalizada densa (arrastrar, minimizar, maximizar, pantalla completa, cerrar) -->
+        <Border Grid.Row="0" Background="White" 
+                BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1"
+                MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <!-- Icono de la app (izquierda) -->
+                <Border Grid.Column="0" Width="40" Height="28" 
+                        Background="{StaticResource BrushAccent}"
+                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                    <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" 
+                               FontSize="14" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <!-- Área central (arrastrable, doble clic = maximizar/restaurar) -->
+                <Border Grid.Column="1" Background="Transparent"
+                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"/>
+                <!-- Usuario + controles de ventana (derecha) -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <!-- Icono de usuario -->
+                    <Button Background="Transparent" BorderThickness="0" Cursor="Hand" 
+                            Width="32" Height="28" Padding="0" Margin="0"
+                            ToolTip="Cuenta de usuario">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="userBorder" Background="Transparent" Padding="2">
+                                    <Border Width="20" Height="20" CornerRadius="10" 
+                                            Background="{StaticResource BrushAccent}"
+                                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" 
+                                                   FontSize="10" Foreground="White"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="userBorder" Property="Background" Value="{StaticResource BrushHover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <!-- Minimizar -->
+                    <Button x:Name="BtnMinimize" Style="{StaticResource TitleBarButtonStyle}"
+                            Click="BtnMinimize_Click" ToolTip="Minimizar">
+                        <TextBlock Text="&#xE921;" FontFamily="Segoe MDL2 Assets" 
+                                   FontSize="9" Foreground="{StaticResource BrushTextInactive}"/>
+                    </Button>
+                    <!-- Maximizar/Restaurar (respeta barra de tareas de Windows) -->
+                    <Button x:Name="BtnMaximize" Style="{StaticResource TitleBarButtonStyle}"
+                            Click="BtnMaximize_Click" ToolTip="Maximizar">
+                        <TextBlock x:Name="TxtMaximizeIcon" Text="&#xE922;" FontFamily="Segoe MDL2 Assets" 
+                                   FontSize="9" Foreground="{StaticResource BrushTextInactive}"/>
+                    </Button>
+                    <!-- Pantalla completa (oculta barra de tareas) -->
+                    <Button x:Name="BtnFullScreen" Style="{StaticResource TitleBarButtonStyle}"
+                            Click="BtnFullScreen_Click" ToolTip="Pantalla completa">
+                        <TextBlock x:Name="TxtFullScreenIcon" Text="&#xE740;" FontFamily="Segoe MDL2 Assets" 
+                                   FontSize="9" Foreground="{StaticResource BrushTextInactive}"/>
+                    </Button>
+                    <!-- Cerrar -->
+                    <Button x:Name="BtnClose" Style="{StaticResource TitleBarCloseButtonStyle}"
+                            PreviewMouseLeftButtonDown="BtnClose_PreviewMouseLeftButtonDown"
+                            Click="BtnClose_Click" ToolTip="Cerrar">
+                        <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" 
+                                   FontSize="9" Foreground="{StaticResource BrushTextInactive}"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Contenido principal: menú + área de contenido -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="72"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+        <!-- Panel lateral de navegación -->
+        <Border Grid.Column="0" Background="{StaticResource BrushSidebar}" 
+                BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,1,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,16,0,8">
+                        <!-- 1. Inicio -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Inicio">
+                            <StackPanel>
+                                <TextBlock Text="&#xE80F;" FontFamily="Segoe MDL2 Assets" 
+                                           FontSize="20" Foreground="{StaticResource BrushAccent}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Inicio" FontSize="10" Foreground="{StaticResource BrushTextActive}"
+                                           HorizontalAlignment="Center" Margin="0,4,0,0"
+                                           TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <!-- 2. Inventario -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Inventario">
+                            <StackPanel>
+                                <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" 
+                                           FontSize="20" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Inventario" FontSize="10" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center" Margin="0,4,0,0"
+                                           TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <!-- 3. Productos -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Productos">
+                            <StackPanel>
+                                <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" 
+                                           FontSize="20" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Productos" FontSize="10" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center" Margin="0,4,0,0"
+                                           TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <!-- 4. Almacenes -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Almacenes">
+                            <StackPanel>
+                                <TextBlock Text="&#xE838;" FontFamily="Segoe MDL2 Assets" 
+                                           FontSize="20" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Almacenes" FontSize="10" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center" Margin="0,4,0,0"
+                                           TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <!-- 5. Ventas -->
+                        <Button x:Name="BtnVentas" Style="{StaticResource NavItemButtonStyle}" ToolTip="Ventas"
+                                Click="BtnVentas_Click">
+                            <StackPanel>
+                                <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" 
+                                           FontSize="20" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Ventas" FontSize="10" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center" Margin="0,4,0,0"
+                                           TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <!-- 6. Importar/Exportar -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Importar / Exportar">
+                            <StackPanel>
+                                <TextBlock Text="&#xE895;" FontFamily="Segoe MDL2 Assets" 
+                                           FontSize="20" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Importar / Exportar" FontSize="10" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center" Margin="0,4,0,0"
+                                           TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <!-- 7. Informes -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Informes">
+                            <StackPanel>
+                                <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" 
+                                           FontSize="20" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Informes" FontSize="10" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center" Margin="0,4,0,0"
+                                           TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <!-- 8. Configuración -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" Margin="0,8,0,0" ToolTip="Configuración">
+                            <StackPanel>
+                                <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" 
+                                           FontSize="20" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Config." FontSize="10" Foreground="{StaticResource BrushTextInactive}"
+                                           HorizontalAlignment="Center" Margin="0,4,0,0"
+                                           TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Área de trabajo: contenedor dinámico para vistas (Ventas, Compras, Inventario, etc.) -->
+        <Border Grid.Column="1" Margin="24" Background="White" Padding="24"
+                BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                CornerRadius="4">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <!-- Barra "Extraer": visible solo cuando hay una vista incrustada (no bienvenida) -->
+                <Button x:Name="BtnExtraer" Grid.Row="0" Content="Extraer" Visibility="Collapsed"
+                        HorizontalAlignment="Right" Margin="0,0,0,12" Padding="12,6"
+                        Background="{StaticResource BrushAccent}" Foreground="White"
+                        BorderThickness="0" Cursor="Hand" Click="BtnExtraer_Click"
+                        ToolTip="Abrir esta vista en una ventana independiente"/>
+                <ContentControl x:Name="ContentArea" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <!-- Vista inicial: bienvenida (se reemplazará al navegar a otras vistas) -->
+                    <StackPanel x:Name="WelcomePanel" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="&#xE80F;" FontFamily="Segoe MDL2 Assets" 
+                                   FontSize="48" Foreground="{StaticResource BrushTextInactive}"
+                                   HorizontalAlignment="Center" Opacity="0.5"/>
+                        <TextBlock Text="Bienvenido al Sistema de Inventario" 
+                                   FontSize="18" Foreground="{StaticResource BrushTextInactive}"
+                                   HorizontalAlignment="Center" Margin="0,16,0,0"/>
+                        <TextBlock Text="Selecciona una opción del menú para comenzar" 
+                                   FontSize="12" Foreground="{StaticResource BrushTextInactive}"
+                                   HorizontalAlignment="Center" Margin="0,8,0,0" Opacity="0.8"/>
+                        <Button Content="Abrir Ventas en ventana" Margin="0,24,0,0" Padding="16,8"
+                                Background="{StaticResource BrushAccent}" Foreground="White"
+                                BorderThickness="0" Cursor="Hand" Click="BtnAbrirVentasEnVentana_Click"/>
+                    </StackPanel>
+                </ContentControl>
+            </Grid>
+        </Border>
+        </Grid>
     </Grid>
 </Window>
