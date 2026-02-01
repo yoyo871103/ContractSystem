@@ -1,8 +1,9 @@
+using InventorySystem.Infrastructure.Database;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace InventorySystem.Infrastructure.Database;
+namespace InventorySystem.Infrastructure.DatabaseSetup;
 
 internal sealed class SqliteDatabaseSetupService : IDatabaseSetupService
 {

@@ -1,4 +1,4 @@
-namespace InventorySystem.Application;
+namespace InventorySystem.Application.DatabaseSetup;
 
 /// <summary>
 /// Parámetros para configurar la conexión a SQLite.

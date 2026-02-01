@@ -2,10 +2,16 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:InventorySystem.Windows"
+             xmlns:vm="clr-namespace:InventorySystem.Windows.ViewModels"
+             xmlns:viewsInicio="clr-namespace:InventorySystem.Windows.Views.Inicio"
+             xmlns:viewsVentas="clr-namespace:InventorySystem.Windows.Views.Ventas"
+             xmlns:converters="clr-namespace:InventorySystem.Windows.Converters"
              Startup="Application_Startup">
     <Application.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
         <!-- Paleta de colores estilo Microsoft Store / App moderna -->
         <SolidColorBrush x:Key="BrushBackground" Color="#F0F2F5"/>
+        <SolidColorBrush x:Key="BrushError" Color="#C42B1C"/>
         <SolidColorBrush x:Key="BrushSidebar" Color="#FAFBFC"/>
         <SolidColorBrush x:Key="BrushAccent" Color="#0078D4"/>
         <SolidColorBrush x:Key="BrushTextInactive" Color="#5C5C5C"/>
@@ -136,6 +142,28 @@
             </Setter>
         </Style>
         
+        <!-- Validation.ErrorTemplate: mensaje en rojo debajo del campo con error (INotifyDataErrorInfo) -->
+        <ControlTemplate x:Key="ValidationErrorTemplate">
+            <StackPanel>
+                <AdornedElementPlaceholder x:Name="placeholder"/>
+                <TextBlock Text="{Binding [0].ErrorContent}" Foreground="{StaticResource BrushError}"
+                           FontSize="11" Margin="0,2,0,0"/>
+            </StackPanel>
+        </ControlTemplate>
+
+        <!-- TextBox con validación: usar Validation.ErrorTemplate para mostrar errores debajo del campo -->
+        <Style TargetType="TextBox" x:Key="ValidatableTextBoxStyle">
+            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource ValidationErrorTemplate}"/>
+        </Style>
+
+        <!-- DataTemplates: ViewModel -> View (navegación MVVM) -->
+        <DataTemplate DataType="{x:Type vm:InicioViewModel}">
+            <viewsInicio:InicioView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:VentasViewModel}">
+            <viewsVentas:VentasView/>
+        </DataTemplate>
+
         <!-- Estilo para elementos del menú lateral -->
         <Style x:Key="NavItemButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>

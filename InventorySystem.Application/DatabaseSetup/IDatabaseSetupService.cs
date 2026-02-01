@@ -1,4 +1,4 @@
-namespace InventorySystem.Application;
+namespace InventorySystem.Application.DatabaseSetup;
 
 /// <summary>
 /// Servicio que realiza el setup inicial de la base de datos.

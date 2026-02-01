@@ -1,4 +1,4 @@
-namespace InventorySystem.Application;
+namespace InventorySystem.Application.Database;
 
 /// <summary>
 /// Abstracción del contexto de base de datos de la aplicación.

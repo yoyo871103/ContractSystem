@@ -106,7 +106,8 @@
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Margin="0,16,0,8">
                         <!-- 1. Inicio -->
-                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Inicio">
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Inicio"
+                                Command="{Binding NavigateToInicioCommand}">
                             <StackPanel>
                                 <TextBlock Text="&#xE80F;" FontFamily="Segoe MDL2 Assets" 
                                            FontSize="20" Foreground="{StaticResource BrushAccent}"
@@ -117,7 +118,8 @@
                             </StackPanel>
                         </Button>
                         <!-- 2. Inventario -->
-                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Inventario">
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Inventario"
+                                Command="{Binding NavigateToInventarioCommand}">
                             <StackPanel>
                                 <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" 
                                            FontSize="20" Foreground="{StaticResource BrushTextInactive}"
@@ -128,7 +130,8 @@
                             </StackPanel>
                         </Button>
                         <!-- 3. Productos -->
-                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Productos">
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Productos"
+                                Command="{Binding NavigateToProductosCommand}">
                             <StackPanel>
                                 <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" 
                                            FontSize="20" Foreground="{StaticResource BrushTextInactive}"
@@ -139,7 +142,8 @@
                             </StackPanel>
                         </Button>
                         <!-- 4. Almacenes -->
-                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Almacenes">
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Almacenes"
+                                Command="{Binding NavigateToAlmacenesCommand}">
                             <StackPanel>
                                 <TextBlock Text="&#xE838;" FontFamily="Segoe MDL2 Assets" 
                                            FontSize="20" Foreground="{StaticResource BrushTextInactive}"
@@ -150,8 +154,8 @@
                             </StackPanel>
                         </Button>
                         <!-- 5. Ventas -->
-                        <Button x:Name="BtnVentas" Style="{StaticResource NavItemButtonStyle}" ToolTip="Ventas"
-                                Click="BtnVentas_Click">
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Ventas"
+                                Command="{Binding NavigateToVentasCommand}">
                             <StackPanel>
                                 <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" 
                                            FontSize="20" Foreground="{StaticResource BrushTextInactive}"
@@ -162,7 +166,8 @@
                             </StackPanel>
                         </Button>
                         <!-- 6. Importar/Exportar -->
-                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Importar / Exportar">
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Importar / Exportar"
+                                Command="{Binding NavigateToImportarExportarCommand}">
                             <StackPanel>
                                 <TextBlock Text="&#xE895;" FontFamily="Segoe MDL2 Assets" 
                                            FontSize="20" Foreground="{StaticResource BrushTextInactive}"
@@ -173,7 +178,8 @@
                             </StackPanel>
                         </Button>
                         <!-- 7. Informes -->
-                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Informes">
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Informes"
+                                Command="{Binding NavigateToInformesCommand}">
                             <StackPanel>
                                 <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" 
                                            FontSize="20" Foreground="{StaticResource BrushTextInactive}"
@@ -184,7 +190,8 @@
                             </StackPanel>
                         </Button>
                         <!-- 8. Configuración -->
-                        <Button Style="{StaticResource NavItemButtonStyle}" Margin="0,8,0,0" ToolTip="Configuración">
+                        <Button Style="{StaticResource NavItemButtonStyle}" Margin="0,8,0,0" ToolTip="Configuración"
+                                Command="{Binding NavigateToConfiguracionCommand}">
                             <StackPanel>
                                 <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" 
                                            FontSize="20" Foreground="{StaticResource BrushTextInactive}"
@@ -207,29 +214,16 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <!-- Barra "Extraer": visible solo cuando hay una vista incrustada (no bienvenida) -->
-                <Button x:Name="BtnExtraer" Grid.Row="0" Content="Extraer" Visibility="Collapsed"
+                <!-- Barra "Extraer": visible cuando hay una vista de módulo (no Inicio) -->
+                <Button x:Name="BtnExtraer" Grid.Row="0" Content="Extraer"
+                        Visibility="{Binding IsExtractVisible, Converter={StaticResource BoolToVisibility}}"
                         HorizontalAlignment="Right" Margin="0,0,0,12" Padding="12,6"
                         Background="{StaticResource BrushAccent}" Foreground="White"
-                        BorderThickness="0" Cursor="Hand" Click="BtnExtraer_Click"
+                        BorderThickness="0" Cursor="Hand"
+                        Command="{Binding ExtraerVistaCommand}"
                         ToolTip="Abrir esta vista en una ventana independiente"/>
-                <ContentControl x:Name="ContentArea" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <!-- Vista inicial: bienvenida (se reemplazará al navegar a otras vistas) -->
-                    <StackPanel x:Name="WelcomePanel" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <TextBlock Text="&#xE80F;" FontFamily="Segoe MDL2 Assets" 
-                                   FontSize="48" Foreground="{StaticResource BrushTextInactive}"
-                                   HorizontalAlignment="Center" Opacity="0.5"/>
-                        <TextBlock Text="Bienvenido al Sistema de Inventario" 
-                                   FontSize="18" Foreground="{StaticResource BrushTextInactive}"
-                                   HorizontalAlignment="Center" Margin="0,16,0,0"/>
-                        <TextBlock Text="Selecciona una opción del menú para comenzar" 
-                                   FontSize="12" Foreground="{StaticResource BrushTextInactive}"
-                                   HorizontalAlignment="Center" Margin="0,8,0,0" Opacity="0.8"/>
-                        <Button Content="Abrir Ventas en ventana" Margin="0,24,0,0" Padding="16,8"
-                                Background="{StaticResource BrushAccent}" Foreground="White"
-                                BorderThickness="0" Cursor="Hand" Click="BtnAbrirVentasEnVentana_Click"/>
-                    </StackPanel>
-                </ContentControl>
+                <ContentControl x:Name="ContentArea" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                               Content="{Binding CurrentViewModel}"/>
             </Grid>
         </Border>
         </Grid>

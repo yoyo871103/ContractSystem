@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
-namespace InventorySystem.Infrastructure.Database;
+namespace InventorySystem.Infrastructure.DatabaseSetup;
 
 internal sealed class SqlServerDatabaseSetupService : IDatabaseSetupService
 {

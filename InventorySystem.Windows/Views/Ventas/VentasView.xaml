@@ -59,10 +59,11 @@
                                    Foreground="{StaticResource BrushTextInactive}"/>
                         <Button HorizontalAlignment="Right" Content="Agregar artículo"
                                 Background="{StaticResource BrushAccent}" Foreground="White"
-                                BorderThickness="0" Padding="12,6" Cursor="Hand"/>
+                                BorderThickness="0" Padding="12,6" Cursor="Hand"
+                                Command="{Binding AgregarArticuloCommand}"/>
                     </Grid>
                 </Border>
-                <DataGrid Grid.Row="1" x:Name="CarritoGrid" IsReadOnly="True"
+                <DataGrid Grid.Row="1" ItemsSource="{Binding ItemsCarrito}" IsReadOnly="True"
                           AutoGenerateColumns="False" HeadersVisibility="Column"
                           BorderThickness="0" GridLinesVisibility="None"
                           RowBackground="White" AlternatingRowBackground="{StaticResource BrushBackground}"
@@ -83,7 +84,6 @@
                         <Style TargetType="DataGridRow">
                             <Setter Property="Padding" Value="0,4"/>
                             <Style.Triggers>
-                                <!-- Seleccionada y con foco: blanco sobre accent -->
                                 <MultiDataTrigger>
                                     <MultiDataTrigger.Conditions>
                                         <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True"/>
@@ -92,7 +92,6 @@
                                     <Setter Property="Foreground" Value="White"/>
                                     <Setter Property="Background" Value="{StaticResource BrushAccent}"/>
                                 </MultiDataTrigger>
-                                <!-- Seleccionada sin foco (maximizar, etc.): texto oscuro, fondo claro -->
                                 <MultiDataTrigger>
                                     <MultiDataTrigger.Conditions>
                                         <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True"/>
@@ -152,7 +151,8 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="Descuento general" Foreground="{StaticResource BrushTextInactive}"
                                VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <TextBox Width="60" Height="28" VerticalContentAlignment="Center" Text="0"
+                    <TextBox Width="60" Height="28" VerticalContentAlignment="Center"
+                             Text="{Binding DescuentoGeneral, UpdateSourceTrigger=PropertyChanged}"
                              BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"/>
                     <TextBlock Text="%" Foreground="{StaticResource BrushTextInactive}"
                                VerticalAlignment="Center" Margin="4,0,0,0"/>
@@ -160,7 +160,7 @@
                 <TextBlock Grid.Column="1" Text="Total venta:" FontWeight="SemiBold"
                            Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"
                            Margin="24,0,12,0" FontSize="14"/>
-                <TextBlock Grid.Column="2" x:Name="TxtTotal" Text="0,00" FontWeight="Bold"
+                <TextBlock Grid.Column="2" Text="{Binding TotalVenta}" FontWeight="Bold"
                            Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center"
                            FontSize="18" HorizontalAlignment="Right"/>
             </Grid>
@@ -170,9 +170,12 @@
         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="Cancelar" Background="Transparent" Foreground="{StaticResource BrushTextInactive}"
                     BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" Padding="20,10"
-                    Margin="0,0,12,0" Cursor="Hand"/>
-            <Button x:Name="BtnFinalizarVenta" Content="Finalizar venta" Background="{StaticResource BrushAccent}" Foreground="White"
-                    BorderThickness="0" Padding="20,10" Cursor="Hand" Click="BtnFinalizarVenta_Click"/>
+                    Margin="0,0,12,0" Cursor="Hand"
+                    Command="{Binding CancelarCommand}"/>
+            <Button Content="Finalizar venta" Background="{StaticResource BrushAccent}" Foreground="White"
+                    BorderThickness="0" Padding="20,10" Cursor="Hand"
+                    Command="{Binding FinalizarVentaCommand}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -1,4 +1,4 @@
-namespace InventorySystem.Application;
+namespace InventorySystem.Application.DatabaseSetup;
 
 /// <summary>
 /// Resultado de una operación de setup de base de datos.

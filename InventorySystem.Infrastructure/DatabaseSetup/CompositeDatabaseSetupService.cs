@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace InventorySystem.Infrastructure.Database;
+namespace InventorySystem.Infrastructure.DatabaseSetup;
 
 /// <summary>
 /// Servicio de setup que delega en las implementaciones específicas de SQL Server y SQLite.

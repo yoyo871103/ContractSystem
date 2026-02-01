@@ -1,4 +1,4 @@
-namespace InventorySystem.Application;
+namespace InventorySystem.Application.Configuration;
 
 /// <summary>
 /// Almacén de la configuración de conexión (persistida en archivo local).

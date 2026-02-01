@@ -2,10 +2,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using InventorySystem.Windows.Shared.Dialogs;
-using InventorySystem.Windows.Views.Ventas;
 
 namespace InventorySystem.Windows
 {
@@ -274,76 +271,6 @@ namespace InventorySystem.Windows
                 return;
 
             Close();
-        }
-
-        /// <summary>
-        /// Muestra una vista en el área de trabajo. Pasa <c>null</c> para volver a la pantalla de bienvenida.
-        /// </summary>
-        /// <param name="content">Vista a mostrar (p. ej. un <see cref="UserControl"/> de Ventas, Compras, Inventario).</param>
-        public void NavigateToContent(object? content)
-        {
-            ContentArea.Content = content ?? WelcomePanel;
-            UpdateExtraerButtonVisibility();
-        }
-
-        private void UpdateExtraerButtonVisibility()
-        {
-            BtnExtraer.Visibility = ContentArea.Content == WelcomePanel
-                ? Visibility.Collapsed
-                : Visibility.Visible;
-        }
-
-        private static string GetTitleForContent(object content)
-        {
-            if (content is VentasView)
-                return "Ventas";
-            return content?.GetType().Name ?? "Vista";
-        }
-
-        /// <summary>
-        /// Vuelve a mostrar la pantalla de bienvenida en el área de trabajo.
-        /// </summary>
-        public void ShowWelcome()
-        {
-            ContentArea.Content = WelcomePanel;
-        }
-
-        /// <summary>
-        /// Muestra una vista en un diálogo modal (ventana independiente).
-        /// La misma vista (p. ej. VentasView) puede mostrarse incrustada en el área de trabajo o en este diálogo.
-        /// </summary>
-        /// <param name="content">Vista a mostrar (p. ej. <c>new VentasView()</c>).</param>
-        /// <param name="title">Título de la ventana del diálogo.</param>
-        public void ShowViewInDialog(object content, string title)
-        {
-            var dialog = new ViewDialogWindow
-            {
-                Owner = this,
-                Title = title,
-                DialogContent = content
-            };
-            dialog.ShowDialog();
-        }
-
-        private void BtnVentas_Click(object sender, RoutedEventArgs e)
-        {
-            NavigateToContent(new VentasView());
-        }
-
-        private void BtnAbrirVentasEnVentana_Click(object sender, RoutedEventArgs e)
-        {
-            ShowViewInDialog(new VentasView(), "Ventas");
-        }
-
-        private void BtnExtraer_Click(object sender, RoutedEventArgs e)
-        {
-            var current = ContentArea.Content;
-            if (current == null || current == WelcomePanel)
-                return;
-
-            var title = GetTitleForContent(current);
-            ShowViewInDialog(current, title);
-            NavigateToContent(null);
         }
     }
 

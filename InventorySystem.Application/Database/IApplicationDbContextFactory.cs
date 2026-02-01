@@ -1,4 +1,4 @@
-namespace InventorySystem.Application;
+namespace InventorySystem.Application.Database;
 
 /// <summary>
 /// Factory que crea instancias de DbContext según la configuración de conexión actual.

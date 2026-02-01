@@ -1,5 +1,6 @@
 using InventorySystem.Infrastructure.Configuration;
 using InventorySystem.Infrastructure.Database;
+using InventorySystem.Infrastructure.DatabaseSetup;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
