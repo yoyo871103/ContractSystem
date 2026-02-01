@@ -14,11 +14,13 @@ public static class DependencyInjection
         // Servicios de UI
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IViewDialogService, ViewDialogService>();
+        services.AddSingleton<ILogoutService, LogoutService>();
 
         // ViewModels (Transient para que cada navegación obtenga una nueva instancia)
         services.AddTransient<MainViewModel>();
         services.AddTransient<InicioViewModel>();
         services.AddTransient<VentasViewModel>();
+        services.AddTransient<GestionUsuariosViewModel>();
 
         return services;
     }

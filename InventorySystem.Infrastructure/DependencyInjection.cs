@@ -1,4 +1,6 @@
+using InventorySystem.Application.Auth;
 using InventorySystem.Application.Configuration;
+using InventorySystem.Infrastructure.Auth;
 using InventorySystem.Infrastructure.Configuration;
 using InventorySystem.Infrastructure.Database;
 using InventorySystem.Infrastructure.DatabaseSetup;
@@ -37,6 +39,14 @@ public static class DependencyInjection
         services.AddSingleton<ISqlServerConnectionService, SqlServerConnectionService>();
         services.AddSingleton<IDatabaseSetupService, CompositeDatabaseSetupService>();
         services.AddTransient<IApplicationDbContextFactory, ApplicationDbContextFactory>();
+
+        // Autenticación y autorización
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddTransient<IUsuarioStore, UsuarioStore>();
+        services.AddTransient<IAuthService, AuthService>();
+        services.AddSingleton<IAuthContext, AuthContext>();
+        services.AddTransient<ISqlServerAdminAuthService, SqlServerAdminAuthService>();
+        services.AddTransient<ISeedDataService, SeedDataService>();
 
         return services;
     }

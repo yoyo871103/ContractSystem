@@ -27,6 +27,8 @@ internal sealed class ApplicationDbContextFactory : IApplicationDbContextFactory
             _ => throw new ArgumentOutOfRangeException(nameof(settings.Provider))
         };
 
-        return new ApplicationDbContext(optionsBuilder.Options);
+        var context = new ApplicationDbContext(optionsBuilder.Options);
+        context.Database.Migrate();
+        return context;
     }
 }

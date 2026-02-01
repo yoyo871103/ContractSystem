@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
 namespace InventorySystem.Infrastructure.Configuration;
@@ -73,6 +74,22 @@ internal sealed class FileConnectionConfigurationStore : IConnectionConfiguratio
         {
             if (File.Exists(_configFilePath))
                 File.Delete(_configFilePath);
+        }
+    }
+
+    public (string? Server, string? Database)? GetSqlServerConnectionInfo()
+    {
+        var settings = GetSettings();
+        if (settings?.Provider != DatabaseProvider.SqlServer || string.IsNullOrEmpty(settings.SqlServerConnectionString))
+            return null;
+        try
+        {
+            var builder = new SqlConnectionStringBuilder(settings.SqlServerConnectionString);
+            return (builder.DataSource, string.IsNullOrEmpty(builder.InitialCatalog) ? null : builder.InitialCatalog);
+        }
+        catch
+        {
+            return null;
         }
     }
 

@@ -272,6 +272,16 @@ namespace InventorySystem.Windows
 
             Close();
         }
+
+        private void BtnUser_Click(object sender, RoutedEventArgs e)
+        {
+            UserMenuPopup.IsOpen = true;
+        }
+
+        private void UserMenu_OnOptionClick(object sender, RoutedEventArgs e)
+        {
+            UserMenuPopup.IsOpen = false;
+        }
     }
 
     internal sealed class SavedWindowState

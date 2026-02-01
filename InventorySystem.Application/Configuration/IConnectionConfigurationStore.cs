@@ -25,4 +25,9 @@ public interface IConnectionConfigurationStore
     /// Borra la configuración (p. ej. para permitir reconfigurar).
     /// </summary>
     void Clear();
+
+    /// <summary>
+    /// Cuando el proveedor es SQL Server, devuelve (Servidor, Base de datos) para uso en modo administrador SQL.
+    /// </summary>
+    (string? Server, string? Database)? GetSqlServerConnectionInfo();
 }

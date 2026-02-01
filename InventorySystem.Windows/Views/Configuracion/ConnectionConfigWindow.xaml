@@ -1,12 +1,12 @@
-<Window x:Class="InventorySystem.Windows.ConnectionConfigWindow"
+<Window x:Class="InventorySystem.Windows.Views.Configuracion.ConnectionConfigWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Configuración de conexión"
-        Height="520" Width="460"
-        MinHeight="500" MinWidth="420"
+        Title="Configuración de conexión - SQL Server"
+        Height="480" Width="460"
+        MinHeight="440" MinWidth="420"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None" ResizeMode="CanResize"
         Background="{StaticResource BrushBackground}"
@@ -14,7 +14,7 @@
     <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="6">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="40"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -58,25 +58,9 @@
                 </Grid>
             </Border>
 
-            <!-- Contenido (sin scroll, diseño compacto) -->
-            <Grid Grid.Row="1" Margin="24,16,24,16">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <!-- Tipo de base de datos -->
-                <StackPanel Grid.Row="0" Margin="0,0,0,14">
-                    <TextBlock Text="Tipo de base de datos" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
-                    <ComboBox x:Name="CmbProvider" FontSize="13" Padding="8,6" Height="32"
-                              SelectionChanged="CmbProvider_SelectionChanged">
-                        <ComboBoxItem Content="SQL Server" Tag="SqlServer"/>
-                        <ComboBoxItem Content="SQLite" Tag="Sqlite"/>
-                    </ComboBox>
-                </StackPanel>
-
-                <!-- Panel SQL Server -->
-                <StackPanel x:Name="PanelSqlServer" Grid.Row="1" Visibility="Visible">
+            <!-- Cuerpo (con scroll) -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="24,16">
+                <StackPanel>
                     <TextBlock Text="Servidor" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
                     <TextBox x:Name="TxtServer" FontSize="13" Padding="8,6" Height="32" Margin="0,0,0,8"/>
                     <TextBlock Text="Usuario" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
@@ -105,29 +89,9 @@
                         <TextBox x:Name="TxtNuevaBaseNombre" FontSize="13" Padding="8,6" Height="32"/>
                     </StackPanel>
                 </StackPanel>
+            </ScrollViewer>
 
-                <!-- Panel SQLite -->
-                <StackPanel x:Name="PanelSqlite" Grid.Row="1" Visibility="Collapsed">
-                    <TextBlock Text="Ruta del archivo de base de datos" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
-                    <Grid Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox x:Name="TxtSqlitePath" Grid.Column="0" FontSize="13" Padding="8,6" Height="32"/>
-                        <Button x:Name="BtnExaminarSqlite" Grid.Column="1" Content="Examinar..." Padding="10,6" Height="32" Margin="8,0,0,0"
-                                Click="BtnExaminarSqlite_Click"/>
-                    </Grid>
-                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                        <RadioButton x:Name="RbSqliteExistente" Content="Usar base de datos existente" IsChecked="True"
-                                     GroupName="SqliteMode" Margin="0,0,20,0" Checked="RbSqliteMode_Changed"/>
-                        <RadioButton x:Name="RbSqliteNueva" Content="Crear nueva base de datos"
-                                     GroupName="SqliteMode" Checked="RbSqliteMode_Changed"/>
-                    </StackPanel>
-                </StackPanel>
-            </Grid>
-
-            <!-- Pie: botones (estilo diálogos del sistema) -->
+            <!-- Pie fijo: botones -->
             <Border Grid.Row="2" Background="White"
                     BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,1,0,0"
                     Padding="24,12" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">

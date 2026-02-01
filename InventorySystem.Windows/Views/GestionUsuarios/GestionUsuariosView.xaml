@@ -1,0 +1,80 @@
+<UserControl x:Class="InventorySystem.Windows.Views.GestionUsuarios.GestionUsuariosView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="24"
+                       Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBlock Text="Gestión de usuarios" FontSize="16" FontWeight="SemiBold"
+                       Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <TextBlock Grid.Row="1" Text="{Binding MensajeError}" Foreground="{StaticResource BrushError}"
+                   FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+        <!-- Búsqueda y acciones -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="200" Height="28"
+                     Padding="8,4" VerticalContentAlignment="Center" Margin="0,0,8,0"
+                     ToolTip="Buscar por usuario o nombre"/>
+            <Button Content="Buscar" Padding="12,6" Height="28" Margin="0,0,4,0"
+                    Command="{Binding CargarUsuariosCommand}"/>
+            <Button Content="Actualizar" Padding="12,6" Height="28" Margin="0,0,8,0"
+                    Command="{Binding CargarUsuariosCommand}"/>
+            <Button Content="Resetear contraseña" Padding="12,6" Height="28"
+                    Command="{Binding ResetearContraseñaCommand}"
+                    Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Vertical">
+            <DataGrid x:Name="GridUsuarios" ItemsSource="{Binding Usuarios}"
+                      SelectedItem="{Binding UsuarioSeleccionado, Mode=TwoWay}"
+                      AutoGenerateColumns="False" IsReadOnly="True"
+                      CanUserAddRows="False" CanUserDeleteRows="False"
+                      SelectionMode="Single" SelectionUnit="FullRow"
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                      BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                      MinHeight="200" Margin="0,0,0,8">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Usuario" Binding="{Binding NombreUsuario}" Width="120"/>
+                    <DataGridTextColumn Header="Nombre" Binding="{Binding NombreParaMostrar}" Width="*"/>
+                    <DataGridCheckBoxColumn Header="Activo" Binding="{Binding Activo}" Width="60"/>
+                    <DataGridCheckBoxColumn Header="Requiere cambio" Binding="{Binding RequiereCambioContraseña}" Width="100"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock Text="Seleccione un usuario y pulse 'Resetear contraseña' para establecer una contraseña temporal. El usuario deberá cambiarla en el próximo inicio de sesión."
+                       FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,8" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- Paginación -->
+        <Border Grid.Row="4" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <TextBlock VerticalAlignment="Center" Margin="0,0,12,0" FontSize="12" Foreground="{StaticResource BrushTextInactive}">
+                    <Run Text="Página "/>
+                    <Run Text="{Binding CurrentPage, Mode=OneWay}"/>
+                    <Run Text=" de "/>
+                    <Run Text="{Binding TotalPages, Mode=OneWay}"/>
+                    <Run Text=" ("/>
+                    <Run Text="{Binding TotalRows, Mode=OneWay}"/>
+                    <Run Text=" en total)"/>
+                </TextBlock>
+                <Button Content="|◀ Primera" Padding="8,4" Height="28" Margin="0,0,4,0"
+                        Command="{Binding PrimeraPaginaCommand}"/>
+                <Button Content="◀ Anterior" Padding="8,4" Height="28" Margin="0,0,4,0"
+                        Command="{Binding PaginaAnteriorCommand}"/>
+                <Button Content="Siguiente ▶" Padding="8,4" Height="28" Margin="0,0,4,0"
+                        Command="{Binding PaginaSiguienteCommand}"/>
+                <Button Content="Última ▶|" Padding="8,4" Height="28"
+                        Command="{Binding UltimaPaginaCommand}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

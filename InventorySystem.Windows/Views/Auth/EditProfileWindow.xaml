@@ -1,0 +1,130 @@
+<Window x:Class="InventorySystem.Windows.Views.Auth.EditProfileWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Editar perfil"
+        Height="520" Width="440"
+        MinHeight="460" MinWidth="380"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" ResizeMode="CanResize"
+        Background="{StaticResource BrushBackground}"
+        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+    <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="6">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <!-- Título (fijo) -->
+            <Border Grid.Row="0" Background="White"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1"
+                    Padding="12,10" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Editar perfil"
+                               FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource BrushTextActive}" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" x:Name="BtnCerrar" Width="28" Height="28" Padding="0" Background="Transparent" BorderThickness="0"
+                            Cursor="Hand" ToolTip="Cerrar (cancelar)" Click="BtnCerrar_Click">
+                        <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                   Foreground="{StaticResource BrushTextInactive}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+                </Grid>
+            </Border>
+            <!-- Cuerpo (con scroll) -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="20,16">
+                <StackPanel>
+                    <!-- Sección: Cuenta (solo lectura) -->
+                    <TextBlock Text="Cuenta" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextInactive}"
+                               Margin="0,0,0,6" />
+                    <Border Background="{StaticResource BrushSidebar}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                            Padding="12,10" Margin="0,0,0,16" CornerRadius="4">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Usuario" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                            <TextBlock x:Name="TxtNombreUsuario" Grid.Row="1" FontSize="14" Foreground="{StaticResource BrushTextActive}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Sección: Foto de perfil -->
+                    <TextBlock Text="Foto de perfil" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextInactive}"
+                               Margin="0,0,0,6"/>
+                    <Border Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                            Padding="12,10" Margin="0,0,0,16" CornerRadius="4">
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="BorderFoto" Width="64" Height="64" CornerRadius="32"
+                                    Background="{StaticResource BrushBorder}" Margin="0,0,12,0">
+                                <Grid>
+                                    <TextBlock x:Name="TxtIconoPerfil" Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="28"
+                                               Foreground="{StaticResource BrushTextInactive}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Image x:Name="ImgFoto" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                </Grid>
+                                <Border.Clip>
+                                    <EllipseGeometry RadiusX="32" RadiusY="32" Center="32,32"/>
+                                </Border.Clip>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <Button x:Name="BtnSeleccionarFoto" Content="Seleccionar imagen" Padding="10,6" Margin="0,0,0,6"
+                                        Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0"
+                                        Cursor="Hand" Click="BtnSeleccionarFoto_Click"/>
+                                <Button x:Name="BtnQuitarFoto" Content="Quitar foto" Padding="10,6"
+                                        Background="Transparent" Foreground="{StaticResource BrushTextActive}" BorderThickness="0"
+                                        Cursor="Hand" Click="BtnQuitarFoto_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Sección: Datos personales -->
+                    <TextBlock Text="Datos personales" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextInactive}"
+                               Margin="0,0,0,6"/>
+                    <Border Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                            Padding="12,10" Margin="0,0,0,16" CornerRadius="4">
+                        <StackPanel>
+                            <TextBlock Text="Nombre para mostrar" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                            <TextBox x:Name="TxtNombre" FontSize="14" Padding="10,8" Margin="0,0,0,12"
+                                     BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" Background="White"/>
+                            <TextBlock Text="Correo electrónico" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                            <TextBox x:Name="TxtEmail" FontSize="14" Padding="10,8"
+                                     BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" Background="White"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Sección: Seguridad -->
+                    <TextBlock Text="Seguridad" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextInactive}"
+                               Margin="0,0,0,6"/>
+                    <Border Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                            Padding="12,10" Margin="0,0,0,20" CornerRadius="4">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                                       Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="Cambie su contraseña de acceso." FontSize="12" Foreground="{StaticResource BrushTextInactive}"
+                                       VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <Button x:Name="BtnCambiarContraseña" Content="Cambiar contraseña" Padding="12,8"
+                                    Background="Transparent" Foreground="{StaticResource BrushAccent}"
+                                    BorderBrush="{StaticResource BrushAccent}" BorderThickness="1"
+                                    Cursor="Hand" Click="BtnCambiarContraseña_Click"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+            <!-- Pie fijo: botones de acción -->
+            <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,1,0,0"
+                    Padding="20,12">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="BtnCancelar" Content="Cancelar" Padding="16,8" Margin="0,0,8,0"
+                            Background="Transparent" Foreground="{StaticResource BrushTextInactive}"
+                            BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                            Cursor="Hand" Click="BtnCancelar_Click"/>
+                    <Button x:Name="BtnGuardar" Content="Guardar" Padding="16,8"
+                            Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0"
+                            Cursor="Hand" Click="BtnGuardar_Click" IsDefault="True"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
