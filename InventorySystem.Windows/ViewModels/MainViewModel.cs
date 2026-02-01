@@ -38,6 +38,12 @@ public sealed partial class MainViewModel : ObservableObject
     public bool IsSqlAdminOnly => _authContext.IsSqlAdminOnly;
 
     /// <summary>
+    /// True cuando el usuario puede acceder a Configuración (admin SQL, rol Administrador o permiso Gestionar Usuarios).
+    /// </summary>
+    public bool CanAccessConfiguracion => _authContext.IsSqlAdminOnly || _authContext.EsAdministrador
+        || _authContext.TienePermiso(Permissions.GestionarUsuarios);
+
+    /// <summary>
     /// True cuando el usuario puede editar su perfil (login normal, no admin SQL).
     /// </summary>
     public bool CanEditProfile => _authContext.IsAuthenticated;
@@ -62,14 +68,15 @@ public sealed partial class MainViewModel : ObservableObject
         if (CurrentViewModel is null)
         {
             if (_authContext.IsSqlAdminOnly)
-                NavigateToGestionUsuariosCommand.Execute(null);
+                NavigateToConfiguracionCommand.Execute(null);
             else
                 NavigateToInicioCommand.Execute(null);
         }
     }
 
     /// <summary>
-    /// Actualiza nombre, email y foto de perfil desde el contexto de autenticación (p. ej. tras editar perfil).
+    /// Actualiza nombre, email y foto de perfil desde el contexto de autenticación (p. ej. tras editar perfil o tras un nuevo login).
+    /// También notifica las propiedades calculadas (IsSqlAdminOnly, CanAccessConfiguracion, etc.) para que la UI se actualice.
     /// </summary>
     public void RefreshUserInfo()
     {
@@ -80,6 +87,11 @@ public sealed partial class MainViewModel : ObservableObject
             UserDisplayName = "Administrador SQL";
         UserEmail = _authContext.Email ?? "";
         UserPhotoBytes = _authContext.FotoPerfil;
+
+        OnPropertyChanged(nameof(IsSqlAdminOnly));
+        OnPropertyChanged(nameof(CanAccessConfiguracion));
+        OnPropertyChanged(nameof(CanEditProfile));
+        OnPropertyChanged(nameof(IsExtractVisible));
     }
 
     [RelayCommand]
@@ -124,10 +136,8 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void NavigateToConfiguracion()
-    {
-        // Placeholder para cuando exista ConfiguracionViewModel
-    }
+    private void NavigateToConfiguracion() =>
+        _navigation.NavigateTo(_services.GetRequiredService<ConfiguracionViewModel>());
 
     /// <summary>
     /// Indica si el botón "Extraer" debe mostrarse (cuando hay una vista de módulo, no Inicio, y no es modo admin SQL).

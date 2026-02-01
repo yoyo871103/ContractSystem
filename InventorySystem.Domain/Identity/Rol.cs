@@ -12,4 +12,9 @@ public sealed class Rol
     /// Relación muchos a muchos con Usuario (tabla UsuarioRoles).
     /// </summary>
     public ICollection<UsuarioRol> UsuarioRoles { get; set; } = new List<UsuarioRol>();
+
+    /// <summary>
+    /// Permisos asignados a este rol (tabla RolPermisos).
+    /// </summary>
+    public ICollection<RolPermiso> RolPermisos { get; set; } = new List<RolPermiso>();
 }

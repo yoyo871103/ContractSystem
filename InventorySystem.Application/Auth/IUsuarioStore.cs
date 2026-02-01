@@ -44,4 +44,24 @@ public interface IUsuarioStore
     /// Marca el usuario como eliminado (soft delete).
     /// </summary>
     Task SetDeletedAsync(int usuarioId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Quita la marca de eliminado del usuario (reactivación).
+    /// </summary>
+    Task SetUndeletedAsync(int usuarioId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Crea un usuario con contraseña y roles (gestión por administrador).
+    /// </summary>
+    Task<Usuario?> CreateAsync(CreateUsuarioRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Obtiene un usuario por id para edición (incluye roles). No filtra por Activo.
+    /// </summary>
+    Task<UsuarioEditDto?> GetByIdForEditAsync(int usuarioId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Actualiza nombre, email, activo y roles del usuario.
+    /// </summary>
+    Task UpdateUsuarioAsync(int usuarioId, string nombreParaMostrar, string? email, bool activo, IReadOnlyList<int> rolIds, CancellationToken cancellationToken = default);
 }

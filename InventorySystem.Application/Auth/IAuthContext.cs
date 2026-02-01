@@ -22,7 +22,13 @@ public interface IAuthContext
     string? Email { get; }
     byte[]? FotoPerfil { get; }
     IReadOnlyList<string> Roles { get; }
+    IReadOnlyList<string> Permisos { get; }
     bool EsAdministrador { get; }
+
+    /// <summary>
+    /// Indica si el usuario tiene el permiso indicado (o es Administrador, que tiene todos).
+    /// </summary>
+    bool TienePermiso(string nombrePermiso);
     bool RequiereCambioContraseña { get; }
 
     /// <summary>

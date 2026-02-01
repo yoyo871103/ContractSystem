@@ -50,6 +50,15 @@ public sealed class LogoutService : ILogoutService
             }
         }
 
+        // Refrescar el MainViewModel con el nuevo usuario (nombre, permisos, etc.) y navegar a la vista inicial correcta
+        if (main?.DataContext is ViewModels.MainViewModel mainVm)
+        {
+            mainVm.RefreshUserInfo();
+            mainVm.NavigateToInicioCommand.Execute(null);
+            if (authContext.IsSqlAdminOnly)
+                mainVm.NavigateToConfiguracionCommand.Execute(null);
+        }
+
         main?.Show();
     }
 }

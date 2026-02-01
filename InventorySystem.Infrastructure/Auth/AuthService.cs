@@ -34,6 +34,10 @@ internal sealed class AuthService : IAuthService
 
         var roles = usuario.UsuarioRoles.Select(ur => ur.Rol.Nombre).ToList();
         var esAdmin = roles.Contains("Administrador", StringComparer.OrdinalIgnoreCase);
+        var permisos = usuario.UsuarioRoles
+            .SelectMany(ur => ur.Rol.RolPermisos.Select(rp => rp.Permiso.Nombre))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
         var userInfo = new AuthUserInfo
         {
             UsuarioId = usuario.Id,
@@ -42,6 +46,7 @@ internal sealed class AuthService : IAuthService
             Email = usuario.Email,
             FotoPerfil = usuario.FotoPerfil,
             Roles = roles,
+            Permisos = permisos,
             RequiereCambioContraseña = usuario.RequiereCambioContraseña,
             EsAdministrador = esAdmin
         };

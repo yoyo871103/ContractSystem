@@ -34,6 +34,8 @@ public sealed record AuthUserInfo
     /// <summary>Foto de perfil en bytes (opcional).</summary>
     public byte[]? FotoPerfil { get; init; }
     public IReadOnlyList<string> Roles { get; init; } = Array.Empty<string>();
+    /// <summary>Nombres de permisos del usuario (obtenidos a través de sus roles).</summary>
+    public IReadOnlyList<string> Permisos { get; init; } = Array.Empty<string>();
     public bool RequiereCambioContraseña { get; init; }
     public bool EsAdministrador { get; init; }
 }

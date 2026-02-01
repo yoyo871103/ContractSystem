@@ -64,6 +64,24 @@ namespace InventorySystem.Infrastructure.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("InventorySystem.Domain.Identity.Permiso", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+                    b.ToTable("Permisos");
+                });
+
             modelBuilder.Entity("InventorySystem.Domain.Identity.Rol", b =>
                 {
                     b.Property<int>("Id")
@@ -79,6 +97,17 @@ namespace InventorySystem.Infrastructure.Migrations
                     b.ToTable("Roles");
                 });
 
+            modelBuilder.Entity("InventorySystem.Domain.Identity.RolPermiso", b =>
+                {
+                    b.Property<int>("RolId")
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("PermisoId")
+                        .HasColumnType("INTEGER");
+                    b.HasKey("RolId", "PermisoId");
+                    b.HasIndex("PermisoId");
+                    b.ToTable("RolPermisos");
+                });
+
             modelBuilder.Entity("InventorySystem.Domain.Identity.UsuarioRol", b =>
                 {
                     b.Property<int>("UsuarioId")
@@ -88,6 +117,20 @@ namespace InventorySystem.Infrastructure.Migrations
                     b.HasKey("UsuarioId", "RolId");
                     b.HasIndex("RolId");
                     b.ToTable("UsuarioRoles");
+                });
+
+            modelBuilder.Entity("InventorySystem.Domain.Identity.RolPermiso", b =>
+                {
+                    b.HasOne("InventorySystem.Domain.Identity.Permiso", "Permiso")
+                        .WithMany("RolPermisos")
+                        .HasForeignKey("PermisoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                    b.HasOne("InventorySystem.Domain.Identity.Rol", "Rol")
+                        .WithMany("RolPermisos")
+                        .HasForeignKey("RolId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("InventorySystem.Domain.Identity.UsuarioRol", b =>

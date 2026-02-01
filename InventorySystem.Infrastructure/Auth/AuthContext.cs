@@ -19,7 +19,11 @@ internal sealed class AuthContext : IAuthContext
     public string? Email => _user?.Email;
     public byte[]? FotoPerfil => _user?.FotoPerfil;
     public IReadOnlyList<string> Roles => _user?.Roles ?? Array.Empty<string>();
+    public IReadOnlyList<string> Permisos => _user?.Permisos ?? Array.Empty<string>();
     public bool EsAdministrador => _user?.EsAdministrador ?? false;
+
+    public bool TienePermiso(string nombrePermiso) =>
+        EsAdministrador || (Permisos?.Contains(nombrePermiso, StringComparer.OrdinalIgnoreCase) ?? false);
     public bool RequiereCambioContraseña => _user?.RequiereCambioContraseña ?? false;
 
     public void SetUser(AuthUserInfo user)

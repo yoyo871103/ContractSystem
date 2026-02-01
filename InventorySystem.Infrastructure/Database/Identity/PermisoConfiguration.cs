@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace InventorySystem.Infrastructure.Database.Identity;
 
-internal sealed class RolConfiguration : IEntityTypeConfiguration<Rol>
+internal sealed class PermisoConfiguration : IEntityTypeConfiguration<Permiso>
 {
-    public void Configure(EntityTypeBuilder<Rol> builder)
+    public void Configure(EntityTypeBuilder<Permiso> builder)
     {
-        builder.ToTable("Roles");
+        builder.ToTable("Permisos");
 
         builder.HasKey(e => e.Id);
 
@@ -18,14 +18,12 @@ internal sealed class RolConfiguration : IEntityTypeConfiguration<Rol>
         builder.HasIndex(e => e.Nombre)
             .IsUnique();
 
-        builder.HasMany(e => e.UsuarioRoles)
-            .WithOne(ur => ur.Rol)
-            .HasForeignKey(ur => ur.RolId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.Property(e => e.Descripcion)
+            .HasMaxLength(256);
 
         builder.HasMany(e => e.RolPermisos)
-            .WithOne(rp => rp.Rol)
-            .HasForeignKey(rp => rp.RolId)
+            .WithOne(rp => rp.Permiso)
+            .HasForeignKey(rp => rp.PermisoId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

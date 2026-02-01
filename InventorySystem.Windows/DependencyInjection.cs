@@ -21,6 +21,7 @@ public static class DependencyInjection
         services.AddTransient<InicioViewModel>();
         services.AddTransient<VentasViewModel>();
         services.AddTransient<GestionUsuariosViewModel>();
+        services.AddTransient<ConfiguracionViewModel>();
 
         return services;
     }

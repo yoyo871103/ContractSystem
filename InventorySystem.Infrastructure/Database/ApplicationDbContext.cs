@@ -22,6 +22,8 @@ public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Usuario> Usuarios => Set<Usuario>();
     public DbSet<Rol> Roles => Set<Rol>();
     public DbSet<UsuarioRol> UsuarioRoles => Set<UsuarioRol>();
+    public DbSet<Permiso> Permisos => Set<Permiso>();
+    public DbSet<RolPermiso> RolPermisos => Set<RolPermiso>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

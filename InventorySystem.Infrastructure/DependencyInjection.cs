@@ -43,6 +43,7 @@ public static class DependencyInjection
         // Autenticación y autorización
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddTransient<IUsuarioStore, UsuarioStore>();
+        services.AddTransient<IRolStore, RolStore>();
         services.AddTransient<IAuthService, AuthService>();
         services.AddSingleton<IAuthContext, AuthContext>();
         services.AddTransient<ISqlServerAdminAuthService, SqlServerAdminAuthService>();

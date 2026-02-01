@@ -7,4 +7,6 @@ namespace InventorySystem.Application.Auth;
 /// </summary>
 public sealed class UsuariosListQuery : FilterableQuery
 {
+    /// <summary>Si es true, el listado incluye también usuarios eliminados (soft delete).</summary>
+    public bool IncludeDeleted { get; set; }
 }

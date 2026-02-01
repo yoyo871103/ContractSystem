@@ -190,11 +190,14 @@
         <!-- Panel lateral de navegación -->
         <Border Grid.Column="0" Background="{StaticResource BrushSidebar}" 
                 BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,1,0">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <Grid Margin="0,16,0,8">
-                        <!-- Navegación normal (oculta cuando es solo admin SQL) -->
-                        <StackPanel x:Name="PanelNavNormal"
-                            Visibility="{Binding IsSqlAdminOnly, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,16,0,8"
+                                Visibility="{Binding IsSqlAdminOnly, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
                         <!-- 1. Inicio -->
                         <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Inicio"
                                 Command="{Binding NavigateToInicioCommand}">
@@ -279,35 +282,25 @@
                                            TextWrapping="Wrap" TextAlignment="Center"/>
                             </StackPanel>
                         </Button>
-                        <!-- 8. Configuración -->
-                        <Button Style="{StaticResource NavItemButtonStyle}" Margin="0,8,0,0" ToolTip="Configuración"
-                                Command="{Binding NavigateToConfiguracionCommand}">
-                            <StackPanel>
-                                <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" 
-                                           FontSize="20" Foreground="{StaticResource BrushTextInactive}"
-                                           HorizontalAlignment="Center"/>
-                                <TextBlock Text="Config." FontSize="10" Foreground="{StaticResource BrushTextInactive}"
-                                           HorizontalAlignment="Center" Margin="0,4,0,0"
-                                           TextWrapping="Wrap" TextAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+                <!-- 8. Configuración fijada abajo (visible para admin SQL y admin app) -->
+                <Border Grid.Row="1" Padding="0,8,0,16"
+                        Visibility="{Binding CanAccessConfiguracion, Converter={StaticResource BoolToVisibility}}"
+                        BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,1,0,0" Background="{StaticResource BrushSidebar}">
+                    <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Configuración"
+                            Command="{Binding NavigateToConfiguracionCommand}">
+                        <StackPanel>
+                            <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" 
+                                       FontSize="20" Foreground="{StaticResource BrushTextInactive}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Config." FontSize="10" Foreground="{StaticResource BrushTextInactive}"
+                                       HorizontalAlignment="Center" Margin="0,4,0,0"
+                                       TextWrapping="Wrap" TextAlignment="Center"/>
                         </StackPanel>
-                        <!-- Solo Gestión de usuarios (visible cuando es admin SQL) -->
-                        <StackPanel Visibility="{Binding IsSqlAdminOnly, Converter={StaticResource BoolToVisibility}}">
-                            <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Gestión de usuarios"
-                                    Command="{Binding NavigateToGestionUsuariosCommand}">
-                                <StackPanel>
-                                    <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" 
-                                               FontSize="20" Foreground="{StaticResource BrushAccent}"
-                                               HorizontalAlignment="Center"/>
-                                    <TextBlock Text="Gestión de usuarios" FontSize="10" Foreground="{StaticResource BrushTextActive}"
-                                               HorizontalAlignment="Center" Margin="0,4,0,0"
-                                               TextWrapping="Wrap" TextAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </Grid>
-            </ScrollViewer>
+                    </Button>
+                </Border>
+            </Grid>
         </Border>
 
         <!-- Área de trabajo: contenedor dinámico para vistas (Ventas, Compras, Inventario, etc.) -->

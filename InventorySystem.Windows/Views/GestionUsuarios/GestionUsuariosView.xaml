@@ -22,16 +22,37 @@
 
         <!-- Búsqueda y acciones -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,8">
-            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="200" Height="28"
-                     Padding="8,4" VerticalContentAlignment="Center" Margin="0,0,8,0"
-                     ToolTip="Buscar por usuario o nombre"/>
-            <Button Content="Buscar" Padding="12,6" Height="28" Margin="0,0,4,0"
+            <Border Width="200" Height="28" Margin="0,0,8,0"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" Background="White">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="32"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="&#xE721;" FontFamily="Segoe MDL2 Assets"
+                               FontSize="14" Foreground="{StaticResource BrushTextInactive}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="0,4,8,4" VerticalContentAlignment="Center" BorderThickness="0"
+                             Background="Transparent" ToolTip="Buscar por usuario o nombre (filtrado automático al dejar de escribir)"/>
+                </Grid>
+            </Border>
+            <CheckBox Content="Incluir usuarios eliminados" IsChecked="{Binding IncludeDeleted, Mode=TwoWay}"
+                      VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Mostrar también usuarios dados de baja"/>
+            <Button Content="Actualizar" Padding="12,6" Height="28" Margin="0,0,4,0"
                     Command="{Binding CargarUsuariosCommand}"/>
-            <Button Content="Actualizar" Padding="12,6" Height="28" Margin="0,0,8,0"
-                    Command="{Binding CargarUsuariosCommand}"/>
-            <Button Content="Resetear contraseña" Padding="12,6" Height="28"
-                    Command="{Binding ResetearContraseñaCommand}"
+            <Button Content="Nuevo usuario" Padding="12,6" Height="28" Margin="0,0,4,0"
+                    Command="{Binding NuevoUsuarioCommand}"
                     Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0"/>
+            <Button Content="Editar" Padding="12,6" Height="28" Margin="0,0,4,0"
+                    Command="{Binding EditarUsuarioCommand}"/>
+            <Button Content="Eliminar" Padding="12,6" Height="28" Margin="0,0,4,0"
+                    Command="{Binding EliminarUsuarioCommand}"/>
+            <Button Content="Reactivar" Padding="12,6" Height="28" Margin="0,0,4,0"
+                    Command="{Binding ReactivarUsuarioCommand}"
+                    ToolTip="Reactivar usuario seleccionado (solo para usuarios eliminados)"/>
+            <Button Content="Resetear contraseña" Padding="12,6" Height="28"
+                    Command="{Binding ResetearContraseñaCommand}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="3" Orientation="Vertical">
@@ -46,11 +67,13 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Usuario" Binding="{Binding NombreUsuario}" Width="120"/>
                     <DataGridTextColumn Header="Nombre" Binding="{Binding NombreParaMostrar}" Width="*"/>
+                    <DataGridTextColumn Header="Roles" Binding="{Binding RolesDisplay}" Width="140"/>
+                    <DataGridTextColumn Header="Estado" Binding="{Binding IsDeleted, Converter={StaticResource BoolToEstadoUsuario}}" Width="80"/>
                     <DataGridCheckBoxColumn Header="Activo" Binding="{Binding Activo}" Width="60"/>
                     <DataGridCheckBoxColumn Header="Requiere cambio" Binding="{Binding RequiereCambioContraseña}" Width="100"/>
                 </DataGrid.Columns>
             </DataGrid>
-            <TextBlock Text="Seleccione un usuario y pulse 'Resetear contraseña' para establecer una contraseña temporal. El usuario deberá cambiarla en el próximo inicio de sesión."
+            <TextBlock Text="Marque 'Incluir usuarios eliminados' para ver los dados de baja y use 'Reactivar' para restaurarlos. Nuevo usuario, Editar, Eliminar, Resetear contraseña."
                        FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,8" TextWrapping="Wrap"/>
         </StackPanel>
 

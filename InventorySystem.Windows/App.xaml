@@ -6,10 +6,12 @@
              xmlns:viewsInicio="clr-namespace:InventorySystem.Windows.Views.Inicio"
              xmlns:viewsVentas="clr-namespace:InventorySystem.Windows.Views.Ventas"
              xmlns:viewsGestionUsuarios="clr-namespace:InventorySystem.Windows.Views.GestionUsuarios"
+             xmlns:viewsConfiguracion="clr-namespace:InventorySystem.Windows.Views.Configuracion"
              xmlns:converters="clr-namespace:InventorySystem.Windows.Converters"
              Startup="Application_Startup">
     <Application.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+        <converters:BoolToEstadoUsuarioConverter x:Key="BoolToEstadoUsuario"/>
         <converters:ByteArrayToImageSourceConverter x:Key="ByteArrayToImageSource"/>
         <!-- Paleta de colores estilo Microsoft Store / App moderna -->
         <SolidColorBrush x:Key="BrushBackground" Color="#F0F2F5"/>
@@ -167,6 +169,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:GestionUsuariosViewModel}">
             <viewsGestionUsuarios:GestionUsuariosView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ConfiguracionViewModel}">
+            <viewsConfiguracion:ConfiguracionView/>
         </DataTemplate>
 
         <!-- Estilo para elementos del menú lateral -->
