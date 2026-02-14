@@ -19,6 +19,9 @@
             <TabItem Header="Gestión de usuarios">
                 <ContentControl Content="{Binding GestionUsuarios}"/>
             </TabItem>
+            <TabItem Header="Datos del Negocio">
+                <ContentControl Content="{Binding BusinessInfo}"/>
+            </TabItem>
         </TabControl>
     </Grid>
 </UserControl>

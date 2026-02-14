@@ -1,4 +1,6 @@
+using InventorySystem.Application.Business;
 using InventorySystem.Application.Auth;
+using InventorySystem.Infrastructure.Business;
 using InventorySystem.Application.Configuration;
 using InventorySystem.Infrastructure.Auth;
 using InventorySystem.Infrastructure.Configuration;
@@ -48,6 +50,7 @@ public static class DependencyInjection
         services.AddSingleton<IAuthContext, AuthContext>();
         services.AddTransient<ISqlServerAdminAuthService, SqlServerAdminAuthService>();
         services.AddTransient<ISeedDataService, SeedDataService>();
+        services.AddTransient<IBusinessInfoStore, BusinessInfoStore>();
 
         return services;
     }

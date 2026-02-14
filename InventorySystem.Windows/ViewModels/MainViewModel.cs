@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using InventorySystem.Application.Auth;
 using InventorySystem.Windows.Services;
-using InventorySystem.Windows.Views.Ventas;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InventorySystem.Windows.ViewModels;
@@ -19,7 +18,6 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly ILogoutService _logoutService;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsExtractVisible))]
     private object? _currentViewModel;
 
     [ObservableProperty]
@@ -91,7 +89,6 @@ public sealed partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsSqlAdminOnly));
         OnPropertyChanged(nameof(CanAccessConfiguracion));
         OnPropertyChanged(nameof(CanEditProfile));
-        OnPropertyChanged(nameof(IsExtractVisible));
     }
 
     [RelayCommand]
@@ -138,30 +135,6 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void NavigateToConfiguracion() =>
         _navigation.NavigateTo(_services.GetRequiredService<ConfiguracionViewModel>());
-
-    /// <summary>
-    /// Indica si el botón "Extraer" debe mostrarse (cuando hay una vista de módulo, no Inicio, y no es modo admin SQL).
-    /// </summary>
-    public bool IsExtractVisible => !IsSqlAdminOnly && CurrentViewModel is not null and not InicioViewModel;
-
-    [RelayCommand]
-    private void ExtraerVista()
-    {
-        if (CurrentViewModel is null or InicioViewModel)
-            return;
-
-        var (view, title) = CurrentViewModel switch
-        {
-            VentasViewModel => (new VentasView { DataContext = _services.GetRequiredService<VentasViewModel>() }, "Ventas"),
-            _ => (null, "")
-        };
-
-        if (view is not null && !string.IsNullOrEmpty(title))
-        {
-            _services.GetRequiredService<IViewDialogService>().ShowInDialog(view, title);
-            NavigateToInicio();
-        }
-    }
 
     [RelayCommand]
     private void EditProfile()

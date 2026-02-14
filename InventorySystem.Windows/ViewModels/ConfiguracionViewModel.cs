@@ -17,8 +17,14 @@ public sealed partial class ConfiguracionViewModel : ObservableObject
     /// </summary>
     public GestionUsuariosViewModel GestionUsuarios { get; }
 
+    /// <summary>
+    /// ViewModel del tab "Datos del Negocio".
+    /// </summary>
+    public BusinessInfoViewModel BusinessInfo { get; }
+
     public ConfiguracionViewModel(IServiceProvider services)
     {
         GestionUsuarios = services.GetRequiredService<GestionUsuariosViewModel>();
+        BusinessInfo = services.GetRequiredService<BusinessInfoViewModel>();
     }
 }

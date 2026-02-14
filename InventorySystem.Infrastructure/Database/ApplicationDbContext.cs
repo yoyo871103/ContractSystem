@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using InventorySystem.Domain;
 using InventorySystem.Domain.Identity;
+using InventorySystem.Domain.Business;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventorySystem.Infrastructure.Database;
@@ -24,6 +25,7 @@ public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<UsuarioRol> UsuarioRoles => Set<UsuarioRol>();
     public DbSet<Permiso> Permisos => Set<Permiso>();
     public DbSet<RolPermiso> RolPermisos => Set<RolPermiso>();
+    public DbSet<BusinessInfo> BusinessInfos => Set<BusinessInfo>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

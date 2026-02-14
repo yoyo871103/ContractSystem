@@ -307,22 +307,8 @@
         <Border Grid.Column="1" Margin="24" Background="White" Padding="24"
                 BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
                 CornerRadius="4">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <!-- Barra "Extraer": visible cuando hay una vista de módulo (no Inicio) -->
-                <Button x:Name="BtnExtraer" Grid.Row="0" Content="Extraer"
-                        Visibility="{Binding IsExtractVisible, Converter={StaticResource BoolToVisibility}}"
-                        HorizontalAlignment="Right" Margin="0,0,0,12" Padding="12,6"
-                        Background="{StaticResource BrushAccent}" Foreground="White"
-                        BorderThickness="0" Cursor="Hand"
-                        Command="{Binding ExtraerVistaCommand}"
-                        ToolTip="Abrir esta vista en una ventana independiente"/>
-                <ContentControl x:Name="ContentArea" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                               Content="{Binding CurrentViewModel}"/>
-            </Grid>
+            <ContentControl x:Name="ContentArea" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                           Content="{Binding CurrentViewModel}"/>
         </Border>
         </Grid>
     </Grid>

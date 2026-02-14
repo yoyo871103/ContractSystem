@@ -1,0 +1,33 @@
+---
+description: Estándares y arquitectura del proyecto InventorySystem
+globs: **/*.cs, **/*.xaml
+alwaysApply: true
+---
+
+# Arquitectura y Estándares del Proyecto InventorySystem
+
+Este proyecto sigue una arquitectura limpia (Clean Architecture) con las siguientes capas:
+
+1.  **InventorySystem.Domain**: Entidades del dominio y lógica de negocio pura. Sin dependencias externas.
+2.  **InventorySystem.Application**: Casos de uso, interfaces de servicios, y lógica de aplicación.
+    *   Patrón **CQRS** usando **MediatR** (Commands y Queries).
+    *   Validación con FluentValidation (si aplica).
+    *   Define interfaces de acceso a datos (Stores/Repositories) pero NO implementa el acceso directo.
+    *   **IMPORTANTE**: `IApplicationDbContext` NO debe exponer `DbSet<T>` directamente para entidades de negocio complejas. Usar interfaces `I[Entidad]Store` o `I[Entidad]Repository`.
+3.  **InventorySystem.Infrastructure**: Implementación de interfaces de Application, acceso a datos (EF Core), servicios externos.
+    *   Aquí reside `ApplicationDbContext` que SÍ tiene los `DbSet<T>`.
+4.  **InventorySystem.Windows**: Capa de presentación (WPF).
+    *   Patrón **MVVM** usando **CommunityToolkit.Mvvm**.
+    *   Views en `Views/`, ViewModels en `ViewModels/`.
+    *   Inyección de dependencias configurada en `App.xaml.cs` o `DependencyInjection.cs`.
+
+# Convenciones de Código
+
+*   **Idioma**: El código (clases, métodos) tiende a estar en inglés o spanglish, pero la documentación y comentarios en español. Preferir nombres en inglés para consistencia con .NET, o seguir el estilo existente (ej. `Usuario`, `Rol` en español).
+*   **Async**: Todo el I/O debe ser asíncrono (`async/await`).
+*   **Records**: Usar `record` para DTOs, Commands y Queries.
+
+# Patrones Específicos
+
+*   **Entidades**: Deben ser anémicas o ricas según necesidad, pero generalmente POCOs con propiedades públicas.
+*   **Stores**: Para acceder a datos, crear una interfaz en `Application` (ej. `IUsuarioStore`) e implementarla en `Infrastructure`.

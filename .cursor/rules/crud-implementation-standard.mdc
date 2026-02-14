@@ -1,0 +1,102 @@
+---
+description: Estándar para implementar un CRUD completo en InventorySystem
+globs: **/*.cs, **/*.xaml
+alwaysApply: true
+---
+
+# Estándar de implementación CRUD en InventorySystem
+
+Seguir este flujo **en orden** para cada nueva entidad/agregado que requiera CRUD. Saltar pasos o inyectar `ApplicationDbContext` directamente causa errores en tiempo de ejecución.
+
+---
+
+## 1. Domain
+
+- Crear la entidad en `InventorySystem.Domain/[CarpetaEntidad]/NombreEntidad.cs`.
+- POCO con propiedades; si aplica soft delete, implementar `ISoftDeletable` (propiedad `DeletedAt`).
+- No referencias a EF, Application ni Infrastructure.
+
+---
+
+## 2. Application – Interfaz del Store
+
+- Crear `I[NombreEntidad]Store` en `InventorySystem.Application/[CarpetaEntidad]/`.
+- Métodos async para: obtener por id, listar (si aplica), crear, actualizar, eliminar (o soft delete).
+- La interfaz recibe/retorna entidades del Domain o DTOs definidos en Application.
+
+---
+
+## 3. Infrastructure – DbContext y Store
+
+### 3.1 Registrar la entidad en el DbContext
+
+- En `ApplicationDbContext.cs`: añadir `DbSet<NombreEntidad> NombreEntidades => Set<NombreEntidad>();`.
+- Añadir `using` al namespace del Domain de la entidad.
+
+### 3.2 Crear migración (obligatorio)
+
+- **Sin migración la tabla no existe** y se produce "Invalid object name 'NombreTabla'".
+- Opción A: `dotnet ef migrations add AddNombreEntidad --project InventorySystem.Infrastructure --startup-project InventorySystem.Windows`.
+- Opción B: Si no hay `dotnet-ef`, crear manualmente en `Infrastructure/Migrations/`:
+  - `YYYYMMDDHHMMSS_AddNombreEntidad.cs` (Up: CreateTable, Down: DropTable).
+  - `YYYYMMDDHHMMSS_AddNombreEntidad.Designer.cs` (apuntando a la migración).
+  - Actualizar `ApplicationDbContextModelSnapshot.cs` incluyendo la nueva entidad y tabla.
+- El arranque ya llama a `context.Database.Migrate()` en la factory, así que al iniciar la app se aplican migraciones pendientes.
+
+### 3.3 Implementar el Store
+
+- Implementación en `InventorySystem.Infrastructure/[CarpetaEntidad]/NombreEntidadStore.cs`.
+- **No inyectar `ApplicationDbContext`**. Inyectar **`IApplicationDbContextFactory`**.
+- En cada método:
+  1. Crear contexto: `using var context = _contextFactory.CreateDbContext();`
+  2. Si necesitas `DbSet<T>` u otras APIs de EF: `if (context is not DatabaseApplicationDbContext db) return;` (o equivalente).
+  3. Usar `db.Set<NombreEntidad>()` o el `DbSet` correspondiente.
+  4. Al final: `await db.SaveChangesAsync(cancellationToken);`
+- Alias usado en el proyecto: `using DatabaseApplicationDbContext = InventorySystem.Infrastructure.Database.ApplicationDbContext;`
+
+### 3.4 Registrar el Store en DI
+
+- En `Infrastructure/DependencyInjection.cs`: `services.AddTransient<I[NombreEntidad]Store, [NombreEntidad]Store>();`
+- Mantener el `using` a `InventorySystem.Application.[CarpetaEntidad]` y a `InventorySystem.Infrastructure.[CarpetaEntidad]`.
+
+---
+
+## 4. Application – Commands y Queries (CQRS con MediatR)
+
+- **Commands** (escribir): Create, Update, Delete. En `Application/[CarpetaEntidad]/Commands/`.
+- **Queries** (leer): GetById, List (con filtros/paginación si aplica). En `Application/[CarpetaEntidad]/Queries/`.
+- Cada Command/Query: `record` que implementa `IRequest<TResponse>`.
+- Handler en el mismo archivo (o mismo namespace): inyectar `I[NombreEntidad]Store` y opcionalmente otros servicios; no inyectar `ApplicationDbContext` ni `IApplicationDbContextFactory` en handlers (eso solo en Stores).
+
+---
+
+## 5. Windows – Vista y ViewModel
+
+- **ViewModel**: en `ViewModels/`. Inyectar `ISender` (MediatR) para enviar Commands/Queries. Propiedades observables y `[RelayCommand]` para cargar, guardar, eliminar.
+- **View**: `UserControl` en `Views/[Carpeta]/`, enlazado al ViewModel.
+- Si el CRUD va en un tab de una pantalla existente (ej. Configuración): añadir el ViewModel como propiedad del ViewModel padre e inyectarlo vía `IServiceProvider`; en el XAML del padre, nuevo `TabItem` con `Content="{Binding MiViewModelHijo}"`.
+- **DataTemplate**: en `App.xaml`, registrar `DataTemplate DataType="{x:Type vm:MiViewModel}"` que muestre la View correspondiente (para que `ContentControl` resuelva ViewModel → View).
+- **DI**: en `Windows/DependencyInjection.cs`, registrar el nuevo ViewModel: `services.AddTransient<MiViewModel>();`.
+
+---
+
+## 6. Checklist antes de dar por cerrado un CRUD
+
+- [ ] Entidad en Domain.
+- [ ] `I[NombreEntidad]Store` en Application e implementación en Infrastructure.
+- [ ] **Store recibe `IApplicationDbContextFactory`** y usa `CreateDbContext()` dentro de cada método (nunca `ApplicationDbContext` en el constructor).
+- [ ] `DbSet<NombreEntidad>` en `ApplicationDbContext`.
+- [ ] **Migración creada y aplicada** (tabla existe en la BD).
+- [ ] Commands/Queries y Handlers en Application; Handlers usan el Store.
+- [ ] ViewModel y View en Windows; DataTemplate y registro de ViewModel en DI.
+- [ ] Si es pestaña o pantalla secundaria: integrado en el ViewModel padre y en el XAML (TabItem o navegación).
+
+---
+
+## Errores frecuentes a evitar
+
+| Error | Causa | Solución |
+|-------|--------|----------|
+| "Unable to resolve service for type 'ApplicationDbContext'" | Inyección directa del DbContext | Store debe usar `IApplicationDbContextFactory` y crear el contexto dentro de cada método. |
+| "Invalid object name 'NombreTabla'" | Tabla no existe en la BD | Añadir migración que cree la tabla y actualizar el snapshot; reiniciar la app para que se ejecute `Migrate()`. |
+| Interfaz del Store no encontrada en Infrastructure | Falta `using` a Application | En `DependencyInjection.cs` incluir `using InventorySystem.Application.[Carpeta];`. |

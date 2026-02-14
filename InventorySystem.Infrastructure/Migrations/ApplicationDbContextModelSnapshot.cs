@@ -17,6 +17,45 @@ namespace InventorySystem.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
 
+            modelBuilder.Entity("InventorySystem.Domain.Business.BusinessInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<byte[]>("Logo")
+                        .HasColumnType("BLOB");
+                    b.Property<string>("Nit")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Direccion")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Telefono")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Eslogan")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("NombreDueno")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.ToTable("BusinessInfos");
+                });
+
             modelBuilder.Entity("InventorySystem.Domain.Identity.Usuario", b =>
                 {
                     b.Property<int>("Id")

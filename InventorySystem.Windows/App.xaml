@@ -173,6 +173,9 @@
         <DataTemplate DataType="{x:Type vm:ConfiguracionViewModel}">
             <viewsConfiguracion:ConfiguracionView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:BusinessInfoViewModel}">
+            <viewsConfiguracion:BusinessInfoView/>
+        </DataTemplate>
 
         <!-- Estilo para elementos del menú lateral -->
         <Style x:Key="NavItemButtonStyle" TargetType="Button">
