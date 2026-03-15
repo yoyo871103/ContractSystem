@@ -1,0 +1,474 @@
+APLICACIÓN PARA GESTIÓN DE CONTRATOS Y SUPLEMENTOS
+Documento de Especificación Funcional - Versión Completa
+1. VISIÓN GENERAL DE LA APLICACIÓN
+Sistema integral para la gestión del ciclo de vida completo de contratos, permitiendo manejar documentos desde dos perspectivas (como proveedor o como cliente), con capacidades avanzadas de jerarquización, trazabilidad de modificaciones, y flexibilidad para adaptarse a diferentes tipos de contratos y necesidades de negocio.
+
+2. ESTRUCTURA JERÁRQUICA DE DOCUMENTOS
+2.1 Tipos de Documentos
+Tipo	Descripción	Características
+CONTRATO MARCO	Acuerdo general que establece las condiciones base	Puede tener Contratos Específicos hijos
+CONTRATO ESPECÍFICO	Contrato derivado de un Marco o independiente	Si tiene Marco, hereda condiciones generales
+CONTRATO INDEPENDIENTE	Contrato sin Marco padre	Raíz de su propio árbol
+SUPLEMENTO	Documento que modifica a otro(s) documento(s)	Puede modificar Múltiples documentos (M:N)
+2.2 Reglas de Jerarquía
+Contrato Marco → Puede tener:
+
+Contratos Específicos (hijos directos)
+
+Suplementos (solo para modificaciones de generales, no de servicios/productos)
+
+Contrato Específico → Puede tener:
+
+Suplementos (todo tipo de modificaciones)
+
+Contrato Independiente → Puede tener:
+
+Suplementos (todo tipo de modificaciones)
+
+Suplemento → Puede:
+
+Modificar a múltiples documentos (contratos y/o otros suplementos)
+
+Ser modificado por otros suplementos
+
+2.3 Relaciones de Modificación (M:N)
+Un suplemento puede modificar a uno o varios documentos
+
+Cada relación "modifica a" incluye:
+
+Documento destino (contrato/suplemento modificado)
+
+Descripción textual de la modificación (qué cambia específicamente)
+
+Fecha de registro de la relación
+
+Validación crítica: Para establecer que A modifica a B:
+
+B debe tener fecha de firma definida
+
+La fecha de firma de A debe ser igual o posterior a la fecha de firma de B
+
+Esto previene relaciones circulares y viajes en el tiempo
+
+2.4 Trazabilidad Bidireccional
+Cada documento debe poder consultar:
+
+"Modifica a" : Lista de documentos a los que este documento modifica (con sus descripciones)
+
+"Modificado por" : Lista de documentos que modifican a este documento (con sus descripciones)
+
+3. CICLO DE VIDA Y ESTADOS
+3.1 Estados Posibles
+Estado	Descripción
+BORRADOR	En creación, aún no válido legalmente
+VIGENTE	En pleno efecto legal
+VENCIDO	Ha superado su fecha de vigencia
+RESCINDIDO	Terminado anticipadamente
+EJECUTADO	Todas las obligaciones cumplidas
+3.2 Reglas de Estados
+Independencia: El estado de un documento es independiente del estado de sus hijos
+
+Ej: Un Contrato Marco puede estar VIGENTE aunque tenga un Específico RESCINDIDO
+
+Rescisión en Cascada (Obligatoria) :
+
+Si se rescinde un Contrato Marco → Todos sus Contratos Específicos se rescinden automáticamente
+
+Si se rescinde un Contrato Específico → Todos sus Suplementos se rescinden automáticamente
+
+Si se rescinde un Contrato Independiente → Todos sus Suplementos se rescinden automáticamente
+
+Revertibilidad: Los estados pueden revertirse (ej: de RESCINDIDO a VIGENTE), pero siempre con trazabilidad:
+
+Se registra el cambio en el historial
+
+No se elimina el registro del estado anterior
+
+Ejecución (Opcional) :
+
+Marcar un documento como "Ejecutado" indica que todas las obligaciones han terminado
+
+Al marcar un contrato como ejecutado, el sistema propone marcar también sus suplementos asociados
+
+El usuario decide qué suplementos marcar (puede seleccionar todos, algunos o ninguno)
+
+4. ALERTAS Y NOTIFICACIONES
+4.1 Configuración
+Días de antelación para alertas de vencimiento: Configurable globalmente
+
+Ej: 30 días antes de la fecha de vigencia
+
+Un solo tipo de alerta (no configuración por tipo de contrato)
+
+4.2 Visualización
+Los contratos próximos a vencer deben destacarse en el listado/árbol
+
+Indicador visual claro del estado de alerta
+
+5. GESTIÓN DE DOCUMENTOS ADJUNTOS
+5.1 Tipos de Archivos Permitidos
+Permitidos	Prohibidos
+PDF	Ejecutables (.exe, .bat, .sh, etc.)
+Imágenes (.jpg, .png, .gif)	
+Word (.doc, .docx)	
+Excel (.xls, .xlsx)	
+Texto (.txt)	
+5.2 Características
+Sin límite de tamaño (libertad total para archivos grandes)
+
+Sin vista previa: Solo se muestra el nombre del archivo y opción de descarga
+
+Cada archivo adjunto debe tener un campo "objetivo" (texto que explica el propósito del documento)
+
+Múltiples archivos por contrato/suplemento
+
+6. DATOS DEL DOCUMENTO (CONTRATO/SUPLEMENTO)
+6.1 Campos Comunes para Todos los Documentos
+text
+DATOS BÁSICOS
+- Número: Generado automáticamente (formato configurable) pero EDITABLE por el usuario
+- Objeto: Texto libre (con valores predefinidos sugeridos pero no obligatorios)
+- Rol: [PROVEEDOR/CLIENTE]
+- Estado: [BORRADOR/VIGENTE/VENCIDO/RESCINDIDO/EJECUTADO]
+- Ejecutado: [Checkbox + fecha opcional]
+
+FECHAS (todas definidas por el usuario)
+- Fecha de firma
+- Fecha de entrada en vigor
+- Fecha de vigencia (hasta)
+- Duración: Texto libre (ej: "12 meses", "Indefinido")
+
+PARTES INVOLUCRADAS
+- Mi Empresa: Selección de un catálogo interno (permite múltiples sedes/filiales)
+- Contraparte: Selección del catálogo de Clientes/Proveedores
+
+VALORES ECONÓMICOS (OPCIONALES)
+- Valor total del contrato
+- Condiciones de entrega (texto libre)
+- Costos asociados (texto libre)
+6.2 Campos Específicos para Suplementos
+text
+- Es modificación de generales: [SÍ/NO] (para suplementos de Contrato Marco)
+- Relaciones "modifica a": Lista de documentos con descripción textual por cada relación
+7. ANEXOS (DETALLES INTERNOS)
+7.1 Definición
+Los anexos NO son documentos independientes, sino secciones estructuradas internas de un contrato o suplemento que permiten organizar la información.
+
+7.2 Características
+Pertenecen a un único documento padre (contrato o suplemento)
+
+Permiten agrupar condiciones y costos por temática
+
+Cada anexo tiene:
+
+Nombre (ej: "Anexo Técnico", "Anexo Económico")
+
+Condiciones de entrega (texto libre)
+
+Costos asociados (texto libre)
+
+Puede tener sus propias líneas de detalle (opcional)
+
+7.3 Ejemplo
+text
+CONTRATO: Servicios de Desarrollo
+  ├── ANEXO: Especificaciones Técnicas
+  │     ├─ Condiciones: Entregas quincenales
+  │     └─ Costos: Incluidos en precio base
+  ├── ANEXO: Forma de Pago
+  │     ├─ Condiciones: Facturación mensual
+  │     └─ Costos: Ver líneas de detalle
+  └── (Líneas de detalle generales del contrato)
+8. LÍNEAS DE DETALLE (PRODUCTOS/SERVICIOS)
+8.1 Definición
+Las líneas de detalle representan los productos o servicios incluidos en un contrato, suplemento o anexo. Son OPCIONALES - el usuario puede no definirlas y consultar directamente el PDF adjunto.
+
+8.2 Estructura de una Línea
+Campo	Descripción	Obligatoriedad
+Tipo	[PRODUCTO/SERVICIO]	Sí
+Concepto	Nombre del producto/servicio	Sí
+Descripción	Texto adicional	No
+Cantidad	Numérico	Sí
+Unidad de Medida	Ver sección 8.4	Sí
+Precio Unitario	Numérico	Sí
+Importe Total	Calculado o manual	Sí
+8.3 Origen del Concepto
+Desde catálogo: Selección de producto/servicio existente (se copian los datos actuales)
+
+Inline: Escritura directa de concepto no catalogado
+
+Importante: Cuando se selecciona desde catálogo, se hace un SNAPSHOT (copia) de los datos en ese momento. Modificaciones posteriores al catálogo NO afectan a líneas ya creadas.
+
+8.4 Unidades de Medida
+Catálogo de unidades: Configurable por el usuario
+
+Ej: Unidad (ud), Hora (h), Metro (m), Caja (caja), Litro (l)
+
+Permite inline: El usuario puede escribir una unidad no catalogada si lo necesita
+
+Al seleccionar del catálogo, se guarda el ID y el texto; si es inline, solo texto
+
+8.5 Comportamiento al Crear Suplementos
+Al crear un suplemento que "modifica a" un contrato, el sistema debe preguntar:
+"¿Desea copiar las líneas del contrato original como base?"
+
+Opción SÍ: Copia todas las líneas del contrato al suplemento para que el usuario las modifique
+
+Opción NO: El suplemento comienza sin líneas
+
+9. CATÁLOGOS DEL SISTEMA
+9.1 Catálogo de Mi Empresa
+Permite configurar los datos de la propia organización, especialmente útil si hay múltiples sedes/filiales:
+
+text
+- Nombre / Razón Social
+- NIF/CIF
+- Dirección
+- Datos de contacto (teléfono, email)
+- Logotipo (para futura generación de documentos)
+9.2 Catálogo de Clientes/Proveedores (Terceros)
+text
+- Nombre / Razón Social
+- NIF/CIF
+- Dirección (puede ser diferente a la fiscal)
+- Contactos asociados (nombre, cargo, email, teléfono)
+- Tipo: [CLIENTE / PROVEEDOR / AMBOS]
+9.3 Catálogo de Productos/Servicios
+text
+- Código (opcional)
+- Nombre
+- Descripción
+- Tipo: [PRODUCTO/SERVICIO]
+- Unidad de medida recomendada (del catálogo de unidades)
+- Precio estimado (opcional, solo orientativo)
+- Estado: [ACTIVO/INACTIVO]
+9.4 Catálogo de Unidades de Medida
+text
+- Nombre (ej: "Hora")
+- Abreviatura (ej: "h")
+- Activa [SÍ/NO]
+9.5 Plantillas de Documentos Base
+Repositorio de archivos Word/PDF con cláusulas ya revisadas por el equipo legal:
+
+text
+- Nombre de la plantilla
+- Tipo de documento (MARCO/ESPECÍFICO/SUPLEMENTO)
+- Rol (PROVEEDOR/CLIENTE)
+- Archivo (Word o PDF)
+- Fecha de creación/versión
+- Revisado por legal [SÍ/NO]
+Uso: El usuario descarga la plantilla, la edita manualmente, y sube el resultado como adjunto del nuevo contrato. Sin metadatos semilla (solo archivo).
+
+10. NUMERACIÓN DE DOCUMENTOS
+10.1 Configuración
+El formato de numeración debe ser configurable por el administrador, permitiendo combinar:
+
+Prefijos/Sufijos fijos: "CON-", "-2024"
+
+Variables automáticas:
+
+{YYYY}: Año actual
+
+{MM}: Mes actual
+
+{CODIGO_CLIENTE}: Código del cliente/proveedor
+
+{TIPO}: Tipo de documento (MARCO/ESPECIFICO/SUPLEMENTO)
+
+{CONTADOR}: Número secuencial (configurable por año o global)
+
+10.2 Edición Manual
+El usuario puede modificar el número generado
+
+Validación: No permitir números duplicados
+
+11. HISTORIAL Y TRAZABILIDAD
+11.1 Tipos de Cambios Registrados
+Tipo	Qué se registra
+ESTADO	Estado anterior → Estado nuevo
+RELACIÓN	Adición/eliminación de vínculos "modifica a"
+METADATO	Cambios en valores principales (fechas, valor total, etc.)
+LÍNEAS	"Líneas actualizadas" (sin detalle de cada cambio, solo notificación)
+11.2 Estructura del Registro
+text
+- Fecha y hora del cambio
+- Usuario que realizó el cambio
+- Tipo de cambio
+- Descripción legible (ej: "Estado cambió de VIGENTE a RESCINDIDO")
+- Valor anterior (formato JSON para posibles consultas)
+- Valor nuevo (formato JSON)
+11.3 Consulta
+El historial debe ser accesible desde la ficha de cada documento, con opción de filtrar por tipo de cambio.
+
+12. VISTA DE REPORTE CONSOLIDADO (ÁRBOL)
+12.1 Visualización
+Representación jerárquica de contratos y sus relaciones, con estructura expandible/colapsable:
+
+text
+📁 MAR-2024-001 (MARCO) - Servicios TI [VIGENTE]
+  ├─ Objetivo: Prestación servicios desarrollo
+  ├─ 📄 ESP-2024-001 - Desarrollo App Móvil [VIGENTE]
+  │    ├─ Objetivo: Desarrollo aplicación iOS
+  │    ├─ 📄 SUP-2024-001 - Ampliación Plazo [VIGENTE]
+  │    │    └─ ✏️ Modifica: ESP-2024-001 (Aumenta plazo 15 días)
+  │    └─ 📄 SUP-2024-003 - Nuevo Módulo [VIGENTE]
+  │         └─ ✏️ Modifica: ESP-2024-001 (Añade módulo pagos)
+  └─ 📄 ESP-2024-002 - Soporte Anual [RESCINDIDO]
+       └─ Objetivo: Contrato soporte técnico
+12.2 Características
+Orden: Por fecha de firma (más antiguo a más reciente dentro de cada nivel)
+
+Colapsable/Expandible: El usuario puede abrir/cerrar ramas
+
+Filtros:
+
+Por estado (ej: mostrar solo VIGENTES)
+
+Por tipo de documento
+
+Por rol (PROVEEDOR/CLIENTE)
+
+Información mostrada:
+
+Número del documento
+
+Tipo (icono diferenciado)
+
+Objeto (primeros caracteres)
+
+Estado (con color)
+
+Para suplementos: indicar a quién modifica y descripción breve
+
+13. BÚSQUEDA AVANZADA
+13.1 Criterios de Búsqueda
+Por parte involucrada: Cliente o proveedor
+
+Por producto/servicio: Texto en líneas de detalle
+
+Por fechas: Rango de fechas de firma, vigencia, etc.
+
+Por tipo de documento: MARCO/ESPECÍFICO/INDEPENDIENTE/SUPLEMENTO
+
+Por estado
+
+Por texto en objeto (campo de texto)
+
+13.2 Resultados
+Los resultados deben presentarse en la misma vista de árbol, con los documentos encontrados y su contexto jerárquico.
+
+14. PERMISOS Y USUARIOS (POR DEFINIR)
+Pendiente de definir si es necesario:
+
+¿Múltiples usuarios?
+
+¿Roles (admin, gestor, consultor)?
+
+¿Permisos por tipo de documento o por cliente?
+
+15. RESUMEN DE REGLAS DE NEGOCIO CRÍTICAS
+ID	Regla	Aplicación
+R01	Al rescindir un MARCO, se rescinden todos sus ESPECÍFICOS	Automático
+R02	Al rescindir un ESPECÍFICO/INDEPENDIENTE, se rescinden todos sus SUPLEMENTOS	Automático
+R03	Para crear relación "modifica a", fecha_firma(A) ≥ fecha_firma(B)	Validación
+R04	No permitir relaciones circulares (A→B, B→A)	Validación
+R05	Al seleccionar producto de catálogo, copiar snapshot, no referenciar	Implementación
+R06	Números de documento únicos	Validación
+R07	Los estados pueden revertirse, pero con registro histórico	Implementación
+R08	Al marcar contrato como EJECUTADO, sugerir marcar suplementos	UX
+R09	Suplementos de MARCO solo para modificaciones generales	Restricción por tipo
+16. GLOSARIO DE TÉRMINOS
+Término	Definición
+Contrato Marco	Acuerdo general que establece condiciones para contratos futuros
+Contrato Específico	Contrato derivado que concreta un Marco
+Contrato Independiente	Contrato sin relación con ningún Marco
+Suplemento	Documento que modifica a otro(s)
+Anexo	Sección interna de un documento que agrupa detalles
+Línea de Detalle	Registro de producto/servicio con cantidad y precio
+Objeto	Texto que explica el propósito del documento
+Inline	Creación de datos no catalogados (unidad, producto) en el momento
+Snapshot	Copia de datos en un momento dado (no referencia viva)
+17. FLUJOS PRINCIPALES DE USUARIO
+17.1 Crear Nuevo Contrato
+Usuario selecciona "Nuevo Contrato"
+
+Define: Tipo (MARCO/ESPECÍFICO/INDEPENDIENTE) y Rol (PROVEEDOR/CLIENTE)
+
+Si es ESPECÍFICO: selecciona MARCO padre
+
+Completa datos generales (número editable, objeto, fechas, partes)
+
+Agrega anexos (opcional)
+
+Agrega líneas de detalle (opcional, desde catálogo o inline)
+
+Adjunta documentos (PDF firmado, etc.)
+
+Guarda (estado BORRADOR)
+
+17.2 Crear Suplemento
+Desde un contrato, selecciona "Nuevo Suplemento"
+
+Define si modifica generales (solo si el padre es MARCO)
+
+Selecciona documentos a modificar (con descripción por cada uno)
+
+Sistema valida fechas
+
+Pregunta si copiar líneas del contrato original
+
+Completa resto de datos
+
+Guarda
+
+17.3 Modificar Estado (Rescindir/Ejecutar)
+Usuario cambia estado en ficha del documento
+
+Si es RESCINDIR:
+
+Sistema aplica cascada automática a hijos
+
+Registra en historial
+
+Si es EJECUTAR:
+
+Sistema muestra lista de suplementos asociados
+
+Usuario selecciona cuáles marcar también como ejecutados
+
+Registra en historial
+
+18. CONSIDERACIONES TÉCNICAS (PARA EL EQUIPO DE DESARROLLO)
+18.1 Base de Datos
+Modelar relaciones M:N para "modifica a" con atributos (descripción, fecha)
+
+Tablas de catálogos con banderas activo/inactivo
+
+Campos JSON para historial (valores anterior/nuevo)
+
+Índices en: número, fechas, estados, IDs de partes
+
+18.2 Validaciones Clave
+Fechas en relaciones de modificación
+
+Unicidad de números
+
+Integridad referencial en cascada de estados
+
+Prevención de ciclos en M:N
+
+18.3 UX/UI
+Vista de árbol con carga perezosa (lazy loading) para grandes volúmenes
+
+Confirmaciones en acciones destructivas (rescisión)
+
+Feedback claro en validaciones fallidas
+
+Sistema de sugerencias en campo "objeto"
+
+18.4 Seguridad
+Escaneo de archivos subidos (evitar ejecutables)
+
+Control de acceso según roles (cuando se definan)
+
+Logs de cambios (historial) no modificables
