@@ -1,0 +1,73 @@
+<UserControl x:Class="ContractSystem.Windows.Views.Configuracion.UnidadMedidaView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="16">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Lista -->
+        <StackPanel Grid.Column="0" Margin="0,0,24,0">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <Button Content="Actualizar" Padding="12,6" Command="{Binding CargarCommand}"/>
+                <Button Content="Nuevo" Padding="12,6" Margin="8,0,0,0"
+                        Command="{Binding NuevoCommand}"
+                        Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0"/>
+                <Button Content="Editar" Padding="12,6" Margin="8,0,0,0"
+                        Command="{Binding EditarSeleccionadoCommand}"
+                        ToolTip="Cargar el registro seleccionado en el formulario para editar"/>
+                <Button Content="Eliminar" Padding="12,6" Margin="8,0,0,0"
+                        Command="{Binding EliminarCommand}"/>
+                <Button Content="Reactivar" Padding="12,6" Margin="8,0,0,0"
+                        Command="{Binding ReactivarCommand}"
+                        ToolTip="Reactivar la unidad de medida seleccionada (solo para eliminadas)"/>
+                <CheckBox Content="Incluir eliminados" IsChecked="{Binding IncludeDeleted, Mode=TwoWay}"
+                          VerticalAlignment="Center" Margin="16,0,0,0"
+                          ToolTip="Mostrar también las unidades de medida dadas de baja"/>
+            </StackPanel>
+
+            <TextBlock Text="{Binding MensajeError}" Foreground="{StaticResource BrushError}"
+                       FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+            <DataGrid ItemsSource="{Binding Unidades}"
+                      SelectedItem="{Binding Seleccionado, Mode=TwoWay}"
+                      AutoGenerateColumns="False" IsReadOnly="True"
+                      CanUserAddRows="False" CanUserDeleteRows="False"
+                      SelectionMode="Single" SelectionUnit="FullRow"
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                      BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                      MinHeight="200">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Nombre corto" Binding="{Binding NombreCorto}" Width="120"/>
+                    <DataGridTextColumn Header="Descripción" Binding="{Binding Descripcion}" Width="*"/>
+                    <DataGridTextColumn Header="Estado" Binding="{Binding IsDeleted, Converter={StaticResource BoolToEstadoUsuario}}" Width="90"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+
+        <!-- Formulario -->
+        <Border Grid.Column="1" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                Padding="16" CornerRadius="4" Background="White">
+            <StackPanel>
+                <TextBlock Text="Nombre corto" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <TextBox Text="{Binding NombreCorto, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16" Padding="4"/>
+
+                <TextBlock Text="Descripción" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <TextBox Text="{Binding Descripcion, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,24"
+                         TextWrapping="Wrap" AcceptsReturn="True" Height="80" VerticalScrollBarVisibility="Auto"/>
+
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Guardar" Command="{Binding GuardarCommand}"
+                            Padding="16,8" Background="{StaticResource BrushAccent}" Foreground="White"
+                            FontWeight="SemiBold" BorderThickness="0"/>
+                    <Button Content="Eliminar" Command="{Binding EliminarCommand}"
+                            Padding="16,8" Margin="8,0,0,0"/>
+                    <Button Content="Reactivar" Command="{Binding ReactivarCommand}"
+                            Padding="16,8" Margin="8,0,0,0"
+                            ToolTip="Reactivar (solo para registros eliminados)"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

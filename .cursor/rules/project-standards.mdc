@@ -1,22 +1,22 @@
 ---
-description: Estándares y arquitectura del proyecto InventorySystem
+description: Estándares y arquitectura del proyecto ContractSystem
 globs: **/*.cs, **/*.xaml
 alwaysApply: true
 ---
 
-# Arquitectura y Estándares del Proyecto InventorySystem
+# Arquitectura y Estándares del Proyecto ContractSystem
 
 Este proyecto sigue una arquitectura limpia (Clean Architecture) con las siguientes capas:
 
-1.  **InventorySystem.Domain**: Entidades del dominio y lógica de negocio pura. Sin dependencias externas.
-2.  **InventorySystem.Application**: Casos de uso, interfaces de servicios, y lógica de aplicación.
+1.  **ContractSystem.Domain**: Entidades del dominio y lógica de negocio pura. Sin dependencias externas.
+2.  **ContractSystem.Application**: Casos de uso, interfaces de servicios, y lógica de aplicación.
     *   Patrón **CQRS** usando **MediatR** (Commands y Queries).
     *   Validación con FluentValidation (si aplica).
     *   Define interfaces de acceso a datos (Stores/Repositories) pero NO implementa el acceso directo.
     *   **IMPORTANTE**: `IApplicationDbContext` NO debe exponer `DbSet<T>` directamente para entidades de negocio complejas. Usar interfaces `I[Entidad]Store` o `I[Entidad]Repository`.
-3.  **InventorySystem.Infrastructure**: Implementación de interfaces de Application, acceso a datos (EF Core), servicios externos.
+3.  **ContractSystem.Infrastructure**: Implementación de interfaces de Application, acceso a datos (EF Core), servicios externos.
     *   Aquí reside `ApplicationDbContext` que SÍ tiene los `DbSet<T>`.
-4.  **InventorySystem.Windows**: Capa de presentación (WPF).
+4.  **ContractSystem.Windows**: Capa de presentación (WPF).
     *   Patrón **MVVM** usando **CommunityToolkit.Mvvm**.
     *   Views en `Views/`, ViewModels en `ViewModels/`.
     *   Inyección de dependencias configurada en `App.xaml.cs` o `DependencyInjection.cs`.

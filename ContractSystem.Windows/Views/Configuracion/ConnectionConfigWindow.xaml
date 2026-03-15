@@ -1,0 +1,110 @@
+<Window x:Class="ContractSystem.Windows.Views.Configuracion.ConnectionConfigWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Configuración de conexión - SQL Server"
+        Height="480" Width="460"
+        MinHeight="440" MinWidth="420"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" ResizeMode="CanResize"
+        Background="{StaticResource BrushBackground}"
+        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+    <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="6">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Barra de título personalizada (estilo Login / MessageDialog) -->
+            <Border Grid.Row="0" Background="White"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1"
+                    Padding="12,0,4,0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets"
+                               FontSize="16" Foreground="{StaticResource BrushTextInactive}"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Grid.Column="1" Text="Configuración de conexión"
+                               FontSize="13" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrushTextInactive}"
+                               VerticalAlignment="Center"/>
+                    <Button x:Name="BtnCerrar" Grid.Column="2" Width="36" Height="36" Padding="0"
+                            Background="Transparent" BorderThickness="0" Cursor="Hand"
+                            Click="BtnCerrar_Click" ToolTip="Cerrar">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" Background="Transparent"
+                                        CornerRadius="4" Padding="4">
+                                    <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="12" Foreground="{StaticResource BrushTextInactive}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="{StaticResource BrushHover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Cuerpo (con scroll) -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="24,16">
+                <StackPanel>
+                    <TextBlock Text="Servidor" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtServer" FontSize="13" Padding="8,6" Height="32" Margin="0,0,0,8"/>
+                    <TextBlock Text="Usuario" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtSqlUser" FontSize="13" Padding="8,6" Height="32" Margin="0,0,0,8"/>
+                    <TextBlock Text="Contraseña" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <PasswordBox x:Name="TxtSqlPassword" FontSize="13" Padding="8,6" Height="32" Margin="0,0,0,10"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <Button x:Name="BtnProbarSql" Content="Probar conexión" Padding="10,6" Height="32" Margin="0,0,8,0"
+                                Click="BtnProbarSql_Click"/>
+                        <Button x:Name="BtnCargarBases" Content="Cargar bases de datos" Padding="10,6" Height="32"
+                                Click="BtnCargarBases_Click"/>
+                    </StackPanel>
+                    <TextBlock Text="Base de datos" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="CmbDatabases" Grid.Column="0" FontSize="13" Padding="8,6" Height="32"
+                                  IsEditable="True" SelectionChanged="CmbDatabases_SelectionChanged"/>
+                        <Button x:Name="BtnNuevaBase" Grid.Column="1" Content="Nueva..." Padding="8,6" Height="32" Margin="8,0,0,0"
+                                Click="BtnNuevaBase_Click" ToolTip="Crear nueva base de datos"/>
+                    </Grid>
+                    <StackPanel x:Name="PanelNuevaBase" Visibility="Collapsed" Margin="0,0,0,0">
+                        <TextBlock Text="Nombre de la nueva base de datos" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                        <TextBox x:Name="TxtNuevaBaseNombre" FontSize="13" Padding="8,6" Height="32"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Pie fijo: botones -->
+            <Border Grid.Row="2" Background="White"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,1,0,0"
+                    Padding="24,12" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="BtnCancelar" Content="Cancelar" Width="88" Height="32" Margin="0,0,8,0"
+                            Background="Transparent" Foreground="{StaticResource BrushTextInactive}"
+                            BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                            Cursor="Hand" Click="BtnCancelar_Click"/>
+                    <Button x:Name="BtnGuardar" Content="Guardar" Width="88" Height="32"
+                            Background="{StaticResource BrushAccent}" Foreground="White"
+                            BorderThickness="0" Cursor="Hand" Click="BtnGuardar_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

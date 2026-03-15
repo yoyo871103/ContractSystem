@@ -6,7 +6,7 @@ Este documento describe el plan para implementar el sistema de autenticación y 
 
 ## 1. Resumen del contexto actual
 
-- **Aplicación**: WPF (InventorySystem.Windows) con capas Application, Domain e Infrastructure.
+- **Aplicación**: WPF (ContractSystem.Windows) con capas Application, Domain e Infrastructure.
 - **Bases de datos**: SQL Server o SQLite; la conexión se configura en runtime (ConnectionConfigWindow) y se persiste en archivo (FileConnectionConfigurationStore).
 - **Login actual**: `LoginWindow` solo muestra usuario/contraseña y al aceptar cierra con `DialogResult = true` sin validar credenciales.
 - **SQL Server**: Existe flujo de setup con SA (`SqlServerDatabaseSetupService`) que crea usuario interno `InvApp_*`; la UI de configuración actual usa credenciales de un usuario SQL cualquiera (no obligatoriamente SA).

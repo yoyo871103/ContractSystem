@@ -1,0 +1,29 @@
+---
+description: Convención de tablas y preguntas para nomencladores
+alwaysApply: true
+---
+
+# Convención de Nomencladores en ContractSystem
+
+## Tablas de nomencladores
+
+Las tablas que almacenan **nomencladores** (catálogos de referencia: unidades de medida, monedas, tipos de documento, etc.) deben seguir esta convención de nombres:
+
+- **Prefijo obligatorio**: `nom_` seguido del nombre del nomenclador en singular o plural según corresponda.
+- **Ejemplos**:
+  - Unidades de medida → `nom_UnidadesMedida`
+  - Monedas → `nom_Monedas`
+  - Tipos de documento → `nom_TiposDocumento`
+
+## Pregunta obligatoria al crear tablas nuevas
+
+**Antes de crear cualquier nueva tabla o entidad en la base de datos**, preguntar al usuario:
+
+> ¿Esta nueva tabla es un nomenclador (catálogo de referencia reutilizable en el sistema)?
+
+- Si **sí** → usar el prefijo `nom_` en el nombre de la tabla (ej. `nom_UnidadesMedida`).
+- Si **no** → usar la convención estándar del proyecto para el nombre de la tabla.
+
+## Gestión de nomencladores en la UI
+
+Los nomencladores se gestionan desde la sección **Configuración** → pestaña **Nomencladores**. Cada nomenclador tiene su propia sub-pestaña dentro de Nomencladores.

@@ -1,10 +1,10 @@
 ---
-description: Estándar para implementar un CRUD completo en InventorySystem
+description: Estándar para implementar un CRUD completo en ContractSystem
 globs: **/*.cs, **/*.xaml
 alwaysApply: true
 ---
 
-# Estándar de implementación CRUD en InventorySystem
+# Estándar de implementación CRUD en ContractSystem
 
 Seguir este flujo **en orden** para cada nueva entidad/agregado que requiera CRUD. Saltar pasos o inyectar `ApplicationDbContext` directamente causa errores en tiempo de ejecución.
 
@@ -12,7 +12,7 @@ Seguir este flujo **en orden** para cada nueva entidad/agregado que requiera CRU
 
 ## 1. Domain
 
-- Crear la entidad en `InventorySystem.Domain/[CarpetaEntidad]/NombreEntidad.cs`.
+- Crear la entidad en `ContractSystem.Domain/[CarpetaEntidad]/NombreEntidad.cs`.
 - POCO con propiedades; si aplica soft delete, implementar `ISoftDeletable` (propiedad `DeletedAt`).
 - No referencias a EF, Application ni Infrastructure.
 
@@ -20,7 +20,7 @@ Seguir este flujo **en orden** para cada nueva entidad/agregado que requiera CRU
 
 ## 2. Application – Interfaz del Store
 
-- Crear `I[NombreEntidad]Store` en `InventorySystem.Application/[CarpetaEntidad]/`.
+- Crear `I[NombreEntidad]Store` en `ContractSystem.Application/[CarpetaEntidad]/`.
 - Métodos async para: obtener por id, listar (si aplica), crear, actualizar, eliminar (o soft delete).
 - La interfaz recibe/retorna entidades del Domain o DTOs definidos en Application.
 
@@ -36,7 +36,7 @@ Seguir este flujo **en orden** para cada nueva entidad/agregado que requiera CRU
 ### 3.2 Crear migración (obligatorio)
 
 - **Sin migración la tabla no existe** y se produce "Invalid object name 'NombreTabla'".
-- Opción A: `dotnet ef migrations add AddNombreEntidad --project InventorySystem.Infrastructure --startup-project InventorySystem.Windows`.
+- Opción A: `dotnet ef migrations add AddNombreEntidad --project ContractSystem.Infrastructure --startup-project ContractSystem.Windows`.
 - Opción B: Si no hay `dotnet-ef`, crear manualmente en `Infrastructure/Migrations/`:
   - `YYYYMMDDHHMMSS_AddNombreEntidad.cs` (Up: CreateTable, Down: DropTable).
   - `YYYYMMDDHHMMSS_AddNombreEntidad.Designer.cs` (apuntando a la migración).
@@ -45,19 +45,19 @@ Seguir este flujo **en orden** para cada nueva entidad/agregado que requiera CRU
 
 ### 3.3 Implementar el Store
 
-- Implementación en `InventorySystem.Infrastructure/[CarpetaEntidad]/NombreEntidadStore.cs`.
+- Implementación en `ContractSystem.Infrastructure/[CarpetaEntidad]/NombreEntidadStore.cs`.
 - **No inyectar `ApplicationDbContext`**. Inyectar **`IApplicationDbContextFactory`**.
 - En cada método:
   1. Crear contexto: `using var context = _contextFactory.CreateDbContext();`
   2. Si necesitas `DbSet<T>` u otras APIs de EF: `if (context is not DatabaseApplicationDbContext db) return;` (o equivalente).
   3. Usar `db.Set<NombreEntidad>()` o el `DbSet` correspondiente.
   4. Al final: `await db.SaveChangesAsync(cancellationToken);`
-- Alias usado en el proyecto: `using DatabaseApplicationDbContext = InventorySystem.Infrastructure.Database.ApplicationDbContext;`
+- Alias usado en el proyecto: `using DatabaseApplicationDbContext = ContractSystem.Infrastructure.Database.ApplicationDbContext;`
 
 ### 3.4 Registrar el Store en DI
 
 - En `Infrastructure/DependencyInjection.cs`: `services.AddTransient<I[NombreEntidad]Store, [NombreEntidad]Store>();`
-- Mantener el `using` a `InventorySystem.Application.[CarpetaEntidad]` y a `InventorySystem.Infrastructure.[CarpetaEntidad]`.
+- Mantener el `using` a `ContractSystem.Application.[CarpetaEntidad]` y a `ContractSystem.Infrastructure.[CarpetaEntidad]`.
 
 ---
 
@@ -99,4 +99,4 @@ Seguir este flujo **en orden** para cada nueva entidad/agregado que requiera CRU
 |-------|--------|----------|
 | "Unable to resolve service for type 'ApplicationDbContext'" | Inyección directa del DbContext | Store debe usar `IApplicationDbContextFactory` y crear el contexto dentro de cada método. |
 | "Invalid object name 'NombreTabla'" | Tabla no existe en la BD | Añadir migración que cree la tabla y actualizar el snapshot; reiniciar la app para que se ejecute `Migrate()`. |
-| Interfaz del Store no encontrada en Infrastructure | Falta `using` a Application | En `DependencyInjection.cs` incluir `using InventorySystem.Application.[Carpeta];`. |
+| Interfaz del Store no encontrada en Infrastructure | Falta `using` a Application | En `DependencyInjection.cs` incluir `using ContractSystem.Application.[Carpeta];`. |

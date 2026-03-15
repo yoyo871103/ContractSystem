@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="ContractSystem.Application/ContractSystem.Application.csproj" />
+  <Project Path="ContractSystem.Domain/ContractSystem.Domain.csproj" />
+  <Project Path="ContractSystem.Infrastructure/ContractSystem.Infrastructure.csproj" />
+  <Project Path="ContractSystem.Windows/ContractSystem.Windows.csproj" />
+</Solution>
