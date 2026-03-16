@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Read(//c/Users/yoyo8/source/repos/ContractSystem/ContractSystem/$APPDATA/ContractSystem/**)"
+      "Read(//c/Users/yoyo8/source/repos/ContractSystem/ContractSystem/$APPDATA/ContractSystem/**)",
+      "Bash(find c:/Users/yoyo8/source/repos/ContractSystem/ContractSystem -type f -name *Migration*.cs)"
     ]
   }
 }

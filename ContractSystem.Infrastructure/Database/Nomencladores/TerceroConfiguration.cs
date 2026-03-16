@@ -12,6 +12,9 @@ internal sealed class TerceroConfiguration : IEntityTypeConfiguration<Tercero>
 
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.Codigo)
+            .HasMaxLength(64);
+
         builder.Property(e => e.Nombre)
             .HasMaxLength(256)
             .IsRequired();
@@ -33,6 +36,9 @@ internal sealed class TerceroConfiguration : IEntityTypeConfiguration<Tercero>
 
         builder.Property(e => e.Tipo)
             .IsRequired();
+
+        builder.Property(e => e.UbicacionExpediente)
+            .HasMaxLength(128);
 
         builder.Property(e => e.DeletedAt);
 

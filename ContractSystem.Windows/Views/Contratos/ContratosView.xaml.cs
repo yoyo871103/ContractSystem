@@ -60,20 +60,6 @@ public partial class ContratosView : UserControl
         };
     }
 
-    private void CmbFiltroTercero_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (DataContext is not ContratosViewModel vm) return;
-        if (CmbFiltroTercero.SelectedItem is ContractSystem.Domain.Nomencladores.Tercero tercero)
-            vm.FiltroTerceroId = tercero.Id;
-    }
-
-    private void BtnLimpiarTercero_Click(object sender, System.Windows.RoutedEventArgs e)
-    {
-        CmbFiltroTercero.SelectedItem = null;
-        if (DataContext is ContratosViewModel vm)
-            vm.FiltroTerceroId = null;
-    }
-
     private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
         if (DataContext is ContratosViewModel vm && vm.EditarCommand.CanExecute(null))

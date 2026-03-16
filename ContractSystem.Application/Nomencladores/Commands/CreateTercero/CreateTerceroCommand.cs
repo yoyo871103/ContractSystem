@@ -6,6 +6,7 @@ namespace ContractSystem.Application.Nomencladores.Commands.CreateTercero;
 public record ContactoTerceroDto(string Nombre, string Cargo, string Email, string Telefono);
 
 public record CreateTerceroCommand(
+    string? Codigo,
     string Nombre,
     string RazonSocial,
     string NifCif,
@@ -13,6 +14,7 @@ public record CreateTerceroCommand(
     string Telefono,
     string Email,
     TipoTercero Tipo,
+    string? UbicacionExpediente,
     IReadOnlyList<ContactoTerceroDto> Contactos) : IRequest<Tercero>;
 
 public class CreateTerceroCommandHandler : IRequestHandler<CreateTerceroCommand, Tercero>
@@ -28,6 +30,7 @@ public class CreateTerceroCommandHandler : IRequestHandler<CreateTerceroCommand,
     {
         var entity = new Tercero
         {
+            Codigo = request.Codigo?.Trim(),
             Nombre = request.Nombre.Trim(),
             RazonSocial = request.RazonSocial?.Trim() ?? string.Empty,
             NifCif = request.NifCif?.Trim() ?? string.Empty,
@@ -35,6 +38,7 @@ public class CreateTerceroCommandHandler : IRequestHandler<CreateTerceroCommand,
             Telefono = request.Telefono?.Trim() ?? string.Empty,
             Email = request.Email?.Trim() ?? string.Empty,
             Tipo = request.Tipo,
+            UbicacionExpediente = request.UbicacionExpediente?.Trim(),
             Contactos = request.Contactos.Select(c => new ContactoTercero
             {
                 Nombre = c.Nombre.Trim(),

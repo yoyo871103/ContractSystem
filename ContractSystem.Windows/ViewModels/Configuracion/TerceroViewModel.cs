@@ -5,7 +5,7 @@ using ContractSystem.Application.Nomencladores.Commands.CreateTercero;
 using ContractSystem.Application.Nomencladores.Commands.DeleteTercero;
 using ContractSystem.Application.Nomencladores.Commands.ReactivarTercero;
 using ContractSystem.Application.Nomencladores.Commands.UpdateTercero;
-using ContractSystem.Application.Nomencladores.Queries.GetAllTerceros;
+using ContractSystem.Application.Nomencladores.Queries.GetPagedTerceros;
 using ContractSystem.Application.Nomencladores.Queries.GetTerceroById;
 using ContractSystem.Domain.Nomencladores;
 using MediatR;
@@ -13,12 +13,10 @@ using System.Windows;
 
 namespace ContractSystem.Windows.ViewModels;
 
-/// <summary>
-/// ViewModel para el CRUD de Terceros (Clientes/Proveedores).
-/// </summary>
 public sealed partial class TerceroViewModel : ObservableObject
 {
     private readonly ISender _sender;
+    private const int PageSize = 20;
 
     [ObservableProperty]
     private ObservableCollection<Tercero> _terceros = new();
@@ -38,6 +36,24 @@ public sealed partial class TerceroViewModel : ObservableObject
     [ObservableProperty]
     private TipoTercero? _filtroTipo;
 
+    [ObservableProperty]
+    private string? _busqueda;
+
+    // Paginación
+    [ObservableProperty]
+    private int _paginaActual = 1;
+
+    [ObservableProperty]
+    private int _totalPaginas;
+
+    [ObservableProperty]
+    private int _totalRegistros;
+
+    [ObservableProperty]
+    private string? _infoPaginacion;
+
+    private CancellationTokenSource? _searchCts;
+
     public TerceroViewModel(ISender sender)
     {
         _sender = sender;
@@ -51,10 +67,22 @@ public sealed partial class TerceroViewModel : ObservableObject
         EstaCargando = true;
         try
         {
-            var lista = await _sender.Send(new GetAllTercerosQuery(IncludeDeleted, FiltroTipo), cancellationToken);
+            var result = await _sender.Send(new GetPagedTercerosQuery(
+                PaginaActual, PageSize, IncludeDeleted, FiltroTipo, Busqueda), cancellationToken);
+
             Terceros.Clear();
-            foreach (var item in lista)
+            foreach (var item in result.Items)
                 Terceros.Add(item);
+
+            PaginaActual = result.CurrentPage;
+            TotalPaginas = result.TotalPages;
+            TotalRegistros = result.TotalRows;
+            InfoPaginacion = TotalRegistros > 0
+                ? $"Página {PaginaActual} de {TotalPaginas} ({TotalRegistros} registros)"
+                : "Sin resultados";
+
+            PaginaAnteriorCommand.NotifyCanExecuteChanged();
+            PaginaSiguienteCommand.NotifyCanExecuteChanged();
         }
         catch (Exception ex)
         {
@@ -65,6 +93,23 @@ public sealed partial class TerceroViewModel : ObservableObject
             EstaCargando = false;
         }
     }
+
+    [RelayCommand(CanExecute = nameof(PuedeRetroceder))]
+    private async Task PaginaAnteriorAsync()
+    {
+        PaginaActual--;
+        await CargarAsync();
+    }
+
+    [RelayCommand(CanExecute = nameof(PuedeAvanzar))]
+    private async Task PaginaSiguienteAsync()
+    {
+        PaginaActual++;
+        await CargarAsync();
+    }
+
+    private bool PuedeRetroceder() => PaginaActual > 1;
+    private bool PuedeAvanzar() => PaginaActual < TotalPaginas;
 
     [RelayCommand]
     private void Nuevo()
@@ -85,6 +130,7 @@ public sealed partial class TerceroViewModel : ObservableObject
                 new ContactoTerceroDto(c.Nombre, c.Cargo, c.Email, c.Telefono)).ToList();
 
             await _sender.Send(new CreateTerceroCommand(
+                dialog.CodigoTercero,
                 dialog.NombreTercero,
                 dialog.RazonSocial,
                 dialog.NifCif,
@@ -92,6 +138,7 @@ public sealed partial class TerceroViewModel : ObservableObject
                 dialog.TelefonoTercero,
                 dialog.EmailTercero,
                 dialog.TipoTercero,
+                dialog.UbicacionExpediente,
                 contactos));
 
             MessageBox.Show("Tercero creado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -126,6 +173,7 @@ public sealed partial class TerceroViewModel : ObservableObject
 
             await _sender.Send(new UpdateTerceroCommand(
                 id,
+                dialog.CodigoTercero,
                 dialog.NombreTercero,
                 dialog.RazonSocial,
                 dialog.NifCif,
@@ -133,6 +181,7 @@ public sealed partial class TerceroViewModel : ObservableObject
                 dialog.TelefonoTercero,
                 dialog.EmailTercero,
                 dialog.TipoTercero,
+                dialog.UbicacionExpediente,
                 contactos));
 
             MessageBox.Show("Tercero actualizado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -200,8 +249,23 @@ public sealed partial class TerceroViewModel : ObservableObject
 
     private bool PuedeReactivar() => Seleccionado is not null && Seleccionado.IsDeleted;
 
-    partial void OnIncludeDeletedChanged(bool value) => _ = CargarAsync();
-    partial void OnFiltroTipoChanged(TipoTercero? value) => _ = CargarAsync();
+    partial void OnIncludeDeletedChanged(bool value) { PaginaActual = 1; _ = CargarAsync(); }
+    partial void OnFiltroTipoChanged(TipoTercero? value) { PaginaActual = 1; _ = CargarAsync(); }
+
+    partial void OnBusquedaChanged(string? value)
+    {
+        _searchCts?.Cancel();
+        _searchCts = new CancellationTokenSource();
+        _ = DebounceBuscarAsync(_searchCts.Token);
+    }
+
+    private async Task DebounceBuscarAsync(CancellationToken ct)
+    {
+        try { await Task.Delay(400, ct); }
+        catch (OperationCanceledException) { return; }
+        PaginaActual = 1;
+        await CargarAsync(ct);
+    }
 
     partial void OnSeleccionadoChanged(Tercero? value)
     {

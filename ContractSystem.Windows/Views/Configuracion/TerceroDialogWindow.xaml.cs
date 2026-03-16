@@ -15,6 +15,8 @@ public partial class TerceroDialogWindow : Window
         DgContactos.ItemsSource = _contactos;
     }
 
+    public string? CodigoTercero => string.IsNullOrWhiteSpace(TxtCodigo.Text) ? null : TxtCodigo.Text.Trim();
+    public string? UbicacionExpediente => string.IsNullOrWhiteSpace(TxtUbicacion.Text) ? null : TxtUbicacion.Text.Trim();
     public string NombreTercero => (TxtNombre.Text ?? "").Trim();
     public string RazonSocial => (TxtRazonSocial.Text ?? "").Trim();
     public string NifCif => (TxtNifCif.Text ?? "").Trim();
@@ -45,6 +47,8 @@ public partial class TerceroDialogWindow : Window
     public void CargarTercero(Tercero tercero)
     {
         TxtTitulo.Text = "Editar tercero";
+        TxtCodigo.Text = tercero.Codigo ?? "";
+        TxtUbicacion.Text = tercero.UbicacionExpediente ?? "";
         TxtNombre.Text = tercero.Nombre;
         TxtRazonSocial.Text = tercero.RazonSocial;
         TxtNifCif.Text = tercero.NifCif;

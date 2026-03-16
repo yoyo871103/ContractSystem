@@ -25,7 +25,8 @@ public record GetArbolContratosQuery(
     EstadoContrato? FiltroEstado = null,
     TipoDocumentoContrato? FiltroTipo = null,
     RolContrato? FiltroRol = null,
-    int? FiltroTerceroId = null) : IRequest<IReadOnlyList<NodoArbol>>;
+    int? FiltroTerceroId = null,
+    string? FiltroTerceroTexto = null) : IRequest<IReadOnlyList<NodoArbol>>;
 
 public class GetArbolContratosQueryHandler : IRequestHandler<GetArbolContratosQuery, IReadOnlyList<NodoArbol>>
 {
@@ -99,6 +100,15 @@ public class GetArbolContratosQueryHandler : IRequestHandler<GetArbolContratosQu
         if (f.FiltroTipo.HasValue && c.TipoDocumento != f.FiltroTipo.Value) return false;
         if (f.FiltroRol.HasValue && c.Rol != f.FiltroRol.Value) return false;
         if (f.FiltroTerceroId.HasValue && c.TerceroId != f.FiltroTerceroId.Value) return false;
+        if (!string.IsNullOrWhiteSpace(f.FiltroTerceroTexto))
+        {
+            var tt = f.FiltroTerceroTexto.Trim().ToLower();
+            if (c.Tercero is null) return false;
+            if (!c.Tercero.Nombre.ToLower().Contains(tt)
+                && !(c.Tercero.Codigo?.ToLower().Contains(tt) == true)
+                && !c.Tercero.NifCif.ToLower().Contains(tt))
+                return false;
+        }
         return true;
     }
 }

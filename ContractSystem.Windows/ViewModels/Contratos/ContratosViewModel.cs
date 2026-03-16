@@ -11,6 +11,7 @@ using ContractSystem.Application.Contratos.Commands.RescindirContrato;
 using ContractSystem.Application.Contratos.Commands.UpdateContrato;
 using ContractSystem.Application.Contratos.Queries.GetAllContratos;
 using ContractSystem.Application.Contratos.Queries.GetContratosMarco;
+using ContractSystem.Application.Contratos.Queries.GetPagedContratos;
 using ContractSystem.Application.Contratos.Queries.GetDocumentosAfectadosPorRescision;
 using ContractSystem.Application.Nomencladores;
 using ContractSystem.Application.Nomencladores.Queries.GetAllTerceros;
@@ -58,17 +59,32 @@ public sealed partial class ContratosViewModel : ObservableObject
     private string? _filtroBusqueda;
 
     [ObservableProperty]
+    private string _filtroTerceroTexto = string.Empty;
+
+    [ObservableProperty]
     private bool _includeDeleted;
+
+    // Paginación
+    private const int PageSize = 20;
+
+    [ObservableProperty]
+    private int _paginaActual = 1;
+
+    [ObservableProperty]
+    private int _totalPaginas;
+
+    [ObservableProperty]
+    private int _totalRegistros;
+
+    [ObservableProperty]
+    private string? _infoPaginacion;
+
+    private CancellationTokenSource? _searchDebounceCts;
+    private const int DebounceMs = 400;
 
     // --- Datos auxiliares para diálogos y filtros ---
     private IReadOnlyList<Contrato> _contratosMarco = Array.Empty<Contrato>();
     private IReadOnlyList<Tercero> _terceros = Array.Empty<Tercero>();
-
-    /// <summary>
-    /// Lista de terceros disponibles para el filtro.
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<Tercero> _tercerosFiltro = new();
 
     public ContratosViewModel(ISender sender, IDocumentoNumeracionService numeracionService)
     {
@@ -84,24 +100,30 @@ public sealed partial class ContratosViewModel : ObservableObject
         EstaCargando = true;
         try
         {
-            // Cargar terceros para filtro (solo la primera vez o si está vacío)
-            if (TercerosFiltro.Count == 0)
-            {
-                var terceros = await _sender.Send(new GetAllTercerosQuery(), cancellationToken);
-                TercerosFiltro.Clear();
-                foreach (var t in terceros) TercerosFiltro.Add(t);
-            }
-
-            var lista = await _sender.Send(new GetAllContratosQuery(
+            var result = await _sender.Send(new GetPagedContratosQuery(
+                PaginaActual,
+                PageSize,
                 IncludeDeleted,
                 FiltroTipo,
                 FiltroEstado,
                 FiltroRol,
                 FiltroTerceroId,
-                TextoBusqueda: FiltroBusqueda), cancellationToken);
+                TextoBusqueda: FiltroBusqueda,
+                TextoTercero: string.IsNullOrWhiteSpace(FiltroTerceroTexto) ? null : FiltroTerceroTexto), cancellationToken);
+
             Contratos.Clear();
-            foreach (var item in lista)
+            foreach (var item in result.Items)
                 Contratos.Add(item);
+
+            PaginaActual = result.CurrentPage;
+            TotalPaginas = result.TotalPages;
+            TotalRegistros = result.TotalRows;
+            InfoPaginacion = TotalRegistros > 0
+                ? $"Página {PaginaActual} de {TotalPaginas} ({TotalRegistros} registros)"
+                : "Sin resultados";
+
+            PaginaAnteriorCommand.NotifyCanExecuteChanged();
+            PaginaSiguienteCommand.NotifyCanExecuteChanged();
         }
         catch (Exception ex)
         {
@@ -112,6 +134,23 @@ public sealed partial class ContratosViewModel : ObservableObject
             EstaCargando = false;
         }
     }
+
+    [RelayCommand(CanExecute = nameof(PuedeRetroceder))]
+    private async Task PaginaAnteriorAsync()
+    {
+        PaginaActual--;
+        await CargarAsync();
+    }
+
+    [RelayCommand(CanExecute = nameof(PuedeAvanzar))]
+    private async Task PaginaSiguienteAsync()
+    {
+        PaginaActual++;
+        await CargarAsync();
+    }
+
+    private bool PuedeRetroceder() => PaginaActual > 1;
+    private bool PuedeAvanzar() => PaginaActual < TotalPaginas;
 
     [RelayCommand]
     private async Task NuevoAsync(CancellationToken cancellationToken = default)
@@ -445,11 +484,33 @@ public sealed partial class ContratosViewModel : ObservableObject
         _terceros = await _sender.Send(new GetAllTercerosQuery(), cancellationToken);
     }
 
-    partial void OnFiltroTipoChanged(TipoDocumentoContrato? value) => _ = CargarAsync();
-    partial void OnFiltroEstadoChanged(EstadoContrato? value) => _ = CargarAsync();
-    partial void OnFiltroRolChanged(RolContrato? value) => _ = CargarAsync();
-    partial void OnFiltroTerceroIdChanged(int? value) => _ = CargarAsync();
-    partial void OnIncludeDeletedChanged(bool value) => _ = CargarAsync();
+    partial void OnFiltroTipoChanged(TipoDocumentoContrato? value) { PaginaActual = 1; _ = CargarAsync(); }
+    partial void OnFiltroEstadoChanged(EstadoContrato? value) { PaginaActual = 1; _ = CargarAsync(); }
+    partial void OnFiltroRolChanged(RolContrato? value) { PaginaActual = 1; _ = CargarAsync(); }
+    partial void OnFiltroTerceroIdChanged(int? value) { PaginaActual = 1; _ = CargarAsync(); }
+    partial void OnIncludeDeletedChanged(bool value) { PaginaActual = 1; _ = CargarAsync(); }
+
+    partial void OnFiltroBusquedaChanged(string? value)
+    {
+        _searchDebounceCts?.Cancel();
+        _searchDebounceCts = new CancellationTokenSource();
+        _ = DebounceCargarAsync(_searchDebounceCts.Token);
+    }
+
+    partial void OnFiltroTerceroTextoChanged(string value)
+    {
+        _searchDebounceCts?.Cancel();
+        _searchDebounceCts = new CancellationTokenSource();
+        _ = DebounceCargarAsync(_searchDebounceCts.Token);
+    }
+
+    private async Task DebounceCargarAsync(CancellationToken ct)
+    {
+        try { await Task.Delay(DebounceMs, ct); }
+        catch (OperationCanceledException) { return; }
+        PaginaActual = 1;
+        await CargarAsync(ct);
+    }
 
     partial void OnSeleccionadoChanged(Contrato? value)
     {

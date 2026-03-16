@@ -50,18 +50,6 @@ public partial class ArbolContratosView : UserControl
         }
     }
 
-    private void CmbFiltroTercero_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (DataContext is ArbolContratosViewModel vm && CmbFiltroTercero.SelectedItem is ContractSystem.Domain.Nomencladores.Tercero tercero)
-            vm.FiltroTerceroId = tercero.Id;
-    }
-
-    private void BtnLimpiarTercero_Click(object sender, RoutedEventArgs e)
-    {
-        CmbFiltroTercero.SelectedItem = null;
-        if (DataContext is ArbolContratosViewModel vm)
-            vm.FiltroTerceroId = null;
-    }
 
     private async void TvArbol_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {

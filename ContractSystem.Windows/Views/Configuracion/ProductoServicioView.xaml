@@ -6,6 +6,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Barra de acciones -->
@@ -22,7 +23,7 @@
                     Command="{Binding ReactivarCommand}"/>
         </StackPanel>
 
-        <!-- Filtros -->
+        <!-- Filtros y búsqueda -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
             <TextBlock Text="Filtrar por tipo:" VerticalAlignment="Center" FontSize="12"
                        Foreground="{StaticResource BrushTextInactive}" Margin="0,0,8,0"/>
@@ -34,6 +35,26 @@
             </ComboBox>
             <CheckBox Content="Incluir eliminados" IsChecked="{Binding IncludeDeleted, Mode=TwoWay}"
                       VerticalAlignment="Center" Margin="16,0,0,0"/>
+
+            <!-- Búsqueda -->
+            <Border Width="200" Height="28" Margin="16,0,0,0"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" Background="White"
+                    CornerRadius="2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="28"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                               Foreground="{StaticResource BrushTextInactive}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1"
+                             Text="{Binding Busqueda, UpdateSourceTrigger=PropertyChanged}"
+                             BorderThickness="0" VerticalContentAlignment="Center" FontSize="12"
+                             Padding="0,4,8,4"
+                             Background="Transparent"/>
+                </Grid>
+            </Border>
         </StackPanel>
 
         <!-- DataGrid -->
@@ -55,5 +76,31 @@
                 <DataGridTextColumn Header="Estado" Binding="{Binding IsDeleted, Converter={StaticResource BoolToEstadoUsuario}}" Width="80"/>
             </DataGrid.Columns>
         </DataGrid>
+
+        <!-- Paginación -->
+        <Grid Grid.Row="3" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="{Binding InfoPaginacion}" FontSize="12"
+                       Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"/>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Content="&#xE76B;" FontFamily="Segoe MDL2 Assets" Padding="8,4"
+                        Command="{Binding PaginaAnteriorCommand}"
+                        ToolTip="Página anterior"/>
+                <TextBlock VerticalAlignment="Center" Margin="8,0" FontSize="12">
+                    <Run Text="{Binding PaginaActual, Mode=OneWay}"/>
+                    <Run Text=" / "/>
+                    <Run Text="{Binding TotalPaginas, Mode=OneWay}"/>
+                </TextBlock>
+                <Button Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" Padding="8,4"
+                        Command="{Binding PaginaSiguienteCommand}"
+                        ToolTip="Página siguiente"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>

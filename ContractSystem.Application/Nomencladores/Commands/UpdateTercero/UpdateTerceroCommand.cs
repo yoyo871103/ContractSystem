@@ -6,6 +6,7 @@ namespace ContractSystem.Application.Nomencladores.Commands.UpdateTercero;
 
 public record UpdateTerceroCommand(
     int Id,
+    string? Codigo,
     string Nombre,
     string RazonSocial,
     string NifCif,
@@ -13,6 +14,7 @@ public record UpdateTerceroCommand(
     string Telefono,
     string Email,
     TipoTercero Tipo,
+    string? UbicacionExpediente,
     IReadOnlyList<ContactoTerceroDto> Contactos) : IRequest<Unit>;
 
 public class UpdateTerceroCommandHandler : IRequestHandler<UpdateTerceroCommand, Unit>
@@ -30,6 +32,7 @@ public class UpdateTerceroCommandHandler : IRequestHandler<UpdateTerceroCommand,
         if (entity is null)
             throw new InvalidOperationException($"Tercero con Id {request.Id} no encontrado.");
 
+        entity.Codigo = request.Codigo?.Trim();
         entity.Nombre = request.Nombre.Trim();
         entity.RazonSocial = request.RazonSocial?.Trim() ?? string.Empty;
         entity.NifCif = request.NifCif?.Trim() ?? string.Empty;
@@ -37,6 +40,7 @@ public class UpdateTerceroCommandHandler : IRequestHandler<UpdateTerceroCommand,
         entity.Telefono = request.Telefono?.Trim() ?? string.Empty;
         entity.Email = request.Email?.Trim() ?? string.Empty;
         entity.Tipo = request.Tipo;
+        entity.UbicacionExpediente = request.UbicacionExpediente?.Trim();
 
         // Reemplazar contactos
         entity.Contactos.Clear();

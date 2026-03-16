@@ -1,6 +1,8 @@
+using ContractSystem.Application.Common.Models;
 using ContractSystem.Application.Contratos;
 using ContractSystem.Application.Database;
 using ContractSystem.Domain.Contratos;
+using ContractSystem.Infrastructure.Pagination;
 using Microsoft.EntityFrameworkCore;
 using DatabaseApplicationDbContext = ContractSystem.Infrastructure.Database.ApplicationDbContext;
 
@@ -46,6 +48,7 @@ public sealed class ContratoStore : IContratoStore
         DateTime? fechaFirmaDesde = null,
         DateTime? fechaFirmaHasta = null,
         string? textoBusqueda = null,
+        string? textoTercero = null,
         CancellationToken cancellationToken = default)
     {
         using var context = _contextFactory.CreateDbContext();
@@ -86,9 +89,76 @@ public sealed class ContratoStore : IContratoStore
                 e.Objeto.ToLower().Contains(texto));
         }
 
+        if (!string.IsNullOrWhiteSpace(textoTercero))
+        {
+            var tt = textoTercero.Trim().ToLower();
+            query = query.Where(e => e.Tercero != null &&
+                (e.Tercero.Nombre.ToLower().Contains(tt) ||
+                 (e.Tercero.Codigo != null && e.Tercero.Codigo.ToLower().Contains(tt)) ||
+                 e.Tercero.NifCif.ToLower().Contains(tt)));
+        }
+
         return await query
             .OrderByDescending(e => e.FechaCreacion)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<PagedList<Contrato>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        bool includeDeleted = false,
+        TipoDocumentoContrato? tipo = null,
+        EstadoContrato? estado = null,
+        RolContrato? rol = null,
+        int? terceroId = null,
+        string? textoBusqueda = null,
+        string? textoTercero = null,
+        CancellationToken cancellationToken = default)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        if (context is not DatabaseApplicationDbContext db)
+            return PagedList<Contrato>.Empty(pageSize);
+
+        var query = db.Set<Contrato>()
+            .Include(e => e.Tercero)
+            .Include(e => e.MiEmpresa)
+            .AsQueryable();
+
+        if (includeDeleted)
+            query = query.IgnoreQueryFilters();
+
+        if (tipo.HasValue)
+            query = query.Where(e => e.TipoDocumento == tipo.Value);
+
+        if (estado.HasValue)
+            query = query.Where(e => e.Estado == estado.Value);
+
+        if (rol.HasValue)
+            query = query.Where(e => e.Rol == rol.Value);
+
+        if (terceroId.HasValue)
+            query = query.Where(e => e.TerceroId == terceroId.Value);
+
+        if (!string.IsNullOrWhiteSpace(textoBusqueda))
+        {
+            var texto = textoBusqueda.Trim().ToLower();
+            query = query.Where(e =>
+                e.Numero.ToLower().Contains(texto) ||
+                e.Objeto.ToLower().Contains(texto));
+        }
+
+        if (!string.IsNullOrWhiteSpace(textoTercero))
+        {
+            var tt = textoTercero.Trim().ToLower();
+            query = query.Where(e => e.Tercero != null &&
+                (e.Tercero.Nombre.ToLower().Contains(tt) ||
+                 (e.Tercero.Codigo != null && e.Tercero.Codigo.ToLower().Contains(tt)) ||
+                 e.Tercero.NifCif.ToLower().Contains(tt)));
+        }
+
+        return await query
+            .OrderByDescending(e => e.FechaCreacion)
+            .ToPagedListAsync(page, pageSize, cancellationToken);
     }
 
     public async Task<IReadOnlyList<Contrato>> GetContratosMarcoAsync(CancellationToken cancellationToken = default)

@@ -1,3 +1,4 @@
+using ContractSystem.Application.Common.Models;
 using ContractSystem.Domain.Contratos;
 
 namespace ContractSystem.Application.Contratos;
@@ -14,6 +15,7 @@ public interface IContratoStore
         DateTime? fechaFirmaDesde = null,
         DateTime? fechaFirmaHasta = null,
         string? textoBusqueda = null,
+        string? textoTercero = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -30,6 +32,18 @@ public interface IContratoStore
     /// Verifica si un número de documento ya existe (para validar R06).
     /// </summary>
     Task<bool> ExisteNumeroAsync(string numero, int? excludeId = null, CancellationToken cancellationToken = default);
+
+    Task<PagedList<Contrato>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        bool includeDeleted = false,
+        TipoDocumentoContrato? tipo = null,
+        EstadoContrato? estado = null,
+        RolContrato? rol = null,
+        int? terceroId = null,
+        string? textoBusqueda = null,
+        string? textoTercero = null,
+        CancellationToken cancellationToken = default);
 
     Task<Contrato> CreateAsync(Contrato contrato, CancellationToken cancellationToken = default);
     Task UpdateAsync(Contrato contrato, CancellationToken cancellationToken = default);

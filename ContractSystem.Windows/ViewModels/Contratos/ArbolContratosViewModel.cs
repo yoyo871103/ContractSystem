@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ContractSystem.Application.Contratos.Queries.GetArbolContratos;
-using ContractSystem.Application.Nomencladores.Queries.GetAllTerceros;
 using ContractSystem.Domain.Contratos;
 using ContractSystem.Domain.Nomencladores;
 using MediatR;
@@ -12,6 +11,8 @@ namespace ContractSystem.Windows.ViewModels;
 public sealed partial class ArbolContratosViewModel : ObservableObject
 {
     private readonly ISender _sender;
+    private CancellationTokenSource? _debounceCts;
+    private const int DebounceMs = 400;
 
     [ObservableProperty]
     private ObservableCollection<NodoArbolViewModel> _nodos = new();
@@ -33,7 +34,7 @@ public sealed partial class ArbolContratosViewModel : ObservableObject
     private int? _filtroTerceroId;
 
     [ObservableProperty]
-    private ObservableCollection<Tercero> _tercerosFiltro = new();
+    private string _filtroTerceroTexto = string.Empty;
 
     public ArbolContratosViewModel(ISender sender)
     {
@@ -47,15 +48,9 @@ public sealed partial class ArbolContratosViewModel : ObservableObject
         EstaCargando = true;
         try
         {
-            if (TercerosFiltro.Count == 0)
-            {
-                var terceros = await _sender.Send(new GetAllTercerosQuery(), cancellationToken);
-                TercerosFiltro.Clear();
-                foreach (var t in terceros) TercerosFiltro.Add(t);
-            }
-
             var arbol = await _sender.Send(new GetArbolContratosQuery(
-                FiltroEstado, FiltroTipo, FiltroRol, FiltroTerceroId), cancellationToken);
+                FiltroEstado, FiltroTipo, FiltroRol, FiltroTerceroId,
+                string.IsNullOrWhiteSpace(FiltroTerceroTexto) ? null : FiltroTerceroTexto), cancellationToken);
             Nodos.Clear();
             foreach (var nodo in arbol)
                 Nodos.Add(new NodoArbolViewModel(nodo));
@@ -71,6 +66,20 @@ public sealed partial class ArbolContratosViewModel : ObservableObject
     partial void OnFiltroEstadoChanged(EstadoContrato? value) => _ = CargarAsync();
     partial void OnFiltroRolChanged(RolContrato? value) => _ = CargarAsync();
     partial void OnFiltroTerceroIdChanged(int? value) => _ = CargarAsync();
+
+    partial void OnFiltroTerceroTextoChanged(string value)
+    {
+        _debounceCts?.Cancel();
+        _debounceCts = new CancellationTokenSource();
+        _ = DebounceCargarAsync(_debounceCts.Token);
+    }
+
+    private async Task DebounceCargarAsync(CancellationToken ct)
+    {
+        try { await Task.Delay(DebounceMs, ct); }
+        catch (OperationCanceledException) { return; }
+        await CargarAsync(ct);
+    }
 }
 
 /// <summary>
@@ -101,10 +110,10 @@ public class NodoArbolViewModel
 
         Icono = nodo.Tipo switch
         {
-            TipoDocumentoContrato.Marco => "\uE8A5",        // Folder
-            TipoDocumentoContrato.Especifico => "\uE7C3",   // Page
-            TipoDocumentoContrato.Independiente => "\uE729", // Document
-            TipoDocumentoContrato.Suplemento => "\uE70F",    // Edit
+            TipoDocumentoContrato.Marco => "\uE8A5",
+            TipoDocumentoContrato.Especifico => "\uE7C3",
+            TipoDocumentoContrato.Independiente => "\uE729",
+            TipoDocumentoContrato.Suplemento => "\uE70F",
             _ => "\uE7C3"
         };
 

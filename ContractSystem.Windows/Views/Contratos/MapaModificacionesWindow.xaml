@@ -39,11 +39,22 @@
                 </Grid>
             </Border>
 
-            <!-- Cuerpo -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                          Padding="16">
-                <StackPanel x:Name="PnlDiagrama" Margin="8"/>
-            </ScrollViewer>
+            <!-- Cuerpo con Tabs -->
+            <TabControl Grid.Row="1" Margin="8,4,8,0" BorderThickness="0,1,0,0"
+                        BorderBrush="{StaticResource BrushBorder}">
+                <TabItem Header="  Diagrama visual  " Padding="8,4">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                        <Canvas x:Name="CnvDiagrama" MinWidth="700" MinHeight="400"
+                                Background="White" ClipToBounds="False"/>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="  Lista de relaciones  " Padding="8,4">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                  Padding="16">
+                        <StackPanel x:Name="PnlDiagrama" Margin="8"/>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
 
             <!-- Pie -->
             <Border Grid.Row="2" Background="White"

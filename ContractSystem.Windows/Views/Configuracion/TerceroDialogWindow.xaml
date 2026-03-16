@@ -42,6 +42,9 @@
                     <!-- Datos básicos -->
                     <TextBlock Text="Datos básicos" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,8"/>
 
+                    <TextBlock Text="Código" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtCodigo" FontSize="14" Padding="10,8" Margin="0,0,0,10" MaxLength="64"/>
+
                     <TextBlock Text="Nombre *" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
                     <TextBox x:Name="TxtNombre" FontSize="14" Padding="10,8" Margin="0,0,0,10"/>
 
@@ -57,6 +60,10 @@
                         <ComboBoxItem Content="Proveedor" Tag="1"/>
                         <ComboBoxItem Content="Ambos" Tag="2"/>
                     </ComboBox>
+
+                    <TextBlock Text="Ubicación expediente" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtUbicacion" FontSize="14" Padding="10,8" Margin="0,0,0,10" MaxLength="128"
+                             ToolTip="Ubicación física del expediente (uso del área legal)"/>
 
                     <!-- Datos de contacto -->
                     <TextBlock Text="Datos de contacto" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextInactive}" Margin="0,12,0,8"/>

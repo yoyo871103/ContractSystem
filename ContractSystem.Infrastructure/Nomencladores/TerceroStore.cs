@@ -1,3 +1,4 @@
+using ContractSystem.Application.Common.Models;
 using ContractSystem.Application.Database;
 using ContractSystem.Application.Nomencladores;
 using ContractSystem.Domain.Nomencladores;
@@ -44,6 +45,65 @@ public sealed class TerceroStore : ITerceroStore
 
         return await query
             .OrderBy(e => e.Nombre)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<PagedList<Tercero>> GetPagedAsync(int page, int pageSize, bool includeDeleted = false, TipoTercero? tipo = null, string? searchText = null, CancellationToken cancellationToken = default)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        if (context is not DatabaseApplicationDbContext db)
+            return PagedList<Tercero>.Empty(pageSize);
+
+        var query = db.Set<Tercero>().AsQueryable();
+        if (includeDeleted)
+            query = query.IgnoreQueryFilters();
+
+        if (tipo.HasValue)
+            query = query.Where(e => e.Tipo == tipo.Value || e.Tipo == TipoTercero.Ambos);
+
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            var term = searchText.Trim().ToLower();
+            query = query.Where(e =>
+                e.Nombre.ToLower().Contains(term) ||
+                (e.Codigo != null && e.Codigo.ToLower().Contains(term)) ||
+                e.NifCif.ToLower().Contains(term));
+        }
+
+        var totalRows = await query.CountAsync(cancellationToken);
+        var totalPages = (int)Math.Ceiling((double)totalRows / pageSize);
+        if (page < 1) page = 1;
+        if (page > totalPages && totalPages > 0) page = totalPages;
+
+        var items = await query
+            .OrderBy(e => e.Nombre)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedList<Tercero>(items, page, totalPages, pageSize, totalRows, items.Count);
+    }
+
+    public async Task<IReadOnlyList<Tercero>> SearchAsync(string texto, int maxResults = 20, CancellationToken cancellationToken = default)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        if (context is not DatabaseApplicationDbContext db)
+            return Array.Empty<Tercero>();
+
+        var query = db.Set<Tercero>().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(texto))
+        {
+            var term = texto.Trim().ToLower();
+            query = query.Where(e =>
+                e.Nombre.ToLower().Contains(term) ||
+                (e.Codigo != null && e.Codigo.ToLower().Contains(term)) ||
+                e.NifCif.ToLower().Contains(term));
+        }
+
+        return await query
+            .OrderBy(e => e.Nombre)
+            .Take(maxResults)
             .ToListAsync(cancellationToken);
     }
 

@@ -4,8 +4,6 @@
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -17,57 +15,98 @@
                        Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <!-- Selector de tercero -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
-            <TextBlock Text="Tercero:" VerticalAlignment="Center" FontSize="12"
-                       Foreground="{StaticResource BrushTextInactive}" Margin="0,0,8,0"/>
-            <ComboBox Width="300" Padding="6,4" FontSize="12"
-                      ItemsSource="{Binding Terceros}"
-                      SelectedItem="{Binding TerceroSeleccionado, Mode=TwoWay}"
-                      DisplayMemberPath="Nombre"
-                      IsEditable="True" IsTextSearchEnabled="True" TextSearch.TextPath="Nombre"/>
-            <Button Content="Actualizar" Padding="12,6" Margin="8,0,0,0"
-                    Command="{Binding CargarExpedienteCommand}"/>
-        </StackPanel>
+        <!-- Contenido dividido: izquierda buscador, derecha árbol -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Resumen -->
-        <TextBlock Grid.Row="2" Text="{Binding Resumen}" FontSize="12"
-                   Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,8">
-            <TextBlock.Style>
-                <Style TargetType="TextBlock">
-                    <Setter Property="Visibility" Value="Visible"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Resumen}" Value="{x:Null}">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBlock.Style>
-        </TextBlock>
+            <!-- Panel izquierdo: Buscador + lista paginada -->
+            <DockPanel Grid.Column="0" Margin="0,0,12,0">
+                <!-- Buscador -->
+                <Border DockPanel.Dock="Top" Height="28" Margin="0,0,0,8"
+                        BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" Background="White"
+                        CornerRadius="2">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="28"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                   Foreground="{StaticResource BrushTextInactive}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding BusquedaTercero, UpdateSourceTrigger=PropertyChanged}"
+                                 BorderThickness="0" VerticalContentAlignment="Center" FontSize="12"
+                                 Padding="0,4,8,4" Background="Transparent"/>
+                    </Grid>
+                </Border>
 
-        <!-- TreeView del expediente -->
-        <TreeView Grid.Row="3" x:Name="TvExpediente" ItemsSource="{Binding Nodos}"
-                  BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
-                  MouseDoubleClick="TvExpediente_MouseDoubleClick">
-            <TreeView.ItemContainerStyle>
-                <Style TargetType="TreeViewItem">
-                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
-                </Style>
-            </TreeView.ItemContainerStyle>
-            <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding Hijos}">
-                    <StackPanel Orientation="Horizontal" Margin="2,3">
-                        <TextBlock Text="{Binding Icono}" FontFamily="Segoe MDL2 Assets" FontSize="16"
-                                   Foreground="{Binding Color}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <StackPanel>
-                            <TextBlock Text="{Binding Titulo}" FontWeight="SemiBold" FontSize="12"
-                                       Foreground="{Binding Color}"/>
-                            <TextBlock Text="{Binding Subtitulo}" FontSize="11"
-                                       Foreground="{StaticResource BrushTextInactive}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </HierarchicalDataTemplate>
-            </TreeView.ItemTemplate>
-        </TreeView>
+                <!-- Paginación abajo -->
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
+                            HorizontalAlignment="Center" Margin="0,6,0,0">
+                    <Button Content="&#xE76B;" FontFamily="Segoe MDL2 Assets" Padding="6,3"
+                            Command="{Binding PaginaTerceroAnteriorCommand}" FontSize="10"
+                            ToolTip="Anterior"/>
+                    <TextBlock VerticalAlignment="Center" Margin="8,0" FontSize="11"
+                               Foreground="{StaticResource BrushTextInactive}"
+                               Text="{Binding InfoPaginacionTercero}"/>
+                    <Button Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" Padding="6,3"
+                            Command="{Binding PaginaTerceroSiguienteCommand}" FontSize="10"
+                            ToolTip="Siguiente"/>
+                </StackPanel>
+
+                <!-- Lista de terceros -->
+                <ListBox FontSize="12"
+                         ItemsSource="{Binding Terceros}"
+                         SelectedItem="{Binding TerceroSeleccionado, Mode=TwoWay}"
+                         DisplayMemberPath="Nombre"
+                         BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"/>
+            </DockPanel>
+
+            <!-- Panel derecho: Resumen + TreeView -->
+            <DockPanel Grid.Column="1">
+                <!-- Resumen arriba -->
+                <TextBlock DockPanel.Dock="Top" Text="{Binding Resumen}" FontSize="12"
+                           Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,8">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Resumen}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <!-- TreeView del expediente -->
+                <TreeView x:Name="TvExpediente" ItemsSource="{Binding Nodos}"
+                          BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                          MouseDoubleClick="TvExpediente_MouseDoubleClick">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Hijos}">
+                            <StackPanel Orientation="Horizontal" Margin="2,3">
+                                <TextBlock Text="{Binding Icono}" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                                           Foreground="{Binding Color}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Titulo}" FontWeight="SemiBold" FontSize="12"
+                                               Foreground="{Binding Color}"/>
+                                    <TextBlock Text="{Binding Subtitulo}" FontSize="11"
+                                               Foreground="{StaticResource BrushTextInactive}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </DockPanel>
+        </Grid>
     </Grid>
 </UserControl>

@@ -6,6 +6,7 @@ namespace ContractSystem.Domain.Nomencladores;
 public sealed class Tercero : ISoftDeletable, IAuditable
 {
     public int Id { get; set; }
+    public string? Codigo { get; set; }
     public string Nombre { get; set; } = string.Empty;
     public string RazonSocial { get; set; } = string.Empty;
     public string NifCif { get; set; } = string.Empty;
@@ -13,6 +14,10 @@ public sealed class Tercero : ISoftDeletable, IAuditable
     public string Telefono { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public TipoTercero Tipo { get; set; }
+    /// <summary>
+    /// Ubicación física del expediente del tercero (uso del área legal).
+    /// </summary>
+    public string? UbicacionExpediente { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
 
     public bool IsDeleted => DeletedAt != null;

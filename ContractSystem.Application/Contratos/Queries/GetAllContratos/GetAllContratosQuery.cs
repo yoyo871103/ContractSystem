@@ -11,7 +11,8 @@ public record GetAllContratosQuery(
     int? TerceroId = null,
     DateTime? FechaFirmaDesde = null,
     DateTime? FechaFirmaHasta = null,
-    string? TextoBusqueda = null) : IRequest<IReadOnlyList<Contrato>>;
+    string? TextoBusqueda = null,
+    string? TextoTercero = null) : IRequest<IReadOnlyList<Contrato>>;
 
 public class GetAllContratosQueryHandler : IRequestHandler<GetAllContratosQuery, IReadOnlyList<Contrato>>
 {
@@ -33,6 +34,7 @@ public class GetAllContratosQueryHandler : IRequestHandler<GetAllContratosQuery,
             request.FechaFirmaDesde,
             request.FechaFirmaHasta,
             request.TextoBusqueda,
+            request.TextoTercero,
             cancellationToken);
     }
 }

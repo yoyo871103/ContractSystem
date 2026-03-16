@@ -1,28 +1,40 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ContractSystem.Application.Common.Models;
 using ContractSystem.Application.Contratos.Queries.GetAllContratos;
-using ContractSystem.Application.Nomencladores.Queries.GetAllTerceros;
+using ContractSystem.Application.Nomencladores.Queries.GetPagedTerceros;
 using ContractSystem.Domain.Contratos;
 using ContractSystem.Domain.Nomencladores;
 using MediatR;
 
 namespace ContractSystem.Windows.ViewModels;
 
-/// <summary>
-/// ViewModel para la vista de Expediente por Tercero.
-/// Muestra un TreeView donde el nodo raíz es el tercero y sus hijos son los contratos asociados.
-/// </summary>
 public sealed partial class ExpedienteTerceroViewModel : ObservableObject
 {
     private readonly ISender _sender;
+    private const int PageSize = 15;
 
+    // Terceros paginados
     [ObservableProperty]
     private ObservableCollection<Tercero> _terceros = new();
 
     [ObservableProperty]
     private Tercero? _terceroSeleccionado;
 
+    [ObservableProperty]
+    private string? _busquedaTercero;
+
+    [ObservableProperty]
+    private int _paginaTercero = 1;
+
+    [ObservableProperty]
+    private int _totalPaginasTercero;
+
+    [ObservableProperty]
+    private string? _infoPaginacionTercero;
+
+    // Expediente
     [ObservableProperty]
     private ObservableCollection<NodoExpediente> _nodos = new();
 
@@ -32,21 +44,67 @@ public sealed partial class ExpedienteTerceroViewModel : ObservableObject
     [ObservableProperty]
     private string? _resumen;
 
+    private CancellationTokenSource? _searchCts;
+
     public ExpedienteTerceroViewModel(ISender sender)
     {
         _sender = sender;
         _ = CargarTercerosAsync();
     }
 
+    [RelayCommand]
     private async Task CargarTercerosAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            var lista = await _sender.Send(new GetAllTercerosQuery(), cancellationToken);
+            var result = await _sender.Send(new GetPagedTercerosQuery(
+                PaginaTercero, PageSize, SearchText: BusquedaTercero), cancellationToken);
+
             Terceros.Clear();
-            foreach (var t in lista) Terceros.Add(t);
+            foreach (var t in result.Items) Terceros.Add(t);
+
+            PaginaTercero = result.CurrentPage;
+            TotalPaginasTercero = result.TotalPages;
+            InfoPaginacionTercero = result.TotalRows > 0
+                ? $"Pág. {result.CurrentPage}/{result.TotalPages} ({result.TotalRows})"
+                : "Sin resultados";
+
+            PaginaTerceroAnteriorCommand.NotifyCanExecuteChanged();
+            PaginaTerceroSiguienteCommand.NotifyCanExecuteChanged();
         }
         catch { }
+    }
+
+    [RelayCommand(CanExecute = nameof(PuedeTerceroRetroceder))]
+    private async Task PaginaTerceroAnteriorAsync()
+    {
+        PaginaTercero--;
+        await CargarTercerosAsync();
+    }
+
+    [RelayCommand(CanExecute = nameof(PuedeTerceroAvanzar))]
+    private async Task PaginaTerceroSiguienteAsync()
+    {
+        PaginaTercero++;
+        await CargarTercerosAsync();
+    }
+
+    private bool PuedeTerceroRetroceder() => PaginaTercero > 1;
+    private bool PuedeTerceroAvanzar() => PaginaTercero < TotalPaginasTercero;
+
+    partial void OnBusquedaTerceroChanged(string? value)
+    {
+        _searchCts?.Cancel();
+        _searchCts = new CancellationTokenSource();
+        _ = DebounceBuscarTerceroAsync(_searchCts.Token);
+    }
+
+    private async Task DebounceBuscarTerceroAsync(CancellationToken ct)
+    {
+        try { await Task.Delay(400, ct); }
+        catch (OperationCanceledException) { return; }
+        PaginaTercero = 1;
+        await CargarTercerosAsync(ct);
     }
 
     partial void OnTerceroSeleccionadoChanged(Tercero? value) => _ = CargarExpedienteAsync();
@@ -64,11 +122,9 @@ public sealed partial class ExpedienteTerceroViewModel : ObservableObject
         {
             var tercero = TerceroSeleccionado;
 
-            // Obtener todos los contratos del tercero
             var contratos = await _sender.Send(new GetAllContratosQuery(
                 TerceroId: tercero.Id), cancellationToken);
 
-            // Construir jerarquía: separar raíces (sin padre, o padre fuera del set) de hijos
             var ids = contratos.Select(c => c.Id).ToHashSet();
             var raices = contratos.Where(c => !c.ContratoPadreId.HasValue || !ids.Contains(c.ContratoPadreId.Value))
                 .OrderBy(c => c.FechaFirma)
@@ -77,7 +133,6 @@ public sealed partial class ExpedienteTerceroViewModel : ObservableObject
                 .GroupBy(c => c.ContratoPadreId!.Value)
                 .ToDictionary(g => g.Key, g => g.OrderBy(c => c.FechaFirma).ToList());
 
-            // Nodo raíz = tercero
             var hijosDelTercero = new ObservableCollection<NodoExpediente>();
             foreach (var raiz in raices)
                 hijosDelTercero.Add(ConstruirNodoContrato(raiz, hijosPorPadre));
@@ -93,14 +148,13 @@ public sealed partial class ExpedienteTerceroViewModel : ObservableObject
             var nodoRaiz = new NodoExpediente(
                 tercero.Nombre,
                 $"{tipoTexto} — {tercero.RazonSocial}",
-                "\uE77B", // Person icon
+                "\uE77B",
                 "#0078D4",
                 true,
                 hijosDelTercero);
 
             Nodos.Add(nodoRaiz);
 
-            // Resumen
             var vigentes = contratos.Count(c => c.Estado == EstadoContrato.Vigente);
             var borradores = contratos.Count(c => c.Estado == EstadoContrato.Borrador);
             var vencidos = contratos.Count(c => c.Estado == EstadoContrato.Vencido);
@@ -149,9 +203,6 @@ public sealed partial class ExpedienteTerceroViewModel : ObservableObject
     }
 }
 
-/// <summary>
-/// Nodo genérico para el TreeView del expediente. Puede ser un tercero o un contrato.
-/// </summary>
 public class NodoExpediente
 {
     public int? ContratoId { get; }

@@ -5,7 +5,7 @@ using ContractSystem.Application.Nomencladores.Commands.CreateProductoServicio;
 using ContractSystem.Application.Nomencladores.Commands.DeleteProductoServicio;
 using ContractSystem.Application.Nomencladores.Commands.ReactivarProductoServicio;
 using ContractSystem.Application.Nomencladores.Commands.UpdateProductoServicio;
-using ContractSystem.Application.Nomencladores.Queries.GetAllProductosServicios;
+using ContractSystem.Application.Nomencladores.Queries.GetPagedProductosServicios;
 using ContractSystem.Application.Nomencladores.Queries.GetAllUnidadesMedida;
 using ContractSystem.Domain.Nomencladores;
 using MediatR;
@@ -13,12 +13,10 @@ using System.Windows;
 
 namespace ContractSystem.Windows.ViewModels;
 
-/// <summary>
-/// ViewModel para el CRUD de Productos/Servicios (catálogo).
-/// </summary>
 public sealed partial class ProductoServicioViewModel : ObservableObject
 {
     private readonly ISender _sender;
+    private const int PageSize = 20;
 
     [ObservableProperty]
     private ObservableCollection<ProductoServicio> _productos = new();
@@ -38,10 +36,24 @@ public sealed partial class ProductoServicioViewModel : ObservableObject
     [ObservableProperty]
     private TipoProductoServicio? _filtroTipo;
 
-    /// <summary>
-    /// Lista de unidades de medida para los diálogos.
-    /// </summary>
+    [ObservableProperty]
+    private string? _busqueda;
+
+    // Paginación
+    [ObservableProperty]
+    private int _paginaActual = 1;
+
+    [ObservableProperty]
+    private int _totalPaginas;
+
+    [ObservableProperty]
+    private int _totalRegistros;
+
+    [ObservableProperty]
+    private string? _infoPaginacion;
+
     private IReadOnlyList<UnidadMedida> _unidadesMedida = Array.Empty<UnidadMedida>();
+    private CancellationTokenSource? _searchCts;
 
     public ProductoServicioViewModel(ISender sender)
     {
@@ -56,10 +68,22 @@ public sealed partial class ProductoServicioViewModel : ObservableObject
         EstaCargando = true;
         try
         {
-            var lista = await _sender.Send(new GetAllProductosServiciosQuery(IncludeDeleted, FiltroTipo), cancellationToken);
+            var result = await _sender.Send(new GetPagedProductosServiciosQuery(
+                PaginaActual, PageSize, IncludeDeleted, FiltroTipo, Busqueda), cancellationToken);
+
             Productos.Clear();
-            foreach (var item in lista)
+            foreach (var item in result.Items)
                 Productos.Add(item);
+
+            PaginaActual = result.CurrentPage;
+            TotalPaginas = result.TotalPages;
+            TotalRegistros = result.TotalRows;
+            InfoPaginacion = TotalRegistros > 0
+                ? $"Página {PaginaActual} de {TotalPaginas} ({TotalRegistros} registros)"
+                : "Sin resultados";
+
+            PaginaAnteriorCommand.NotifyCanExecuteChanged();
+            PaginaSiguienteCommand.NotifyCanExecuteChanged();
 
             _unidadesMedida = await _sender.Send(new GetAllUnidadesMedidaQuery(), cancellationToken);
         }
@@ -72,6 +96,23 @@ public sealed partial class ProductoServicioViewModel : ObservableObject
             EstaCargando = false;
         }
     }
+
+    [RelayCommand(CanExecute = nameof(PuedeRetroceder))]
+    private async Task PaginaAnteriorAsync()
+    {
+        PaginaActual--;
+        await CargarAsync();
+    }
+
+    [RelayCommand(CanExecute = nameof(PuedeAvanzar))]
+    private async Task PaginaSiguienteAsync()
+    {
+        PaginaActual++;
+        await CargarAsync();
+    }
+
+    private bool PuedeRetroceder() => PaginaActual > 1;
+    private bool PuedeAvanzar() => PaginaActual < TotalPaginas;
 
     [RelayCommand]
     private void Nuevo()
@@ -190,8 +231,23 @@ public sealed partial class ProductoServicioViewModel : ObservableObject
 
     private bool PuedeReactivar() => Seleccionado is not null && Seleccionado.IsDeleted;
 
-    partial void OnIncludeDeletedChanged(bool value) => _ = CargarAsync();
-    partial void OnFiltroTipoChanged(TipoProductoServicio? value) => _ = CargarAsync();
+    partial void OnIncludeDeletedChanged(bool value) { PaginaActual = 1; _ = CargarAsync(); }
+    partial void OnFiltroTipoChanged(TipoProductoServicio? value) { PaginaActual = 1; _ = CargarAsync(); }
+
+    partial void OnBusquedaChanged(string? value)
+    {
+        _searchCts?.Cancel();
+        _searchCts = new CancellationTokenSource();
+        _ = DebounceBuscarAsync(_searchCts.Token);
+    }
+
+    private async Task DebounceBuscarAsync(CancellationToken ct)
+    {
+        try { await Task.Delay(400, ct); }
+        catch (OperationCanceledException) { return; }
+        PaginaActual = 1;
+        await CargarAsync(ct);
+    }
 
     partial void OnSeleccionadoChanged(ProductoServicio? value)
     {
