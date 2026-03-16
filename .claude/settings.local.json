@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/yoyo8/source/repos/ContractSystem/ContractSystem/$APPDATA/ContractSystem/**)"
+    ]
+  }
+}

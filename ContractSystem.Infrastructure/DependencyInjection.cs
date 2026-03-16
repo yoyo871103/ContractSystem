@@ -3,9 +3,11 @@ using ContractSystem.Application.Auth;
 using ContractSystem.Infrastructure.Business;
 using ContractSystem.Application.Configuration;
 using ContractSystem.Application.Nomencladores;
+using ContractSystem.Application.Contratos;
 using ContractSystem.Infrastructure.Auth;
 using ContractSystem.Infrastructure.Configuration;
 using ContractSystem.Infrastructure.Nomencladores;
+using ContractSystem.Infrastructure.Contratos;
 using ContractSystem.Infrastructure.Database;
 using ContractSystem.Infrastructure.DatabaseSetup;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,6 +56,20 @@ public static class DependencyInjection
         services.AddTransient<ISeedDataService, SeedDataService>();
         services.AddTransient<IBusinessInfoStore, BusinessInfoStore>();
         services.AddTransient<IUnidadMedidaStore, UnidadMedidaStore>();
+        services.AddTransient<ITerceroStore, TerceroStore>();
+        services.AddTransient<IProductoServicioStore, ProductoServicioStore>();
+        services.AddTransient<IPlantillaDocumentoStore, PlantillaDocumentoStore>();
+
+        // Contratos
+        services.AddTransient<IContratoStore, ContratoStore>();
+        services.AddTransient<IModificacionDocumentoStore, ModificacionDocumentoStore>();
+        services.AddTransient<IContratoValidationService, ContratoValidationService>();
+        services.AddTransient<IConfiguracionNumeracionStore, ConfiguracionNumeracionStore>();
+        services.AddTransient<IDocumentoNumeracionService, DocumentoNumeracionService>();
+        services.AddTransient<IAnexoStore, AnexoStore>();
+        services.AddTransient<ILineaDetalleStore, LineaDetalleStore>();
+        services.AddTransient<IDocumentoAdjuntoStore, DocumentoAdjuntoStore>();
+        services.AddTransient<IHistorialCambioStore, HistorialCambioStore>();
 
         return services;
     }

@@ -1,0 +1,211 @@
+<Window x:Class="ContractSystem.Windows.Views.Contratos.SuplementoDialogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Suplemento"
+        Height="750" Width="660"
+        MinHeight="650" MinWidth="560"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" ResizeMode="CanResize"
+        Background="{StaticResource BrushBackground}"
+        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+    <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="6">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Título -->
+            <Border Grid.Row="0" Background="White"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1"
+                    Padding="12,10" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock x:Name="TxtTitulo" Text="Nuevo suplemento"
+                                   FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource BrushTextActive}"/>
+                        <TextBlock x:Name="TxtContratoInfo" FontSize="11"
+                                   Foreground="{StaticResource BrushTextInactive}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Width="28" Height="28" Padding="0" Background="Transparent" BorderThickness="0"
+                            Cursor="Hand" ToolTip="Cerrar" Click="BtnCancelar_Click">
+                        <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                   Foreground="{StaticResource BrushTextInactive}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Cuerpo -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="20,16">
+                <StackPanel>
+                    <!-- Datos básicos -->
+                    <TextBlock Text="Datos básicos" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,8"/>
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Rol *" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="CmbRol" Padding="10,8" FontSize="14">
+                                <ComboBoxItem Content="Proveedor" Tag="0" IsSelected="True"/>
+                                <ComboBoxItem Content="Cliente" Tag="1"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Número *" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="TxtNumero" Grid.Column="0" FontSize="14" Padding="10,8"/>
+                                <Button Grid.Column="1" x:Name="BtnGenerarNumero" Content="Gen." Padding="8,8"
+                                        Margin="4,0,0,0" Background="{StaticResource BrushAccent}" Foreground="White"
+                                        BorderThickness="0" Cursor="Hand" Click="BtnGenerarNumero_Click"
+                                        ToolTip="Generar número automáticamente"/>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Objeto *" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtObjeto" FontSize="14" Padding="10,8" Margin="0,0,0,10"
+                             TextWrapping="Wrap" AcceptsReturn="True" MinHeight="50" MaxHeight="100"
+                             VerticalScrollBarVisibility="Auto"/>
+
+                    <!-- Modificación de generales (solo si padre es Marco) -->
+                    <CheckBox x:Name="ChkModificacionGenerales" Content="Es modificación de condiciones generales"
+                              Margin="0,0,0,10" Visibility="Collapsed"
+                              FontSize="12"/>
+
+                    <Separator Margin="0,4,0,12" Background="{StaticResource BrushBorder}"/>
+
+                    <!-- Fechas -->
+                    <TextBlock Text="Fechas" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,8"/>
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Fecha de firma" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                            <DatePicker x:Name="DpFechaFirma" FontSize="14" Padding="6,4"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Fecha de vigencia (hasta)" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                            <DatePicker x:Name="DpFechaVigencia" FontSize="14" Padding="6,4"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Fecha entrada en vigor" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                            <DatePicker x:Name="DpFechaEntradaVigor" FontSize="14" Padding="6,4"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Duración" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                            <TextBox x:Name="TxtDuracion" FontSize="14" Padding="10,8"/>
+                        </StackPanel>
+                    </Grid>
+                    <!-- Atajos de vigencia -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="Vigencia rápida:" FontSize="11" Foreground="{StaticResource BrushTextInactive}"
+                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <Button Content="1 año" Padding="8,4" FontSize="11" Margin="0,0,4,0"
+                                Cursor="Hand" Click="BtnVigencia1_Click"/>
+                        <Button Content="2 años" Padding="8,4" FontSize="11" Margin="0,0,4,0"
+                                Cursor="Hand" Click="BtnVigencia2_Click"/>
+                        <Button Content="3 años" Padding="8,4" FontSize="11" Margin="0,0,4,0"
+                                Cursor="Hand" Click="BtnVigencia3_Click"/>
+                        <Button Content="4 años" Padding="8,4" FontSize="11" Margin="0,0,4,0"
+                                Cursor="Hand" Click="BtnVigencia4_Click"/>
+                        <Button Content="5 años" Padding="8,4" FontSize="11"
+                                Cursor="Hand" Click="BtnVigencia5_Click"/>
+                    </StackPanel>
+
+                    <Separator Margin="0,4,0,12" Background="{StaticResource BrushBorder}"/>
+
+                    <!-- Partes involucradas -->
+                    <TextBlock Text="Partes involucradas" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,8"/>
+
+                    <TextBlock Text="Tercero (contraparte)" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="CmbTercero" Padding="10,8" FontSize="14" Margin="0,0,0,10"
+                              DisplayMemberPath="Nombre"/>
+
+                    <Separator Margin="0,4,0,12" Background="{StaticResource BrushBorder}"/>
+
+                    <!-- Relaciones "Modifica a" -->
+                    <TextBlock Text="Documentos que modifica" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,8"/>
+                    <TextBlock Text="Seleccione los documentos que este suplemento modifica y describa qué cambia."
+                               FontSize="11" Foreground="Gray" Margin="0,0,0,8"/>
+
+                    <DataGrid x:Name="DgModificaciones" AutoGenerateColumns="False"
+                              CanUserAddRows="True" CanUserDeleteRows="True"
+                              MinHeight="100" MaxHeight="200"
+                              HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                              BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                              Margin="0,0,0,10">
+                        <DataGrid.Columns>
+                            <DataGridComboBoxColumn Header="Documento destino" Width="*"
+                                                    x:Name="ColDocumentoDestino"
+                                                    SelectedValueBinding="{Binding DocumentoDestinoId}"
+                                                    SelectedValuePath="Id"
+                                                    DisplayMemberPath="Numero"/>
+                            <DataGridTextColumn Header="Descripción de la modificación" Width="*"
+                                                Binding="{Binding Descripcion}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Separator Margin="0,4,0,12" Background="{StaticResource BrushBorder}"/>
+
+                    <!-- Valores económicos -->
+                    <TextBlock Text="Valores económicos (opcionales)" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,8"/>
+
+                    <TextBlock Text="Valor total" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtValorTotal" FontSize="14" Padding="10,8" Margin="0,0,0,10"
+                             PreviewTextInput="OnlyDecimal_PreviewTextInput"/>
+
+                    <TextBlock Text="Condiciones de entrega" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtCondicionesEntrega" FontSize="14" Padding="10,8" Margin="0,0,0,10"
+                             TextWrapping="Wrap" AcceptsReturn="True" MinHeight="40" MaxHeight="80"
+                             VerticalScrollBarVisibility="Auto"/>
+
+                    <TextBlock Text="Costos asociados" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtCostosAsociados" FontSize="14" Padding="10,8" Margin="0,0,0,10"
+                             TextWrapping="Wrap" AcceptsReturn="True" MinHeight="40" MaxHeight="80"
+                             VerticalScrollBarVisibility="Auto"/>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Pie fijo -->
+            <Border Grid.Row="2" Background="White"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,1,0,0"
+                    Padding="12,10">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Cancelar" Padding="16,8" Cursor="Hand" Click="BtnCancelar_Click"/>
+                    <Button Content="Guardar" Padding="16,8" Margin="8,0,0,0" Cursor="Hand"
+                            Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0"
+                            Click="BtnGuardar_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

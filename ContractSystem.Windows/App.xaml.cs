@@ -1,6 +1,8 @@
 using System.Windows;
 using ContractSystem.Application.Auth;
+using ContractSystem.Application.Contratos.Commands.ActualizarVencimientos;
 using ContractSystem.Infrastructure;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ContractSystem.Windows
@@ -49,6 +51,17 @@ namespace ContractSystem.Windows
             Services.GetRequiredService<Services.ILogoutService>().SetMainWindow(mainWindow);
             mainWindow.Closed += (_, _) => Shutdown();
             mainWindow.Show();
+
+            // Verificar vencimientos automáticos al iniciar
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var sender = Services.GetRequiredService<ISender>();
+                    await sender.Send(new ActualizarVencimientosCommand());
+                }
+                catch { /* silenciar errores de vencimiento automático */ }
+            });
         }
     }
 }

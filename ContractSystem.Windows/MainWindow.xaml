@@ -200,15 +200,109 @@
                                 Visibility="{Binding IsSqlAdminOnly, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
                         <!-- 1. Inicio -->
                         <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Inicio"
-                                Command="{Binding NavigateToInicioCommand}">
-                            <StackPanel>
-                                <TextBlock Text="&#xE80F;" FontFamily="Segoe MDL2 Assets" 
-                                           FontSize="20" Foreground="{StaticResource BrushAccent}"
-                                           HorizontalAlignment="Center"/>
-                                <TextBlock Text="Inicio" FontSize="10" Foreground="{StaticResource BrushTextActive}"
-                                           HorizontalAlignment="Center" Margin="0,4,0,0"
-                                           TextWrapping="Wrap" TextAlignment="Center"/>
-                            </StackPanel>
+                                Command="{Binding NavigateToInicioCommand}"
+                                Tag="{Binding ActiveSection}">
+                            <Grid Width="56">
+                                <Border x:Name="IndInicio" Width="3" HorizontalAlignment="Left" CornerRadius="2"
+                                        Background="{StaticResource BrushAccent}" Visibility="Collapsed"/>
+                                <StackPanel>
+                                    <TextBlock Text="&#xE80F;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="20" Foreground="{StaticResource BrushAccent}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Inicio" FontSize="10" Foreground="{StaticResource BrushTextActive}"
+                                               HorizontalAlignment="Center" Margin="0,4,0,0"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                        <!-- 2. Contratos -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Contratos"
+                                Command="{Binding NavigateToContratosCommand}"
+                                Tag="{Binding ActiveSection}">
+                            <Grid Width="56">
+                                <Border x:Name="IndContratos" Width="3" HorizontalAlignment="Left" CornerRadius="2"
+                                        Background="{StaticResource BrushAccent}" Visibility="Collapsed"/>
+                                <StackPanel>
+                                    <TextBlock Text="&#xE7BC;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="20" Foreground="{StaticResource BrushAccent}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Contratos" FontSize="10" Foreground="{StaticResource BrushTextActive}"
+                                               HorizontalAlignment="Center" Margin="0,4,0,0"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                        <!-- 3. Árbol -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Vista de Árbol"
+                                Command="{Binding NavigateToArbolCommand}"
+                                Tag="{Binding ActiveSection}">
+                            <Grid Width="56">
+                                <Border x:Name="IndArbol" Width="3" HorizontalAlignment="Left" CornerRadius="2"
+                                        Background="{StaticResource BrushAccent}" Visibility="Collapsed"/>
+                                <StackPanel>
+                                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="20" Foreground="{StaticResource BrushAccent}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Árbol" FontSize="10" Foreground="{StaticResource BrushTextActive}"
+                                               HorizontalAlignment="Center" Margin="0,4,0,0"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                        <!-- 4. Expediente -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Expediente por Tercero"
+                                Command="{Binding NavigateToExpedienteCommand}"
+                                Tag="{Binding ActiveSection}">
+                            <Grid Width="56">
+                                <Border x:Name="IndExpediente" Width="3" HorizontalAlignment="Left" CornerRadius="2"
+                                        Background="{StaticResource BrushAccent}" Visibility="Collapsed"/>
+                                <StackPanel>
+                                    <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="20" Foreground="{StaticResource BrushAccent}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Expediente" FontSize="10" Foreground="{StaticResource BrushTextActive}"
+                                               HorizontalAlignment="Center" Margin="0,4,0,0"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+
+                        <!-- Separador -->
+                        <Border Height="1" Background="{StaticResource BrushBorder}" Margin="8,8"/>
+
+                        <!-- 5. Terceros -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Clientes / Proveedores"
+                                Command="{Binding NavigateToTercerosCommand}"
+                                Tag="{Binding ActiveSection}">
+                            <Grid Width="56">
+                                <Border x:Name="IndTerceros" Width="3" HorizontalAlignment="Left" CornerRadius="2"
+                                        Background="{StaticResource BrushAccent}" Visibility="Collapsed"/>
+                                <StackPanel>
+                                    <TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="20" Foreground="{StaticResource BrushAccent}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Terceros" FontSize="10" Foreground="{StaticResource BrushTextActive}"
+                                               HorizontalAlignment="Center" Margin="0,4,0,0"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                        <!-- 6. Productos/Servicios -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Productos / Servicios"
+                                Command="{Binding NavigateToProductosCommand}"
+                                Tag="{Binding ActiveSection}">
+                            <Grid Width="56">
+                                <Border x:Name="IndProductos" Width="3" HorizontalAlignment="Left" CornerRadius="2"
+                                        Background="{StaticResource BrushAccent}" Visibility="Collapsed"/>
+                                <StackPanel>
+                                    <TextBlock Text="&#xE719;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="20" Foreground="{StaticResource BrushAccent}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Productos" FontSize="10" Foreground="{StaticResource BrushTextActive}"
+                                               HorizontalAlignment="Center" Margin="0,4,0,0"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
                         </Button>
                     </StackPanel>
                 </ScrollViewer>

@@ -107,15 +107,29 @@
                     </Grid>
                 </Border>
 
-                <CheckBox x:Name="ChkAdminSql" Content="Entrar como administrador SQL (solo gestión de usuarios)"
-                          FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,6" Visibility="Collapsed"/>
-
-                <Border x:Name="PanelAdminSql" Visibility="Collapsed" Margin="0,0,0,12"
-                        Padding="8" Background="{StaticResource BrushHover}" CornerRadius="4">
-                    <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource BrushTextInactive}">
-                        <Run Text="Use credenciales de administrador de SQL Server (p. ej. sa). Solo tendrá acceso a gestión de usuarios."/>
-                    </TextBlock>
-                </Border>
+                <!-- Sección admin SQL colapsable -->
+                <StackPanel x:Name="PnlAdminSqlContainer" Visibility="Collapsed">
+                    <Button x:Name="BtnToggleAdminSql" Background="Transparent" BorderThickness="0"
+                            Cursor="Hand" HorizontalAlignment="Left" Padding="0" Margin="0,0,0,6"
+                            Click="BtnToggleAdminSql_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="TxtToggleArrow" Text="▸" FontSize="11"
+                                       Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                            <TextBlock Text="Acceso administrador SQL" FontSize="11"
+                                       Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <StackPanel x:Name="PnlAdminSqlContent" Visibility="Collapsed">
+                        <CheckBox x:Name="ChkAdminSql" Content="Entrar como administrador SQL (solo gestión de usuarios)"
+                                  FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,6"/>
+                        <Border x:Name="PanelAdminSql" Margin="0,0,0,12"
+                                Padding="8" Background="{StaticResource BrushHover}" CornerRadius="4">
+                            <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource BrushTextInactive}">
+                                <Run Text="Use credenciales de administrador de SQL Server (p. ej. sa). Solo tendrá acceso a gestión de usuarios."/>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
 
                 <Button x:Name="BtnIniciarSesion" Content="Iniciar sesión"
                         FontSize="14" Padding="24,12" Height="44"

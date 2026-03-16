@@ -27,10 +27,16 @@ public sealed partial class ConfiguracionViewModel : ObservableObject
     /// </summary>
     public NomencladoresViewModel Nomencladores { get; }
 
+    /// <summary>
+    /// ViewModel del tab "Numeración de Documentos".
+    /// </summary>
+    public NumeracionConfigViewModel NumeracionConfig { get; }
+
     public ConfiguracionViewModel(IServiceProvider services)
     {
         GestionUsuarios = services.GetRequiredService<GestionUsuariosViewModel>();
         BusinessInfo = services.GetRequiredService<BusinessInfoViewModel>();
         Nomencladores = services.GetRequiredService<NomencladoresViewModel>();
+        NumeracionConfig = services.GetRequiredService<NumeracionConfigViewModel>();
     }
 }

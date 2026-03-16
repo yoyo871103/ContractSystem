@@ -56,6 +56,50 @@ namespace ContractSystem.Infrastructure.Migrations
                     b.ToTable("BusinessInfos");
                 });
 
+            modelBuilder.Entity("ContractSystem.Domain.Identity.Permiso", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+                    b.ToTable("Permisos");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Identity.Rol", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+                    b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Identity.RolPermiso", b =>
+                {
+                    b.Property<int>("RolId")
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("PermisoId")
+                        .HasColumnType("INTEGER");
+                    b.HasKey("RolId", "PermisoId");
+                    b.HasIndex("PermisoId");
+                    b.ToTable("RolPermisos");
+                });
+
             modelBuilder.Entity("ContractSystem.Domain.Identity.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -103,6 +147,17 @@ namespace ContractSystem.Infrastructure.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("ContractSystem.Domain.Identity.UsuarioRol", b =>
+                {
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("RolId")
+                        .HasColumnType("INTEGER");
+                    b.HasKey("UsuarioId", "RolId");
+                    b.HasIndex("RolId");
+                    b.ToTable("UsuarioRoles");
+                });
+
             modelBuilder.Entity("ContractSystem.Domain.Nomencladores.UnidadMedida", b =>
                 {
                     b.Property<int>("Id")
@@ -124,59 +179,451 @@ namespace ContractSystem.Infrastructure.Migrations
                     b.ToTable("nom_UnidadesMedida");
                 });
 
-            modelBuilder.Entity("ContractSystem.Domain.Identity.Permiso", b =>
+            modelBuilder.Entity("ContractSystem.Domain.Nomencladores.Tercero", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-                    b.Property<string>("Descripcion")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
+                    b.Property<string>("RazonSocial")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("NifCif")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Direccion")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Telefono")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<int>("Tipo")
+                        .HasColumnType("INTEGER");
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("CreadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime?>("FechaModificacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("ModificadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
                     b.HasKey("Id");
-                    b.HasIndex("Nombre")
-                        .IsUnique();
-                    b.ToTable("Permisos");
+                    b.HasIndex("NifCif");
+                    b.HasIndex("Tipo");
+                    b.ToTable("nom_Terceros");
                 });
 
-            modelBuilder.Entity("ContractSystem.Domain.Identity.Rol", b =>
+            modelBuilder.Entity("ContractSystem.Domain.Nomencladores.ContactoTercero", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("TerceroId")
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Cargo")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Telefono")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("TerceroId");
+                    b.ToTable("nom_ContactosTercero");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Nomencladores.ProductoServicio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Codigo")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("TEXT");
+                    b.Property<int>("Tipo")
+                        .HasColumnType("INTEGER");
+                    b.Property<int?>("UnidadMedidaId")
+                        .HasColumnType("INTEGER");
+                    b.Property<decimal?>("PrecioEstimado")
+                        .HasColumnType("TEXT");
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("CreadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime?>("FechaModificacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("ModificadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("Codigo");
+                    b.HasIndex("Tipo");
+                    b.HasIndex("UnidadMedidaId");
+                    b.ToTable("nom_ProductosServicios");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Nomencladores.PlantillaDocumento", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasMaxLength(64)
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<int>("TipoDocumento")
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("Rol")
+                        .HasColumnType("INTEGER");
+                    b.Property<byte[]>("Archivo")
+                        .IsRequired()
+                        .HasColumnType("BLOB");
+                    b.Property<string>("NombreArchivo")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("CreadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime?>("FechaModificacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("ModificadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.Property<bool>("RevisadoPorLegal")
+                        .HasColumnType("INTEGER");
+                    b.HasKey("Id");
+                    b.HasIndex("TipoDocumento");
+                    b.HasIndex("Rol");
+                    b.ToTable("nom_PlantillasDocumento");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.Contrato", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Numero")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Objeto")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("TEXT");
+                    b.Property<int>("TipoDocumento")
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("Rol")
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("Estado")
+                        .HasColumnType("INTEGER");
+                    b.Property<DateTime?>("FechaFirma")
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime?>("FechaEntradaVigor")
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime?>("FechaVigencia")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Duracion")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<bool>("Ejecutado")
+                        .HasColumnType("INTEGER");
+                    b.Property<DateTime?>("FechaEjecucion")
+                        .HasColumnType("TEXT");
+                    b.Property<int?>("MiEmpresaId")
+                        .HasColumnType("INTEGER");
+                    b.Property<int?>("TerceroId")
+                        .HasColumnType("INTEGER");
+                    b.Property<int?>("ContratoPadreId")
+                        .HasColumnType("INTEGER");
+                    b.Property<decimal?>("ValorTotal")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("CondicionesEntrega")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("CostosAsociados")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+                    b.Property<bool>("EsModificacionGenerales")
+                        .HasColumnType("INTEGER");
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("CreadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime?>("FechaModificacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("ModificadoPorUsuario")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.Property<int?>("UsuarioCreacionId")
+                        .HasColumnType("INTEGER");
+                    b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("TEXT");
                     b.HasKey("Id");
-                    b.HasIndex("Nombre")
+                    b.HasIndex("Numero");
+                    b.HasIndex("TipoDocumento");
+                    b.HasIndex("Estado");
+                    b.HasIndex("Rol");
+                    b.HasIndex("FechaFirma");
+                    b.HasIndex("FechaVigencia");
+                    b.HasIndex("TerceroId");
+                    b.HasIndex("ContratoPadreId");
+                    b.HasIndex("MiEmpresaId");
+                    b.ToTable("Contratos");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.ModificacionDocumento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("DocumentoOrigenId")
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("DocumentoDestinoId")
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime>("FechaRegistro")
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("DocumentoOrigenId", "DocumentoDestinoId")
                         .IsUnique();
-                    b.ToTable("Roles");
+                    b.HasIndex("DocumentoDestinoId");
+                    b.ToTable("ModificacionesDocumento");
                 });
 
-            modelBuilder.Entity("ContractSystem.Domain.Identity.RolPermiso", b =>
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.ConfiguracionNumeracion", b =>
                 {
-                    b.Property<int>("RolId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-                    b.Property<int>("PermisoId")
+                    b.Property<string>("Formato")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+                    b.Property<int>("DigitosPadding")
                         .HasColumnType("INTEGER");
-                    b.HasKey("RolId", "PermisoId");
-                    b.HasIndex("PermisoId");
-                    b.ToTable("RolPermisos");
+                    b.Property<bool>("ContadorPorAnio")
+                        .HasColumnType("INTEGER");
+                    b.Property<bool>("Activa")
+                        .HasColumnType("INTEGER");
+                    b.Property<DateTimeOffset>("FechaCreacion")
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.ToTable("ConfiguracionNumeracion");
                 });
 
-            modelBuilder.Entity("ContractSystem.Domain.Identity.UsuarioRol", b =>
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.ContadorNumeracion", b =>
                 {
-                    b.Property<int>("UsuarioId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-                    b.Property<int>("RolId")
+                    b.Property<int?>("Anio")
                         .HasColumnType("INTEGER");
-                    b.HasKey("UsuarioId", "RolId");
-                    b.HasIndex("RolId");
-                    b.ToTable("UsuarioRoles");
+                    b.Property<int>("UltimoNumero")
+                        .HasColumnType("INTEGER");
+                    b.HasKey("Id");
+                    b.HasIndex("Anio")
+                        .IsUnique();
+                    b.ToTable("ContadoresNumeracion");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.Anexo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("ContratoId")
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("CondicionesEntrega")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("CostosAsociados")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+                    b.Property<int>("Orden")
+                        .HasColumnType("INTEGER");
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("CreadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime?>("FechaModificacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("ModificadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("ContratoId");
+                    b.ToTable("Anexos");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.LineaDetalle", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("ContratoId")
+                        .HasColumnType("INTEGER");
+                    b.Property<int?>("AnexoId")
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("Tipo")
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Concepto")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(2048)
+                        .HasColumnType("TEXT");
+                    b.Property<decimal>("Cantidad")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("UnidadMedidaTexto")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+                    b.Property<int?>("UnidadMedidaId")
+                        .HasColumnType("INTEGER");
+                    b.Property<decimal>("PrecioUnitario")
+                        .HasColumnType("TEXT");
+                    b.Property<decimal>("ImporteTotal")
+                        .HasColumnType("TEXT");
+                    b.Property<int?>("ProductoServicioOrigenId")
+                        .HasColumnType("INTEGER");
+                    b.Property<bool>("EsCopiaDeOriginal")
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("Orden")
+                        .HasColumnType("INTEGER");
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("CreadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime?>("FechaModificacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("ModificadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("ContratoId");
+                    b.HasIndex("AnexoId");
+                    b.ToTable("LineasDetalle");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.DocumentoAdjunto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("NombreArchivo")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Extension")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Objetivo")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+                    b.Property<byte[]>("Contenido")
+                        .IsRequired()
+                        .HasColumnType("BLOB");
+                    b.Property<long>("TamanioBytes")
+                        .HasColumnType("INTEGER");
+                    b.Property<DateTime>("FechaCarga")
+                        .HasColumnType("TEXT");
+                    b.Property<int?>("UsuarioCargaId")
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("ContratoId")
+                        .HasColumnType("INTEGER");
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("CreadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime?>("FechaModificacion")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("ModificadoPor")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("ContratoId");
+                    b.ToTable("DocumentosAdjuntos");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.HistorialCambio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<DateTime>("FechaHora")
+                        .HasColumnType("TEXT");
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("UsuarioNombre")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+                    b.Property<int>("TipoCambio")
+                        .HasColumnType("INTEGER");
+                    b.Property<int>("ContratoId")
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("ValorAnterior")
+                        .HasColumnType("TEXT");
+                    b.Property<string>("ValorNuevo")
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("ContratoId");
+                    b.HasIndex("FechaHora");
+                    b.ToTable("HistorialCambios");
                 });
 
             modelBuilder.Entity("ContractSystem.Domain.Identity.RolPermiso", b =>
@@ -191,6 +638,8 @@ namespace ContractSystem.Infrastructure.Migrations
                         .HasForeignKey("RolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                    b.Navigation("Permiso");
+                    b.Navigation("Rol");
                 });
 
             modelBuilder.Entity("ContractSystem.Domain.Identity.UsuarioRol", b =>
@@ -205,6 +654,141 @@ namespace ContractSystem.Infrastructure.Migrations
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                    b.Navigation("Rol");
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Nomencladores.ContactoTercero", b =>
+                {
+                    b.HasOne("ContractSystem.Domain.Nomencladores.Tercero", "Tercero")
+                        .WithMany("Contactos")
+                        .HasForeignKey("TerceroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                    b.Navigation("Tercero");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Nomencladores.ProductoServicio", b =>
+                {
+                    b.HasOne("ContractSystem.Domain.Nomencladores.UnidadMedida", "UnidadMedida")
+                        .WithMany()
+                        .HasForeignKey("UnidadMedidaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                    b.Navigation("UnidadMedida");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.Contrato", b =>
+                {
+                    b.HasOne("ContractSystem.Domain.Contratos.Contrato", "ContratoPadre")
+                        .WithMany("Hijos")
+                        .HasForeignKey("ContratoPadreId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                    b.HasOne("ContractSystem.Domain.Business.BusinessInfo", "MiEmpresa")
+                        .WithMany()
+                        .HasForeignKey("MiEmpresaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                    b.HasOne("ContractSystem.Domain.Nomencladores.Tercero", "Tercero")
+                        .WithMany()
+                        .HasForeignKey("TerceroId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                    b.Navigation("ContratoPadre");
+                    b.Navigation("MiEmpresa");
+                    b.Navigation("Tercero");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.ModificacionDocumento", b =>
+                {
+                    b.HasOne("ContractSystem.Domain.Contratos.Contrato", "DocumentoOrigen")
+                        .WithMany("ModificaA")
+                        .HasForeignKey("DocumentoOrigenId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                    b.HasOne("ContractSystem.Domain.Contratos.Contrato", "DocumentoDestino")
+                        .WithMany("ModificadoPor")
+                        .HasForeignKey("DocumentoDestinoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                    b.Navigation("DocumentoOrigen");
+                    b.Navigation("DocumentoDestino");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.Anexo", b =>
+                {
+                    b.HasOne("ContractSystem.Domain.Contratos.Contrato", "Contrato")
+                        .WithMany()
+                        .HasForeignKey("ContratoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                    b.Navigation("Contrato");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.LineaDetalle", b =>
+                {
+                    b.HasOne("ContractSystem.Domain.Contratos.Contrato", "Contrato")
+                        .WithMany()
+                        .HasForeignKey("ContratoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                    b.HasOne("ContractSystem.Domain.Contratos.Anexo", "Anexo")
+                        .WithMany("Lineas")
+                        .HasForeignKey("AnexoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                    b.Navigation("Contrato");
+                    b.Navigation("Anexo");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.DocumentoAdjunto", b =>
+                {
+                    b.HasOne("ContractSystem.Domain.Contratos.Contrato", "Contrato")
+                        .WithMany("DocumentosAdjuntos")
+                        .HasForeignKey("ContratoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                    b.Navigation("Contrato");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.HistorialCambio", b =>
+                {
+                    b.HasOne("ContractSystem.Domain.Contratos.Contrato", "Contrato")
+                        .WithMany()
+                        .HasForeignKey("ContratoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                    b.Navigation("Contrato");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Identity.Permiso", b =>
+                {
+                    b.Navigation("RolPermisos");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Identity.Rol", b =>
+                {
+                    b.Navigation("RolPermisos");
+                    b.Navigation("UsuarioRoles");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Identity.Usuario", b =>
+                {
+                    b.Navigation("UsuarioRoles");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Nomencladores.Tercero", b =>
+                {
+                    b.Navigation("Contactos");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.Contrato", b =>
+                {
+                    b.Navigation("DocumentosAdjuntos");
+                    b.Navigation("Hijos");
+                    b.Navigation("ModificaA");
+                    b.Navigation("ModificadoPor");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Contratos.Anexo", b =>
+                {
+                    b.Navigation("Lineas");
                 });
 #pragma warning restore 612, 618
         }

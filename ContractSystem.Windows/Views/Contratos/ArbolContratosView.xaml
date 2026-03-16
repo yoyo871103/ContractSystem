@@ -1,0 +1,135 @@
+<UserControl x:Class="ContractSystem.Windows.Views.Contratos.ArbolContratosView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="24"
+                       Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBlock Text="Vista de Árbol" FontSize="16" FontWeight="SemiBold"
+                       Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"/>
+            <Button Content="Actualizar" Padding="12,6" Margin="16,0,0,0"
+                    Command="{Binding CargarCommand}"/>
+        </StackPanel>
+
+        <!-- Filtros -->
+        <WrapPanel Grid.Row="1" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                <TextBlock Text="Tipo:" VerticalAlignment="Center" FontSize="12"
+                           Foreground="{StaticResource BrushTextInactive}" Margin="0,0,6,0"/>
+                <ComboBox x:Name="CmbFiltroTipo" Width="130" Padding="6,4" FontSize="12"
+                          SelectionChanged="CmbFiltroTipo_SelectionChanged">
+                    <ComboBoxItem Content="Todos" IsSelected="True" Tag=""/>
+                    <ComboBoxItem Content="Marco" Tag="0"/>
+                    <ComboBoxItem Content="Específico" Tag="1"/>
+                    <ComboBoxItem Content="Independiente" Tag="2"/>
+                    <ComboBoxItem Content="Suplemento" Tag="3"/>
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                <TextBlock Text="Estado:" VerticalAlignment="Center" FontSize="12"
+                           Foreground="{StaticResource BrushTextInactive}" Margin="0,0,6,0"/>
+                <ComboBox x:Name="CmbFiltroEstado" Width="120" Padding="6,4" FontSize="12"
+                          SelectionChanged="CmbFiltroEstado_SelectionChanged">
+                    <ComboBoxItem Content="Todos" IsSelected="True" Tag=""/>
+                    <ComboBoxItem Content="Borrador" Tag="0"/>
+                    <ComboBoxItem Content="Vigente" Tag="1"/>
+                    <ComboBoxItem Content="Vencido" Tag="2"/>
+                    <ComboBoxItem Content="Rescindido" Tag="3"/>
+                    <ComboBoxItem Content="Ejecutado" Tag="4"/>
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                <TextBlock Text="Rol:" VerticalAlignment="Center" FontSize="12"
+                           Foreground="{StaticResource BrushTextInactive}" Margin="0,0,6,0"/>
+                <ComboBox x:Name="CmbFiltroRol" Width="110" Padding="6,4" FontSize="12"
+                          SelectionChanged="CmbFiltroRol_SelectionChanged">
+                    <ComboBoxItem Content="Todos" IsSelected="True" Tag=""/>
+                    <ComboBoxItem Content="Proveedor" Tag="0"/>
+                    <ComboBoxItem Content="Cliente" Tag="1"/>
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                <TextBlock Text="Tercero:" VerticalAlignment="Center" FontSize="12"
+                           Foreground="{StaticResource BrushTextInactive}" Margin="0,0,6,0"/>
+                <ComboBox x:Name="CmbFiltroTercero" Width="160" Padding="6,4" FontSize="12"
+                          ItemsSource="{Binding TercerosFiltro}"
+                          DisplayMemberPath="Nombre"
+                          SelectionChanged="CmbFiltroTercero_SelectionChanged"/>
+                <Button Content="X" Width="22" Height="22" Padding="0" Margin="2,0,0,0"
+                        FontSize="10" Background="Transparent" BorderThickness="0" Cursor="Hand"
+                        ToolTip="Limpiar filtro tercero"
+                        Click="BtnLimpiarTercero_Click"/>
+            </StackPanel>
+        </WrapPanel>
+
+        <!-- TreeView -->
+        <TreeView Grid.Row="2" x:Name="TvArbol" ItemsSource="{Binding Nodos}"
+                  BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                  MouseDoubleClick="TvArbol_MouseDoubleClick">
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Hijos}">
+                    <StackPanel Orientation="Horizontal" Margin="2">
+                        <StackPanel.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Editar" Click="CtxEditar_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Cambiar estado" Click="CtxCambiarEstado_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Text="&#xE8AB;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Historial" Click="CtxHistorial_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <Separator/>
+                                <MenuItem Header="Nuevo suplemento" Click="CtxNuevoSuplemento_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Adjuntos" Click="CtxAdjuntos_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Mapa de modificaciones" Click="CtxVerMapa_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Text="&#xE8C4;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <Separator/>
+                                <MenuItem Header="Eliminar" Click="CtxEliminar_Click" Foreground="#DC3545">
+                                    <MenuItem.Icon>
+                                        <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#DC3545"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </ContextMenu>
+                        </StackPanel.ContextMenu>
+                        <TextBlock Text="{Binding Icono}" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                   Foreground="{Binding ColorEstado}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="{Binding Titulo}" FontWeight="SemiBold" FontSize="12"
+                                   Foreground="{Binding ColorEstado}" VerticalAlignment="Center"/>
+                        <TextBlock Text=" — " Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"
+                                   FontSize="11"/>
+                        <TextBlock Text="{Binding Objeto}" Foreground="{StaticResource BrushTextInactive}"
+                                   VerticalAlignment="Center" FontSize="11"/>
+                        <TextBlock Text="{Binding TerceroDisplay}" Foreground="{StaticResource BrushAccent}"
+                                   VerticalAlignment="Center" FontSize="11" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+    </Grid>
+</UserControl>

@@ -23,6 +23,13 @@ public static class DependencyInjection
         services.AddTransient<BusinessInfoViewModel>();
         services.AddTransient<NomencladoresViewModel>();
         services.AddTransient<UnidadMedidaViewModel>();
+        services.AddTransient<TerceroViewModel>();
+        services.AddTransient<ProductoServicioViewModel>();
+        services.AddTransient<PlantillaDocumentoViewModel>();
+        services.AddTransient<NumeracionConfigViewModel>();
+        services.AddTransient<ContratosViewModel>();
+        services.AddTransient<ArbolContratosViewModel>();
+        services.AddTransient<ExpedienteTerceroViewModel>();
         services.AddTransient<ConfiguracionViewModel>();
 
         return services;

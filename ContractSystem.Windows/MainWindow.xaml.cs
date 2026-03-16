@@ -1,8 +1,10 @@
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
+using ContractSystem.Windows.ViewModels;
 
 namespace ContractSystem.Windows
 {
@@ -33,6 +35,29 @@ namespace ContractSystem.Windows
         {
             InitializeComponent();
             RestoreWindowState();
+            DataContextChanged += (_, _) =>
+            {
+                if (DataContext is MainViewModel vm)
+                    vm.PropertyChanged += MainVm_PropertyChanged;
+            };
+        }
+
+        private void MainVm_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MainViewModel.ActiveSection))
+                UpdateActiveIndicators();
+        }
+
+        private void UpdateActiveIndicators()
+        {
+            if (DataContext is not MainViewModel vm) return;
+            var s = vm.ActiveSection;
+            IndInicio.Visibility = s == "inicio" ? Visibility.Visible : Visibility.Collapsed;
+            IndContratos.Visibility = s == "contratos" ? Visibility.Visible : Visibility.Collapsed;
+            IndArbol.Visibility = s == "arbol" ? Visibility.Visible : Visibility.Collapsed;
+            IndExpediente.Visibility = s == "expediente" ? Visibility.Visible : Visibility.Collapsed;
+            IndTerceros.Visibility = s == "terceros" ? Visibility.Visible : Visibility.Collapsed;
+            IndProductos.Visibility = s == "productos" ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)

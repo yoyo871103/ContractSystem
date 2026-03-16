@@ -6,6 +6,7 @@
              xmlns:viewsInicio="clr-namespace:ContractSystem.Windows.Views.Inicio"
              xmlns:viewsGestionUsuarios="clr-namespace:ContractSystem.Windows.Views.GestionUsuarios"
              xmlns:viewsConfiguracion="clr-namespace:ContractSystem.Windows.Views.Configuracion"
+             xmlns:viewsContratos="clr-namespace:ContractSystem.Windows.Views.Contratos"
              xmlns:converters="clr-namespace:ContractSystem.Windows.Converters"
              Startup="Application_Startup">
     <Application.Resources>
@@ -177,6 +178,27 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:UnidadMedidaViewModel}">
             <viewsConfiguracion:UnidadMedidaView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:TerceroViewModel}">
+            <viewsConfiguracion:TerceroView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ProductoServicioViewModel}">
+            <viewsConfiguracion:ProductoServicioView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PlantillaDocumentoViewModel}">
+            <viewsConfiguracion:PlantillaDocumentoView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:NumeracionConfigViewModel}">
+            <viewsConfiguracion:NumeracionConfigView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ContratosViewModel}">
+            <viewsContratos:ContratosView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ArbolContratosViewModel}">
+            <viewsContratos:ArbolContratosView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ExpedienteTerceroViewModel}">
+            <viewsContratos:ExpedienteTerceroView/>
         </DataTemplate>
 
         <!-- Estilo para elementos del menú lateral -->

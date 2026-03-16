@@ -1,0 +1,129 @@
+<Window x:Class="ContractSystem.Windows.Views.Contratos.AnexosLineasWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Anexos y Líneas de Detalle"
+        Height="650" Width="900"
+        MinHeight="550" MinWidth="750"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" ResizeMode="CanResize"
+        Background="{StaticResource BrushBackground}"
+        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+    <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="6">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Título -->
+            <Border Grid.Row="0" Background="White"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1"
+                    Padding="12,10" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="TxtTitulo" Grid.Column="0" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrushTextActive}"/>
+                    <Button Grid.Column="1" Width="28" Height="28" Padding="0" Background="Transparent" BorderThickness="0"
+                            Cursor="Hand" ToolTip="Cerrar" Click="BtnCerrar_Click">
+                        <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                   Foreground="{StaticResource BrushTextInactive}"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Cuerpo: dos paneles -->
+            <Grid Grid.Row="1" Margin="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Panel izquierdo: Anexos -->
+                <Border Grid.Column="0" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="Anexos" FontWeight="SemiBold" FontSize="12"
+                                   Foreground="{StaticResource BrushTextActive}" Margin="8,8,8,4"/>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="8,0,8,4">
+                            <Button Content="+" Width="28" Height="24" Padding="0" FontSize="14" FontWeight="Bold"
+                                    Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0"
+                                    Cursor="Hand" ToolTip="Agregar anexo" Click="BtnAgregarAnexo_Click"/>
+                            <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" Width="28" Height="24" Padding="0" FontSize="10"
+                                    Margin="4,0,0,0" Cursor="Hand" ToolTip="Eliminar anexo" Click="BtnEliminarAnexo_Click"/>
+                        </StackPanel>
+                        <ListBox Grid.Row="2" x:Name="LstAnexos" Margin="4"
+                                 DisplayMemberPath="Nombre"
+                                 SelectionChanged="LstAnexos_SelectionChanged"
+                                 BorderThickness="0"/>
+                    </Grid>
+                </Border>
+
+                <!-- Panel derecho: Líneas del anexo seleccionado -->
+                <Border Grid.Column="1" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="4">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" x:Name="TxtAnexoSeleccionado" FontWeight="SemiBold" FontSize="12"
+                                   Foreground="{StaticResource BrushTextActive}" Margin="8,8,8,4"
+                                   Text="Seleccione un anexo"/>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="8,0,8,4">
+                            <Button Content="Desde catálogo" Padding="10,4" FontSize="11"
+                                    Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0"
+                                    Cursor="Hand" Click="BtnAgregarDesdeCatalogo_Click"
+                                    x:Name="BtnDesdeCatalogo" IsEnabled="False"/>
+                            <Button Content="Agregar inline" Padding="10,4" Margin="6,0,0,0" FontSize="11"
+                                    Cursor="Hand" Click="BtnAgregarInline_Click"
+                                    x:Name="BtnInline" IsEnabled="False"/>
+                            <Button Content="Eliminar" Padding="10,4" Margin="6,0,0,0" FontSize="11"
+                                    Cursor="Hand" Click="BtnEliminarLinea_Click"/>
+                        </StackPanel>
+                        <DataGrid Grid.Row="2" x:Name="DgLineas" Margin="4"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False" CanUserDeleteRows="False"
+                                  SelectionMode="Single" SelectionUnit="FullRow"
+                                  HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                                  BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                                  CellEditEnding="DgLineas_CellEditEnding">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" Width="70" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Concepto" Binding="{Binding Concepto, Mode=TwoWay}" Width="*"/>
+                                <DataGridTextColumn Header="Cant." Binding="{Binding Cantidad, StringFormat=N2, Mode=TwoWay}" Width="70"/>
+                                <DataGridTextColumn Header="U.M." Binding="{Binding UnidadMedidaTexto, Mode=TwoWay}" Width="60"/>
+                                <DataGridTextColumn Header="P. Unit." Binding="{Binding PrecioUnitario, StringFormat=N2, Mode=TwoWay}" Width="90"/>
+                                <DataGridTextColumn Header="Importe" Binding="{Binding ImporteTotal, StringFormat=N2}" Width="100" IsReadOnly="True"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <!-- Total -->
+                        <Border Grid.Row="3" Background="#F5F5F5" Padding="8" Margin="4" CornerRadius="4">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <TextBlock Text="Total:" FontWeight="SemiBold" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TxtTotal" FontWeight="Bold" FontSize="13"
+                                           Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Pie fijo -->
+            <Border Grid.Row="2" Background="White"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,1,0,0"
+                    Padding="12,10">
+                <Button Content="Cerrar" Padding="16,8" Cursor="Hand" HorizontalAlignment="Right"
+                        Click="BtnCerrar_Click"/>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

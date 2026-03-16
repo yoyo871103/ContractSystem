@@ -17,8 +17,26 @@ public sealed partial class NomencladoresViewModel : ObservableObject
     /// </summary>
     public UnidadMedidaViewModel UnidadMedida { get; }
 
+    /// <summary>
+    /// ViewModel del sub-tab "Terceros (Clientes/Proveedores)".
+    /// </summary>
+    public TerceroViewModel Terceros { get; }
+
+    /// <summary>
+    /// ViewModel del sub-tab "Productos/Servicios".
+    /// </summary>
+    public ProductoServicioViewModel ProductosServicios { get; }
+
+    /// <summary>
+    /// ViewModel del sub-tab "Plantillas de Documentos".
+    /// </summary>
+    public PlantillaDocumentoViewModel PlantillasDocumento { get; }
+
     public NomencladoresViewModel(IServiceProvider services)
     {
         UnidadMedida = services.GetRequiredService<UnidadMedidaViewModel>();
+        Terceros = services.GetRequiredService<TerceroViewModel>();
+        ProductosServicios = services.GetRequiredService<ProductoServicioViewModel>();
+        PlantillasDocumento = services.GetRequiredService<PlantillaDocumentoViewModel>();
     }
 }

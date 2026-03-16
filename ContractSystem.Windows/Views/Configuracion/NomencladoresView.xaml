@@ -6,5 +6,14 @@
         <TabItem Header="Unidades de medida">
             <ContentControl Content="{Binding UnidadMedida}"/>
         </TabItem>
+        <TabItem Header="Terceros (Clientes/Proveedores)">
+            <ContentControl Content="{Binding Terceros}"/>
+        </TabItem>
+        <TabItem Header="Productos/Servicios">
+            <ContentControl Content="{Binding ProductosServicios}"/>
+        </TabItem>
+        <TabItem Header="Plantillas de Documentos">
+            <ContentControl Content="{Binding PlantillasDocumento}"/>
+        </TabItem>
     </TabControl>
 </UserControl>

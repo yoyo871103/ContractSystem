@@ -1,0 +1,68 @@
+<UserControl x:Class="ContractSystem.Windows.Views.Configuracion.TerceroView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Barra de acciones -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button Content="Actualizar" Padding="12,6" Command="{Binding CargarCommand}"/>
+            <Button Content="Nuevo" Padding="12,6" Margin="8,0,0,0"
+                    Command="{Binding NuevoCommand}"
+                    Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0"/>
+            <Button Content="Editar" Padding="12,6" Margin="8,0,0,0"
+                    Command="{Binding EditarCommand}"
+                    ToolTip="Editar el tercero seleccionado"/>
+            <Button Content="Eliminar" Padding="12,6" Margin="8,0,0,0"
+                    Command="{Binding EliminarCommand}"/>
+            <Button Content="Reactivar" Padding="12,6" Margin="8,0,0,0"
+                    Command="{Binding ReactivarCommand}"
+                    ToolTip="Reactivar (solo para eliminados)"/>
+        </StackPanel>
+
+        <!-- Filtros -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Filtrar por tipo:" VerticalAlignment="Center" FontSize="12"
+                       Foreground="{StaticResource BrushTextInactive}" Margin="0,0,8,0"/>
+            <ComboBox x:Name="CmbFiltroTipo" Width="140" Padding="6,4" FontSize="12"
+                      SelectionChanged="CmbFiltroTipo_SelectionChanged">
+                <ComboBoxItem Content="Todos" IsSelected="True" Tag=""/>
+                <ComboBoxItem Content="Clientes" Tag="0"/>
+                <ComboBoxItem Content="Proveedores" Tag="1"/>
+                <ComboBoxItem Content="Ambos" Tag="2"/>
+            </ComboBox>
+            <CheckBox Content="Incluir eliminados" IsChecked="{Binding IncludeDeleted, Mode=TwoWay}"
+                      VerticalAlignment="Center" Margin="16,0,0,0"
+                      ToolTip="Mostrar también los terceros dados de baja"/>
+        </StackPanel>
+
+        <!-- Mensaje de error -->
+        <TextBlock Grid.Row="2" Text="{Binding MensajeError}" Foreground="{StaticResource BrushError}"
+                   FontSize="12" TextWrapping="Wrap" Margin="0,0,0,4"
+                   Visibility="{Binding MensajeError, Converter={StaticResource BoolToVisibility}, FallbackValue=Collapsed}"/>
+
+        <!-- DataGrid -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Terceros}"
+                  SelectedItem="{Binding Seleccionado, Mode=TwoWay}"
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  CanUserAddRows="False" CanUserDeleteRows="False"
+                  SelectionMode="Single" SelectionUnit="FullRow"
+                  HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                  BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                  MinHeight="200"
+                  MouseDoubleClick="DataGrid_MouseDoubleClick">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*"/>
+                <DataGridTextColumn Header="NIF/CIF" Binding="{Binding NifCif}" Width="100"/>
+                <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" Width="80"/>
+                <DataGridTextColumn Header="Teléfono" Binding="{Binding Telefono}" Width="100"/>
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="150"/>
+                <DataGridTextColumn Header="Estado" Binding="{Binding IsDeleted, Converter={StaticResource BoolToEstadoUsuario}}" Width="80"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

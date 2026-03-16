@@ -25,6 +25,9 @@
             <TabItem Header="Nomencladores">
                 <ContentControl Content="{Binding Nomencladores}"/>
             </TabItem>
+            <TabItem Header="Numeración de Documentos">
+                <ContentControl Content="{Binding NumeracionConfig}"/>
+            </TabItem>
         </TabControl>
     </Grid>
 </UserControl>

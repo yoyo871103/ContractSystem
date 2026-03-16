@@ -1,20 +1,162 @@
 <UserControl x:Class="ContractSystem.Windows.Views.Inicio.InicioView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d"
-             d:DesignHeight="400" d:DesignWidth="500"
              Background="Transparent">
-    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-        <TextBlock Text="&#xE80F;" FontFamily="Segoe MDL2 Assets"
-                   FontSize="48" Foreground="{StaticResource BrushTextInactive}"
-                   HorizontalAlignment="Center" Opacity="0.5"/>
-        <TextBlock Text="{Binding MensajeBienvenida}"
-                   FontSize="18" Foreground="{StaticResource BrushTextInactive}"
-                   HorizontalAlignment="Center" Margin="0,16,0,0"/>
-        <TextBlock Text="{Binding MensajeSecundario}"
-                   FontSize="12" Foreground="{StaticResource BrushTextInactive}"
-                   HorizontalAlignment="Center" Margin="0,8,0,0" Opacity="0.8"/>
-    </StackPanel>
+    <UserControl.Resources>
+        <!-- Estilo base para los cards clickeables -->
+        <Style x:Key="CardButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                MinWidth="{TemplateBinding MinWidth}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16">
+            <!-- Bienvenida -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                <TextBlock Text="&#xE80F;" FontFamily="Segoe MDL2 Assets" FontSize="24"
+                           Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="{Binding MensajeBienvenida}" FontSize="18" FontWeight="SemiBold"
+                           Foreground="{StaticResource BrushTextActive}" VerticalAlignment="Center"/>
+                <Button Content="Actualizar" Padding="8,4" Margin="16,0,0,0" FontSize="11"
+                        Command="{Binding CargarDashboardCommand}"/>
+            </StackPanel>
+
+            <!-- Resumen por estados (clickeable) -->
+            <TextBlock Text="Resumen de Contratos" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{StaticResource BrushTextActive}" Margin="0,0,0,8"/>
+            <WrapPanel Margin="0,0,0,20">
+                <!-- Total -->
+                <Button Style="{StaticResource CardButton}" Background="#F0F0F0"
+                        Command="{Binding FiltrarPorTotalCommand}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding TotalContratos}" FontSize="24" FontWeight="Bold"
+                                   HorizontalAlignment="Center" Foreground="{StaticResource BrushTextActive}"/>
+                        <TextBlock Text="Total" FontSize="11" HorizontalAlignment="Center"
+                                   Foreground="{StaticResource BrushTextInactive}"/>
+                    </StackPanel>
+                </Button>
+                <!-- Borradores -->
+                <Button Style="{StaticResource CardButton}" Background="#F5F5F5"
+                        Command="{Binding FiltrarPorBorradoresCommand}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Borradores}" FontSize="24" FontWeight="Bold"
+                                   HorizontalAlignment="Center" Foreground="#888888"/>
+                        <TextBlock Text="Borradores" FontSize="11" HorizontalAlignment="Center"
+                                   Foreground="{StaticResource BrushTextInactive}"/>
+                    </StackPanel>
+                </Button>
+                <!-- Vigentes -->
+                <Button Style="{StaticResource CardButton}" Background="#E8F5E9"
+                        Command="{Binding FiltrarPorVigentesCommand}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Vigentes}" FontSize="24" FontWeight="Bold"
+                                   HorizontalAlignment="Center" Foreground="#28A745"/>
+                        <TextBlock Text="Vigentes" FontSize="11" HorizontalAlignment="Center"
+                                   Foreground="{StaticResource BrushTextInactive}"/>
+                    </StackPanel>
+                </Button>
+                <!-- Vencidos -->
+                <Button Style="{StaticResource CardButton}" Background="#FFF8E1"
+                        Command="{Binding FiltrarPorVencidosCommand}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Vencidos}" FontSize="24" FontWeight="Bold"
+                                   HorizontalAlignment="Center" Foreground="#FFC107"/>
+                        <TextBlock Text="Vencidos" FontSize="11" HorizontalAlignment="Center"
+                                   Foreground="{StaticResource BrushTextInactive}"/>
+                    </StackPanel>
+                </Button>
+                <!-- Rescindidos -->
+                <Button Style="{StaticResource CardButton}" Background="#FFEBEE"
+                        Command="{Binding FiltrarPorRescindidosCommand}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Rescindidos}" FontSize="24" FontWeight="Bold"
+                                   HorizontalAlignment="Center" Foreground="#DC3545"/>
+                        <TextBlock Text="Rescindidos" FontSize="11" HorizontalAlignment="Center"
+                                   Foreground="{StaticResource BrushTextInactive}"/>
+                    </StackPanel>
+                </Button>
+                <!-- Ejecutados -->
+                <Button Style="{StaticResource CardButton}" Background="#E0F7FA"
+                        Command="{Binding FiltrarPorEjecutadosCommand}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Ejecutados}" FontSize="24" FontWeight="Bold"
+                                   HorizontalAlignment="Center" Foreground="#17A2B8"/>
+                        <TextBlock Text="Ejecutados" FontSize="11" HorizontalAlignment="Center"
+                                   Foreground="{StaticResource BrushTextInactive}"/>
+                    </StackPanel>
+                </Button>
+                <!-- Próximos a vencer -->
+                <Button Style="{StaticResource CardButton}" Background="#FFF3CD"
+                        Command="{Binding FiltrarPorProximosCommand}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding ProximosAVencer}" FontSize="24" FontWeight="Bold"
+                                   HorizontalAlignment="Center" Foreground="#E67E00"/>
+                        <TextBlock Text="Prox. a vencer" FontSize="11" HorizontalAlignment="Center"
+                                   Foreground="{StaticResource BrushTextInactive}"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+
+            <!-- Título dinámico de la tabla de detalle -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="&#xE7BC;" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                           Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <TextBlock Text="{Binding TituloDetalle}" FontSize="14" FontWeight="SemiBold"
+                           Foreground="{StaticResource BrushTextActive}" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Tabla de detalle -->
+            <DataGrid ItemsSource="{Binding ContratosDetalle}"
+                      AutoGenerateColumns="False" IsReadOnly="True"
+                      CanUserAddRows="False" CanUserDeleteRows="False"
+                      SelectionMode="Single" SelectionUnit="FullRow"
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                      BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                      MaxHeight="400">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Número" Binding="{Binding Numero}" Width="140"/>
+                    <DataGridTextColumn Header="Tipo" Binding="{Binding TipoDocumento}" Width="100"/>
+                    <DataGridTextColumn Header="Objeto" Binding="{Binding Objeto}" Width="*"/>
+                    <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="90"/>
+                    <DataGridTextColumn Header="Vigencia" Binding="{Binding FechaVigencia, StringFormat=dd/MM/yyyy}" Width="100"/>
+                    <DataGridTextColumn Header="Tercero" Binding="{Binding Tercero.Nombre}" Width="150"/>
+                </DataGrid.Columns>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Estado}" Value="Vencido">
+                                <Setter Property="Background" Value="#FFF3CD"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Estado}" Value="Rescindido">
+                                <Setter Property="Foreground" Value="#999999"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+            </DataGrid>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

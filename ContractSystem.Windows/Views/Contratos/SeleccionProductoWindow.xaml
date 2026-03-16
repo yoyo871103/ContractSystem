@@ -1,0 +1,52 @@
+<Window x:Class="ContractSystem.Windows.Views.Contratos.SeleccionProductoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Seleccionar Producto/Servicio"
+        Height="450" Width="550"
+        MinHeight="350" MinWidth="400"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" ResizeMode="CanResize"
+        Background="{StaticResource BrushBackground}"
+        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+    <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="6">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="White"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1"
+                    Padding="12,10" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <TextBlock Text="Seleccionar del catálogo (snapshot R05)"
+                           FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource BrushTextActive}"/>
+            </Border>
+
+            <DataGrid Grid.Row="1" x:Name="DgProductos" Margin="12"
+                      AutoGenerateColumns="False" IsReadOnly="True"
+                      CanUserAddRows="False" SelectionMode="Single" SelectionUnit="FullRow"
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                      BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                      MouseDoubleClick="DgProductos_MouseDoubleClick">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" Width="70"/>
+                    <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*"/>
+                    <DataGridTextColumn Header="U.M." Binding="{Binding UnidadMedida.NombreCorto}" Width="60"/>
+                    <DataGridTextColumn Header="Precio Est." Binding="{Binding PrecioEstimado, StringFormat=N2}" Width="90"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Border Grid.Row="2" Background="White"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,1,0,0"
+                    Padding="12,10">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Cancelar" Padding="16,8" Cursor="Hand" Click="BtnCancelar_Click"/>
+                    <Button Content="Seleccionar" Padding="16,8" Margin="8,0,0,0" Cursor="Hand"
+                            Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0"
+                            Click="BtnSeleccionar_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

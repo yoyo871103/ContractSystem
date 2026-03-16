@@ -18,6 +18,7 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly ILogoutService _logoutService;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ActiveSection))]
     private object? _currentViewModel;
 
     [ObservableProperty]
@@ -50,6 +51,21 @@ public sealed partial class MainViewModel : ObservableObject
     /// True cuando hay email para mostrar en el menú de usuario.
     /// </summary>
     public bool HasUserEmail => !string.IsNullOrEmpty(UserEmail);
+
+    /// <summary>
+    /// Devuelve el nombre de la sección activa para resaltar el botón del menú lateral.
+    /// </summary>
+    public string ActiveSection => CurrentViewModel switch
+    {
+        InicioViewModel => "inicio",
+        ContratosViewModel => "contratos",
+        ArbolContratosViewModel => "arbol",
+        ExpedienteTerceroViewModel => "expediente",
+        TerceroViewModel => "terceros",
+        ProductoServicioViewModel => "productos",
+        ConfiguracionViewModel => "config",
+        _ => ""
+    };
 
     public MainViewModel(INavigationService navigation, IServiceProvider services, IAuthContext authContext, ILogoutService logoutService)
     {
@@ -98,6 +114,26 @@ public sealed partial class MainViewModel : ObservableObject
     private void NavigateToGestionUsuarios() =>
         _navigation.NavigateTo(_services.GetRequiredService<GestionUsuariosViewModel>());
 
+
+    [RelayCommand]
+    private void NavigateToContratos() =>
+        _navigation.NavigateTo(_services.GetRequiredService<ContratosViewModel>());
+
+    [RelayCommand]
+    private void NavigateToArbol() =>
+        _navigation.NavigateTo(_services.GetRequiredService<ArbolContratosViewModel>());
+
+    [RelayCommand]
+    private void NavigateToExpediente() =>
+        _navigation.NavigateTo(_services.GetRequiredService<ExpedienteTerceroViewModel>());
+
+    [RelayCommand]
+    private void NavigateToTerceros() =>
+        _navigation.NavigateTo(_services.GetRequiredService<TerceroViewModel>());
+
+    [RelayCommand]
+    private void NavigateToProductos() =>
+        _navigation.NavigateTo(_services.GetRequiredService<ProductoServicioViewModel>());
 
     [RelayCommand]
     private void NavigateToConfiguracion() =>

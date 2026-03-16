@@ -74,9 +74,24 @@ public partial class LoginWindow : Window
     {
         var store = App.Services?.GetService(typeof(IConnectionConfigurationStore)) as IConnectionConfigurationStore;
         var info = store?.GetSqlServerConnectionInfo();
-        var visible = info.HasValue ? Visibility.Visible : Visibility.Collapsed;
-        if (ChkAdminSql != null) ChkAdminSql.Visibility = visible;
-        if (PanelAdminSql != null) PanelAdminSql.Visibility = visible;
+        // Solo mostrar el contenedor colapsable si hay SQL Server; el contenido empieza oculto
+        if (PnlAdminSqlContainer != null)
+            PnlAdminSqlContainer.Visibility = info.HasValue ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void BtnToggleAdminSql_Click(object sender, RoutedEventArgs e)
+    {
+        if (PnlAdminSqlContent.Visibility == Visibility.Collapsed)
+        {
+            PnlAdminSqlContent.Visibility = Visibility.Visible;
+            TxtToggleArrow.Text = "▾";
+        }
+        else
+        {
+            PnlAdminSqlContent.Visibility = Visibility.Collapsed;
+            ChkAdminSql.IsChecked = false;
+            TxtToggleArrow.Text = "▸";
+        }
     }
 
     private void BtnCerrar_Click(object sender, RoutedEventArgs e)
