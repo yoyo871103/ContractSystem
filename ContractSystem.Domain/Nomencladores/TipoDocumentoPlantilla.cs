@@ -7,5 +7,6 @@ public enum TipoDocumentoPlantilla
 {
     Marco = 0,
     Especifico = 1,
-    Suplemento = 2
+    Independiente = 2,
+    Suplemento = 3
 }

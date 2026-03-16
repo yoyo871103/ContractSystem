@@ -267,10 +267,28 @@
                             </Grid>
                         </Button>
 
+                        <!-- 5. Plantillas -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Plantillas de Documentos"
+                                Command="{Binding NavigateToPlantillasCommand}"
+                                Tag="{Binding ActiveSection}">
+                            <Grid Width="56">
+                                <Border x:Name="IndPlantillas" Width="3" HorizontalAlignment="Left" CornerRadius="2"
+                                        Background="{StaticResource BrushAccent}" Visibility="Collapsed"/>
+                                <StackPanel>
+                                    <TextBlock Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="20" Foreground="{StaticResource BrushAccent}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Plantillas" FontSize="10" Foreground="{StaticResource BrushTextActive}"
+                                               HorizontalAlignment="Center" Margin="0,4,0,0"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+
                         <!-- Separador -->
                         <Border Height="1" Background="{StaticResource BrushBorder}" Margin="8,8"/>
 
-                        <!-- 5. Terceros -->
+                        <!-- 6. Terceros -->
                         <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Clientes / Proveedores"
                                 Command="{Binding NavigateToTercerosCommand}"
                                 Tag="{Binding ActiveSection}">

@@ -13,6 +13,9 @@
             <Button Content="Nueva plantilla" Padding="12,6" Margin="8,0,0,0"
                     Command="{Binding NuevoCommand}"
                     Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0"/>
+            <Button Content="Editar" Padding="12,6" Margin="8,0,0,0"
+                    Command="{Binding EditarCommand}"
+                    ToolTip="Editar la plantilla seleccionada"/>
             <Button Content="Descargar" Padding="12,6" Margin="8,0,0,0"
                     Command="{Binding DescargarCommand}"
                     ToolTip="Descargar el archivo de la plantilla seleccionada"/>

@@ -28,6 +28,70 @@
             <TabItem Header="Numeración de Documentos">
                 <ContentControl Content="{Binding NumeracionConfig}"/>
             </TabItem>
+            <TabItem Header="Acerca de">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
+                    <StackPanel Margin="32,28" MaxWidth="480" HorizontalAlignment="Left">
+                        <!-- Logo / nombre de la app -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                            <Border Width="48" Height="48" CornerRadius="8"
+                                    Background="{StaticResource BrushAccent}">
+                                <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets"
+                                           FontSize="24" Foreground="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Sistema de Contratos" FontSize="18" FontWeight="Bold"
+                                           Foreground="{StaticResource BrushTextActive}"/>
+                                <TextBlock Text="v1.0.0" FontSize="12"
+                                           Foreground="{StaticResource BrushTextInactive}" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Height="1" Background="{StaticResource BrushBorder}" Margin="0,0,0,20"/>
+
+                        <!-- Desarrollador -->
+                        <TextBlock Text="DESARROLLADO POR" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,10"
+                                   Foreground="{StaticResource BrushTextInactive}"/>
+
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="Yosvel Vasallo Tabares" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{StaticResource BrushTextActive}"/>
+                            <TextBlock Text="YVT Software" FontSize="13"
+                                       Foreground="{StaticResource BrushAccent}" Margin="0,2,0,0"/>
+                        </StackPanel>
+
+                        <!-- Contacto -->
+                        <TextBlock Text="CONTACTO" FontSize="10" FontWeight="SemiBold" Margin="0,8,0,10"
+                                   Foreground="{StaticResource BrushTextInactive}"/>
+
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="24"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="&#xE715;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                       Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="yoyo871103@gmail.com" FontSize="13"
+                                       Foreground="{StaticResource BrushTextActive}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="24"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="&#xE717;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                       Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="(+53) 5 555-1803" FontSize="13"
+                                       Foreground="{StaticResource BrushTextActive}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                        </Grid>
+
+                        <Border Height="1" Background="{StaticResource BrushBorder}" Margin="0,20,0,16"/>
+
+                        <TextBlock FontSize="11" Foreground="{StaticResource BrushTextInactive}" TextWrapping="Wrap"
+                                   Text="Sistema de Contratos es un producto de YVT Software. Todos los derechos reservados."/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
         </TabControl>
     </Grid>
 </UserControl>

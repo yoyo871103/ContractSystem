@@ -25,7 +25,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Nueva plantilla de documento"
+                    <TextBlock x:Name="TxtTitulo" Grid.Column="0" Text="Nueva plantilla de documento"
                                FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource BrushTextActive}" VerticalAlignment="Center"/>
                     <Button Grid.Column="1" Width="28" Height="28" Padding="0" Background="Transparent" BorderThickness="0"
                             Cursor="Hand" Click="BtnCancelar_Click">
@@ -45,7 +45,8 @@
                     <ComboBox x:Name="CmbTipo" FontSize="14" Padding="10,8" Margin="0,0,0,10" SelectedIndex="0">
                         <ComboBoxItem Content="Marco" Tag="0"/>
                         <ComboBoxItem Content="Específico" Tag="1"/>
-                        <ComboBoxItem Content="Suplemento" Tag="2"/>
+                        <ComboBoxItem Content="Independiente" Tag="2"/>
+                        <ComboBoxItem Content="Suplemento" Tag="3"/>
                     </ComboBox>
 
                     <TextBlock Text="Rol *" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>

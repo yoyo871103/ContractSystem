@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ContractSystem.Application.Nomencladores.Commands.CreatePlantillaDocumento;
 using ContractSystem.Application.Nomencladores.Commands.DeletePlantillaDocumento;
+using ContractSystem.Application.Nomencladores.Commands.UpdatePlantillaDocumento;
 using ContractSystem.Application.Nomencladores.Queries.GetAllPlantillasDocumento;
 using ContractSystem.Application.Nomencladores.Queries.GetPlantillaDocumentoById;
 using ContractSystem.Domain.Nomencladores;
@@ -93,6 +94,41 @@ public sealed partial class PlantillaDocumentoViewModel : ObservableObject
     }
 
     [RelayCommand(CanExecute = nameof(HaySeleccionado))]
+    private void Editar()
+    {
+        if (Seleccionado is null) return;
+
+        var dialog = new Views.Configuracion.PlantillaDialogWindow(Seleccionado);
+        dialog.Owner = System.Windows.Application.Current.MainWindow;
+        if (dialog.ShowDialog() == true)
+        {
+            _ = EditarAsync(dialog);
+        }
+    }
+
+    private async Task EditarAsync(Views.Configuracion.PlantillaDialogWindow dialog)
+    {
+        try
+        {
+            await _sender.Send(new UpdatePlantillaDocumentoCommand(
+                dialog.PlantillaId!.Value,
+                dialog.NombrePlantilla,
+                dialog.TipoDocumento,
+                dialog.RolPlantilla,
+                dialog.ArchivoBytes,
+                dialog.ArchivoBytes is not null ? dialog.NombreArchivo : null,
+                dialog.RevisadoPorLegal));
+
+            MessageBox.Show("Plantilla actualizada correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+            await CargarAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Error al actualizar: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(HaySeleccionado))]
     private async Task DescargarAsync(CancellationToken cancellationToken = default)
     {
         if (Seleccionado is null) return;
@@ -153,6 +189,7 @@ public sealed partial class PlantillaDocumentoViewModel : ObservableObject
 
     partial void OnSeleccionadoChanged(PlantillaDocumento? value)
     {
+        EditarCommand.NotifyCanExecuteChanged();
         DescargarCommand.NotifyCanExecuteChanged();
         EliminarCommand.NotifyCanExecuteChanged();
     }

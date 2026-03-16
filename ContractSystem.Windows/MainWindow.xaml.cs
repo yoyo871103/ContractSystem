@@ -58,6 +58,7 @@ namespace ContractSystem.Windows
             IndExpediente.Visibility = s == "expediente" ? Visibility.Visible : Visibility.Collapsed;
             IndTerceros.Visibility = s == "terceros" ? Visibility.Visible : Visibility.Collapsed;
             IndProductos.Visibility = s == "productos" ? Visibility.Visible : Visibility.Collapsed;
+            IndPlantillas.Visibility = s == "plantillas" ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)

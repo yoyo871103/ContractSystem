@@ -63,6 +63,7 @@ public sealed partial class MainViewModel : ObservableObject
         ExpedienteTerceroViewModel => "expediente",
         TerceroViewModel => "terceros",
         ProductoServicioViewModel => "productos",
+        PlantillaDocumentoViewModel => "plantillas",
         ConfiguracionViewModel => "config",
         _ => ""
     };
@@ -134,6 +135,10 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void NavigateToProductos() =>
         _navigation.NavigateTo(_services.GetRequiredService<ProductoServicioViewModel>());
+
+    [RelayCommand]
+    private void NavigateToPlantillas() =>
+        _navigation.NavigateTo(_services.GetRequiredService<PlantillaDocumentoViewModel>());
 
     [RelayCommand]
     private void NavigateToConfiguracion() =>
