@@ -98,6 +98,9 @@ public sealed class Contrato : ISoftDeletable, IAuditable
     // --- Documentos adjuntos ---
     public ICollection<DocumentoAdjunto> DocumentosAdjuntos { get; set; } = new List<DocumentoAdjunto>();
 
+    // --- Facturas ---
+    public ICollection<Factura> Facturas { get; set; } = new List<Factura>();
+
     // --- Auditoría (IAuditable) ---
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
     public string? CreadoPor { get; set; }

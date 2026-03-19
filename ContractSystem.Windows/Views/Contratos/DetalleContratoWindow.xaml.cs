@@ -5,6 +5,7 @@ using System.Windows.Input;
 using ContractSystem.Application.Contratos;
 using ContractSystem.Application.Contratos.Queries.GetAnexosByContrato;
 using ContractSystem.Application.Contratos.Queries.GetDocumentosAdjuntos;
+using ContractSystem.Application.Contratos.Queries.GetFacturasByContrato;
 using ContractSystem.Application.Contratos.Queries.GetLineasByContrato;
 using ContractSystem.Domain.Contratos;
 using MediatR;
@@ -25,6 +26,10 @@ public partial class DetalleContratoWindow : Window
 
         CargarDatosGenerales();
         Loaded += async (_, _) => await CargarDetallesAsync();
+
+        // Mostrar botón Facturas solo si no es Marco
+        if (_contrato.TipoDocumento != TipoDocumentoContrato.Marco)
+            BtnAbrirFacturas.Visibility = System.Windows.Visibility.Visible;
     }
 
     private void CargarDatosGenerales()
@@ -119,6 +124,18 @@ public partial class DetalleContratoWindow : Window
                 }
             }
 
+            // Cargar facturas (solo si no es Marco)
+            if (_contrato.TipoDocumento != TipoDocumentoContrato.Marco)
+            {
+                var facturas = await _sender.Send(new GetFacturasByContratoQuery(_contrato.Id));
+                if (facturas.Count > 0)
+                {
+                    TxtFacturasHeader.Visibility = System.Windows.Visibility.Visible;
+                    DgFacturas.Visibility = System.Windows.Visibility.Visible;
+                    DgFacturas.ItemsSource = facturas;
+                }
+            }
+
             // Cargar adjuntos
             var adjuntos = await _sender.Send(new GetDocumentosAdjuntosQuery(_contrato.Id));
             var adjuntoItems = adjuntos.Select(a => new
@@ -156,6 +173,14 @@ public partial class DetalleContratoWindow : Window
     private void BtnAbrirAdjuntos_Click(object sender, RoutedEventArgs e)
     {
         var window = new DocumentosAdjuntosWindow(_sender, _contrato.Id, _contrato.Numero);
+        window.Owner = this;
+        window.ShowDialog();
+        _ = CargarDetallesAsync();
+    }
+
+    private void BtnAbrirFacturas_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new FacturasWindow(_sender, _contrato.Id, _contrato.Numero);
         window.Owner = this;
         window.ShowDialog();
         _ = CargarDetallesAsync();

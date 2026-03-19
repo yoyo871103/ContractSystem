@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddTransient<ContratosViewModel>();
         services.AddTransient<ArbolContratosViewModel>();
         services.AddTransient<ExpedienteTerceroViewModel>();
+        services.AddTransient<InformesViewModel>();
         services.AddTransient<ConfiguracionViewModel>();
 
         return services;

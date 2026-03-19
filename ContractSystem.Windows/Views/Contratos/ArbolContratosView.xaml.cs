@@ -197,6 +197,24 @@ public partial class ArbolContratosView : UserControl
         window.ShowDialog();
     }
 
+    private void CtxFacturas_Click(object sender, RoutedEventArgs e)
+    {
+        var nodo = GetNodoFromContextMenu(sender);
+        if (nodo is null) return;
+
+        if (nodo.Tipo == TipoDocumentoContrato.Marco)
+        {
+            MessageBox.Show("No se pueden asociar facturas a un Contrato Marco.",
+                "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var mediator = App.Services.GetRequiredService<ISender>();
+        var window = new FacturasWindow(mediator, nodo.Id, nodo.Numero);
+        window.Owner = System.Windows.Application.Current.MainWindow;
+        window.ShowDialog();
+    }
+
     private async void CtxVerMapa_Click(object sender, RoutedEventArgs e)
     {
         var nodo = GetNodoFromContextMenu(sender);

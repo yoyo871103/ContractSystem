@@ -90,6 +90,7 @@ public class NodoArbolViewModel
     public int Id { get; }
     public string Numero { get; }
     public string Objeto { get; }
+    public TipoDocumentoContrato Tipo { get; }
     public string TipoTexto { get; }
     public string EstadoTexto { get; }
     public string? TerceroNombre { get; }
@@ -104,6 +105,7 @@ public class NodoArbolViewModel
         Id = nodo.Id;
         Numero = nodo.Numero;
         Objeto = nodo.Objeto.Length > 60 ? nodo.Objeto[..60] + "..." : nodo.Objeto;
+        Tipo = nodo.Tipo;
         TipoTexto = nodo.Tipo.ToString();
         EstadoTexto = nodo.Estado.ToString();
         TerceroNombre = nodo.TerceroNombre;

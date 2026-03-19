@@ -1,0 +1,308 @@
+<UserControl x:Class="ContractSystem.Windows.Views.Contratos.InformesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="24"
+                       Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBlock Text="Informes" FontSize="16" FontWeight="SemiBold"
+                       Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"/>
+            <Button Content="Actualizar" Padding="12,6" Margin="16,0,0,0"
+                    Command="{Binding CargarCommand}"/>
+        </StackPanel>
+
+        <!-- Tarjetas resumen -->
+        <WrapPanel Grid.Row="1" Margin="0,0,0,12">
+            <!-- Total contratos -->
+            <Border Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                    CornerRadius="4" Padding="16,10" Margin="0,0,12,0" MinWidth="140">
+                <StackPanel>
+                    <TextBlock Text="Total contratos" FontSize="11" Foreground="{StaticResource BrushTextInactive}"/>
+                    <TextBlock Text="{Binding TotalContratos}" FontSize="22" FontWeight="Bold"
+                               Foreground="{StaticResource BrushAccent}" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+            <!-- Total facturas -->
+            <Border Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                    CornerRadius="4" Padding="16,10" Margin="0,0,12,0" MinWidth="140">
+                <StackPanel>
+                    <TextBlock Text="Total facturas" FontSize="11" Foreground="{StaticResource BrushTextInactive}"/>
+                    <TextBlock Text="{Binding TotalFacturas}" FontSize="22" FontWeight="Bold"
+                               Foreground="#28A745" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+            <!-- Valor total contratos -->
+            <Border Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                    CornerRadius="4" Padding="16,10" Margin="0,0,12,0" MinWidth="180">
+                <StackPanel>
+                    <TextBlock Text="Valor total contratos" FontSize="11" Foreground="{StaticResource BrushTextInactive}"/>
+                    <TextBlock Text="{Binding TotalValorContratos, StringFormat=N2}" FontSize="22" FontWeight="Bold"
+                               Foreground="{StaticResource BrushAccent}" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+            <!-- Total facturado -->
+            <Border Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                    CornerRadius="4" Padding="16,10" MinWidth="180">
+                <StackPanel>
+                    <TextBlock Text="Total facturado" FontSize="11" Foreground="{StaticResource BrushTextInactive}"/>
+                    <TextBlock Text="{Binding TotalFacturado, StringFormat=N2}" FontSize="22" FontWeight="Bold"
+                               Foreground="#28A745" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+
+        <!-- Error -->
+        <TextBlock Grid.Row="2" x:Name="TxtError" Text="{Binding MensajeError}" Foreground="{StaticResource BrushError}"
+                   FontSize="12" Margin="0,0,0,8"/>
+
+        <!-- TabControl con informes -->
+        <TabControl Grid.Row="3" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                    Padding="8">
+
+            <!-- 1. Facturación por contrato -->
+            <TabItem Header="Facturación por contrato">
+                <DataGrid ItemsSource="{Binding FacturacionPorContrato}"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False"
+                          SelectionMode="Single" SelectionUnit="FullRow"
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                          BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Número" Binding="{Binding Numero}" Width="130"/>
+                        <DataGridTextColumn Header="Tipo" Binding="{Binding TipoDocumento}" Width="100"/>
+                        <DataGridTextColumn Header="Objeto" Binding="{Binding Objeto}" Width="*"/>
+                        <DataGridTextColumn Header="Tercero" Binding="{Binding Tercero}" Width="140"/>
+                        <DataGridTextColumn Header="Valor Contrato" Binding="{Binding ValorContrato, StringFormat=N2}" Width="120">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Facturas" Binding="{Binding CantidadFacturas}" Width="70">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Total Facturado" Binding="{Binding TotalFacturado, StringFormat=N2}" Width="120">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Diferencia" Binding="{Binding Diferencia, StringFormat=N2}" Width="120">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- 2. Contratos por tercero -->
+            <TabItem Header="Por tercero">
+                <DataGrid ItemsSource="{Binding ContratosPorTercero}"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False"
+                          SelectionMode="Single" SelectionUnit="FullRow"
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                          BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Tercero" Binding="{Binding Tercero}" Width="*"/>
+                        <DataGridTextColumn Header="Total Contratos" Binding="{Binding TotalContratos}" Width="110">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Vigentes" Binding="{Binding Vigentes}" Width="80">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="Foreground" Value="#28A745"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Vencidos" Binding="{Binding Vencidos}" Width="80">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="Foreground" Value="#FFC107"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Valor Total" Binding="{Binding ValorTotal, StringFormat=N2}" Width="130">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Total Facturado" Binding="{Binding TotalFacturado, StringFormat=N2}" Width="130">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- 3. Contratos por tipo -->
+            <TabItem Header="Por tipo">
+                <DataGrid ItemsSource="{Binding ContratosPorTipo}"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False"
+                          SelectionMode="Single" SelectionUnit="FullRow"
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                          BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" Width="*"/>
+                        <DataGridTextColumn Header="Cantidad" Binding="{Binding Cantidad}" Width="100">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="FontSize" Value="14"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Valor Total" Binding="{Binding ValorTotal, StringFormat=N2}" Width="150">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Total Facturado" Binding="{Binding TotalFacturado, StringFormat=N2}" Width="150">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- 4. Contratos por estado -->
+            <TabItem Header="Por estado">
+                <DataGrid ItemsSource="{Binding ContratosPorEstado}"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False"
+                          SelectionMode="Single" SelectionUnit="FullRow"
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                          BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="*"/>
+                        <DataGridTextColumn Header="Cantidad" Binding="{Binding Cantidad}" Width="120">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="FontSize" Value="14"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Valor Total" Binding="{Binding ValorTotal, StringFormat=N2}" Width="180">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- 5. Próximos a vencer -->
+            <TabItem Header="Pr&#243;ximos a vencer">
+                <DataGrid ItemsSource="{Binding ProximosAVencer}"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False"
+                          SelectionMode="Single" SelectionUnit="FullRow"
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                          BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Número" Binding="{Binding Numero}" Width="130"/>
+                        <DataGridTextColumn Header="Tipo" Binding="{Binding TipoDocumento}" Width="100"/>
+                        <DataGridTextColumn Header="Objeto" Binding="{Binding Objeto}" Width="*"/>
+                        <DataGridTextColumn Header="Tercero" Binding="{Binding Tercero}" Width="140"/>
+                        <DataGridTextColumn Header="Fecha Vigencia" Binding="{Binding FechaVigencia, StringFormat=dd/MM/yyyy}" Width="110"/>
+                        <DataGridTextColumn Header="Días restantes" Binding="{Binding DiasRestantes}" Width="110">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Foreground" Value="#DC3545"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                            <Setter Property="Background" Value="#FFF3CD"/>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
+            </TabItem>
+
+            <!-- 6. Contratos por rol -->
+            <TabItem Header="Por rol">
+                <DataGrid ItemsSource="{Binding ContratosPorRol}"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False"
+                          SelectionMode="Single" SelectionUnit="FullRow"
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                          BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Rol" Binding="{Binding Rol}" Width="*"/>
+                        <DataGridTextColumn Header="Cantidad" Binding="{Binding Cantidad}" Width="120">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="FontSize" Value="14"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Valor Total" Binding="{Binding ValorTotal, StringFormat=N2}" Width="150">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Total Facturado" Binding="{Binding TotalFacturado, StringFormat=N2}" Width="150">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

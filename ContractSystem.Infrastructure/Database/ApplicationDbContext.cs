@@ -52,6 +52,7 @@ public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<LineaDetalle> LineasDetalle => Set<LineaDetalle>();
     public DbSet<DocumentoAdjunto> DocumentosAdjuntos => Set<DocumentoAdjunto>();
     public DbSet<HistorialCambio> HistorialCambios => Set<HistorialCambio>();
+    public DbSet<Factura> Facturas => Set<Factura>();
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {

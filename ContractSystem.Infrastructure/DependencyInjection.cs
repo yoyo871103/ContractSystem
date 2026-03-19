@@ -70,6 +70,7 @@ public static class DependencyInjection
         services.AddTransient<ILineaDetalleStore, LineaDetalleStore>();
         services.AddTransient<IDocumentoAdjuntoStore, DocumentoAdjuntoStore>();
         services.AddTransient<IHistorialCambioStore, HistorialCambioStore>();
+        services.AddTransient<IFacturaStore, FacturaStore>();
 
         return services;
     }

@@ -106,6 +106,10 @@ public partial class ContratoDialogWindow : Window
         // Mostrar botón Anexos/Líneas en edición
         BtnAnexosLineas.Visibility = Visibility.Visible;
 
+        // Mostrar botón Facturas solo si no es Marco
+        if (contrato.TipoDocumento != TipoDocumentoContrato.Marco)
+            BtnFacturas.Visibility = Visibility.Visible;
+
         // Tipo (no editable en edición)
         CmbTipo.IsEnabled = false;
         foreach (ComboBoxItem item in CmbTipo.Items)
@@ -299,6 +303,18 @@ public partial class ContratoDialogWindow : Window
         if (mediator is null) return;
 
         var window = new AnexosLineasWindow(mediator, _contratoId.Value, _contratoNumero ?? "");
+        window.Owner = this;
+        window.ShowDialog();
+    }
+
+    private void BtnFacturas_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_contratoId.HasValue) return;
+
+        var mediator = App.Services.GetService(typeof(ISender)) as ISender;
+        if (mediator is null) return;
+
+        var window = new FacturasWindow(mediator, _contratoId.Value, _contratoNumero ?? "");
         window.Owner = this;
         window.ShowDialog();
     }

@@ -61,6 +61,7 @@ public sealed partial class MainViewModel : ObservableObject
         ContratosViewModel => "contratos",
         ArbolContratosViewModel => "arbol",
         ExpedienteTerceroViewModel => "expediente",
+        InformesViewModel => "informes",
         TerceroViewModel => "terceros",
         ProductoServicioViewModel => "productos",
         PlantillaDocumentoViewModel => "plantillas",
@@ -127,6 +128,10 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void NavigateToExpediente() =>
         _navigation.NavigateTo(_services.GetRequiredService<ExpedienteTerceroViewModel>());
+
+    [RelayCommand]
+    private void NavigateToInformes() =>
+        _navigation.NavigateTo(_services.GetRequiredService<InformesViewModel>());
 
     [RelayCommand]
     private void NavigateToTerceros() =>

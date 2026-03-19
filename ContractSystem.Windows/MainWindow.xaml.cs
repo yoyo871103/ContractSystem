@@ -56,6 +56,7 @@ namespace ContractSystem.Windows
             IndContratos.Visibility = s == "contratos" ? Visibility.Visible : Visibility.Collapsed;
             IndArbol.Visibility = s == "arbol" ? Visibility.Visible : Visibility.Collapsed;
             IndExpediente.Visibility = s == "expediente" ? Visibility.Visible : Visibility.Collapsed;
+            IndInformes.Visibility = s == "informes" ? Visibility.Visible : Visibility.Collapsed;
             IndTerceros.Visibility = s == "terceros" ? Visibility.Visible : Visibility.Collapsed;
             IndProductos.Visibility = s == "productos" ? Visibility.Visible : Visibility.Collapsed;
             IndPlantillas.Visibility = s == "plantillas" ? Visibility.Visible : Visibility.Collapsed;

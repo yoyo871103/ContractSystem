@@ -348,6 +348,19 @@ public sealed partial class ContratosViewModel : ObservableObject
         window.ShowDialog();
     }
 
+    [RelayCommand(CanExecute = nameof(PuedeVerFacturas))]
+    private void VerFacturas()
+    {
+        if (Seleccionado is null) return;
+
+        var window = new Views.Contratos.FacturasWindow(_sender, Seleccionado.Id, Seleccionado.Numero);
+        window.Owner = System.Windows.Application.Current.MainWindow;
+        window.ShowDialog();
+    }
+
+    private bool PuedeVerFacturas() => Seleccionado is not null
+        && Seleccionado.TipoDocumento != TipoDocumentoContrato.Marco;
+
     [RelayCommand(CanExecute = nameof(PuedeCambiarEstado))]
     private async Task CambiarEstadoAsync(CancellationToken cancellationToken = default)
     {
@@ -519,6 +532,7 @@ public sealed partial class ContratosViewModel : ObservableObject
         NuevoSuplementoCommand.NotifyCanExecuteChanged();
         VerAnexosLineasCommand.NotifyCanExecuteChanged();
         VerAdjuntosCommand.NotifyCanExecuteChanged();
+        VerFacturasCommand.NotifyCanExecuteChanged();
         CambiarEstadoCommand.NotifyCanExecuteChanged();
         VerHistorialCommand.NotifyCanExecuteChanged();
     }

@@ -267,7 +267,24 @@
                             </Grid>
                         </Button>
 
-                        <!-- 5. Plantillas -->
+                        <!-- 5. Informes -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Informes y estadísticas"
+                                Command="{Binding NavigateToInformesCommand}"
+                                Tag="{Binding ActiveSection}">
+                            <Grid Width="56">
+                                <Border x:Name="IndInformes" Width="3" HorizontalAlignment="Left" CornerRadius="2"
+                                        Background="{StaticResource BrushAccent}" Visibility="Collapsed"/>
+                                <StackPanel>
+                                    <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="20" Foreground="{StaticResource BrushAccent}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Informes" FontSize="10" Foreground="{StaticResource BrushTextActive}"
+                                               HorizontalAlignment="Center" Margin="0,4,0,0"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                        <!-- 6. Plantillas -->
                         <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Plantillas de Documentos"
                                 Command="{Binding NavigateToPlantillasCommand}"
                                 Tag="{Binding ActiveSection}">

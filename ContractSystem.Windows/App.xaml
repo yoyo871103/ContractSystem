@@ -200,6 +200,9 @@
         <DataTemplate DataType="{x:Type vm:ExpedienteTerceroViewModel}">
             <viewsContratos:ExpedienteTerceroView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:InformesViewModel}">
+            <viewsContratos:InformesView/>
+        </DataTemplate>
 
         <!-- Estilo para elementos del menú lateral -->
         <Style x:Key="NavItemButtonStyle" TargetType="Button">

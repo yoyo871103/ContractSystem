@@ -112,6 +112,11 @@
                                         <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
                                     </MenuItem.Icon>
                                 </MenuItem>
+                                <MenuItem Header="Facturas" Click="CtxFacturas_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Text="&#xE7C1;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
                                 <MenuItem Header="Mapa de modificaciones" Click="CtxVerMapa_Click">
                                     <MenuItem.Icon>
                                         <TextBlock Text="&#xE8C4;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>

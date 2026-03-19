@@ -202,15 +202,26 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="BtnAnexosLineas" Grid.Column="0" Padding="16,8" Cursor="Hand"
-                            Visibility="Collapsed" Click="BtnAnexosLineas_Click"
-                            ToolTip="Gestionar anexos y líneas de detalle">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="12"
-                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="Anexos / Líneas" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Button x:Name="BtnAnexosLineas" Padding="16,8" Cursor="Hand"
+                                Visibility="Collapsed" Click="BtnAnexosLineas_Click"
+                                ToolTip="Gestionar anexos y líneas de detalle">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                           VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="Anexos / Líneas" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="BtnFacturas" Padding="16,8" Margin="8,0,0,0" Cursor="Hand"
+                                Visibility="Collapsed" Click="BtnFacturas_Click"
+                                ToolTip="Gestionar facturas asociadas">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE7C1;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                           VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="Facturas" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                     <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="Cancelar" Padding="16,8" Cursor="Hand" Click="BtnCancelar_Click"/>
                         <Button Content="Guardar" Padding="16,8" Margin="8,0,0,0" Cursor="Hand"

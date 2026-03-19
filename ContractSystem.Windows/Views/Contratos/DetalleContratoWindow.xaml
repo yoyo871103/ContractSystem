@@ -89,6 +89,23 @@
                                Foreground="{StaticResource BrushAccent}" Margin="0,0,0,4"/>
                     <StackPanel x:Name="PnlAnexos" Margin="0,0,0,16"/>
 
+                    <!-- Facturas -->
+                    <TextBlock x:Name="TxtFacturasHeader" Text="Facturas" FontWeight="SemiBold" FontSize="13"
+                               Foreground="{StaticResource BrushAccent}" Margin="0,0,0,4" Visibility="Collapsed"/>
+                    <DataGrid x:Name="DgFacturas" AutoGenerateColumns="False" IsReadOnly="True"
+                              CanUserAddRows="False" CanUserDeleteRows="False"
+                              SelectionMode="Single" SelectionUnit="FullRow"
+                              HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                              BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                              MaxHeight="160" Margin="0,0,0,16" Visibility="Collapsed">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Número" Binding="{Binding Numero}" Width="140"/>
+                            <DataGridTextColumn Header="Fecha" Binding="{Binding Fecha, StringFormat=dd/MM/yyyy}" Width="100"/>
+                            <DataGridTextColumn Header="Importe" Binding="{Binding ImporteTotal, StringFormat=N2}" Width="120"/>
+                            <DataGridTextColumn Header="Descripción" Binding="{Binding Descripcion}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
                     <!-- Documentos adjuntos -->
                     <TextBlock Text="Documentos adjuntos" FontWeight="SemiBold" FontSize="13"
                                Foreground="{StaticResource BrushAccent}" Margin="0,0,0,4"/>
@@ -118,6 +135,8 @@
                             Click="BtnAbrirAnexos_Click"/>
                     <Button Content="Adjuntos" Padding="12,6" Margin="0,0,8,0" Cursor="Hand"
                             Click="BtnAbrirAdjuntos_Click"/>
+                    <Button x:Name="BtnAbrirFacturas" Content="Facturas" Padding="12,6" Margin="0,0,8,0" Cursor="Hand"
+                            Click="BtnAbrirFacturas_Click" Visibility="Collapsed"/>
                     <Button Padding="12,6" Margin="0,0,8,0" Cursor="Hand"
                             Click="BtnAbrirMapa_Click" ToolTip="Ver mapa de modificaciones">
                         <StackPanel Orientation="Horizontal">

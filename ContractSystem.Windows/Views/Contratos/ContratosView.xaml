@@ -33,6 +33,9 @@
             <Button Content="Adjuntos" Padding="12,6" Margin="8,0,0,0"
                     Command="{Binding VerAdjuntosCommand}"
                     ToolTip="Gestionar documentos adjuntos del contrato seleccionado"/>
+            <Button Content="Facturas" Padding="12,6" Margin="8,0,0,0"
+                    Command="{Binding VerFacturasCommand}"
+                    ToolTip="Gestionar facturas del contrato seleccionado"/>
             <Button Content="Estado" Padding="12,6" Margin="8,0,0,0"
                     Command="{Binding CambiarEstadoCommand}"
                     ToolTip="Cambiar el estado del contrato seleccionado"/>
@@ -165,6 +168,11 @@
                     <MenuItem Header="Adjuntos" Command="{Binding VerAdjuntosCommand}">
                         <MenuItem.Icon>
                             <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Facturas" Command="{Binding VerFacturasCommand}">
+                        <MenuItem.Icon>
+                            <TextBlock Text="&#xE7C1;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Mapa de modificaciones" Click="CtxVerMapa_Click">
