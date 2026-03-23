@@ -61,7 +61,7 @@ public interface IUsuarioStore
     Task<UsuarioEditDto?> GetByIdForEditAsync(int usuarioId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Actualiza nombre, email, activo y roles del usuario.
+    /// Actualiza nombre, email, activo, roles y permisos directos del usuario.
     /// </summary>
-    Task UpdateUsuarioAsync(int usuarioId, string nombreParaMostrar, string? email, bool activo, IReadOnlyList<int> rolIds, CancellationToken cancellationToken = default);
+    Task UpdateUsuarioAsync(int usuarioId, string nombreParaMostrar, string? email, bool activo, IReadOnlyList<int> rolIds, IReadOnlyList<int>? permisoDirectoIds = null, CancellationToken cancellationToken = default);
 }

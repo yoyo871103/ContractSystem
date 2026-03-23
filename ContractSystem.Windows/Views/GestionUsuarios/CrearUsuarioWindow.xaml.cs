@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using ContractSystem.Application.Auth;
 using ContractSystem.Windows.Models;
@@ -9,6 +10,7 @@ namespace ContractSystem.Windows.Views.GestionUsuarios;
 public partial class CrearUsuarioWindow : Window
 {
     private readonly ObservableCollection<RolSeleccionItem> _roles = new();
+    private readonly ObservableCollection<PermisoSeleccionItem> _permisos = new();
 
     public CrearUsuarioWindow()
     {
@@ -16,14 +18,31 @@ public partial class CrearUsuarioWindow : Window
         RolesPanel.ItemsSource = _roles;
     }
 
-    /// <summary>
-    /// Carga los roles disponibles para asignación.
-    /// </summary>
-    public void CargarRoles(IReadOnlyList<RolItem> roles)
+    public void CargarRoles(IReadOnlyList<RolItem> roles, IReadOnlyList<PermisoItem>? permisos = null)
     {
         _roles.Clear();
         foreach (var r in roles)
             _roles.Add(new RolSeleccionItem { Id = r.Id, Nombre = r.Nombre, IsSelected = false });
+
+        if (permisos is not null)
+        {
+            _permisos.Clear();
+            foreach (var p in permisos)
+            {
+                _permisos.Add(new PermisoSeleccionItem
+                {
+                    Id = p.Id,
+                    Nombre = p.Nombre,
+                    Descripcion = p.Descripcion,
+                    Categoria = p.Categoria,
+                    IsSelected = false
+                });
+            }
+
+            var view = CollectionViewSource.GetDefaultView(_permisos);
+            view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(PermisoSeleccionItem.Categoria)));
+            PermisosPanel.ItemsSource = view;
+        }
     }
 
     public string NombreUsuario => (TxtNombreUsuario.Text ?? "").Trim();
@@ -36,12 +55,13 @@ public partial class CrearUsuarioWindow : Window
     public string ContraseñaPlana => ContraseñaInicial;
     public bool RequiereCambioContraseña => ChkRequiereCambio.IsChecked == true;
     public IReadOnlyList<int> RolIdsSeleccionados => _roles.Where(r => r.IsSelected).Select(r => r.Id).ToList();
+    public IReadOnlyList<int> PermisoDirectoIdsSeleccionados => _permisos.Where(p => p.IsSelected).Select(p => p.Id).ToList();
 
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed)
         {
-            try { DragMove(); } catch { /* ignorar */ }
+            try { DragMove(); } catch { }
         }
     }
 

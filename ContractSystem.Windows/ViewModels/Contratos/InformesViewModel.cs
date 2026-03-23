@@ -19,6 +19,17 @@ public sealed partial class InformesViewModel : ObservableObject
     [ObservableProperty]
     private string _informeSeleccionado = "Facturación por contrato";
 
+    // --- Filtros ---
+
+    [ObservableProperty]
+    private string? _filtroTercero;
+
+    [ObservableProperty]
+    private string? _filtroNumero;
+
+    [ObservableProperty]
+    private string? _filtroProductoServicio;
+
     // --- Colecciones para cada informe ---
 
     [ObservableProperty]
@@ -66,7 +77,12 @@ public sealed partial class InformesViewModel : ObservableObject
         EstaCargando = true;
         try
         {
-            var result = await _sender.Send(new GetInformesContratosQuery(), cancellationToken);
+            var query = new GetInformesContratosQuery(
+                TextoTercero: string.IsNullOrWhiteSpace(FiltroTercero) ? null : FiltroTercero.Trim(),
+                TextoNumero: string.IsNullOrWhiteSpace(FiltroNumero) ? null : FiltroNumero.Trim(),
+                TextoProductoServicio: string.IsNullOrWhiteSpace(FiltroProductoServicio) ? null : FiltroProductoServicio.Trim());
+
+            var result = await _sender.Send(query, cancellationToken);
 
             // Facturación por contrato
             FacturacionPorContrato.Clear();
@@ -112,5 +128,14 @@ public sealed partial class InformesViewModel : ObservableObject
         {
             EstaCargando = false;
         }
+    }
+
+    [RelayCommand]
+    private void LimpiarFiltros()
+    {
+        FiltroTercero = null;
+        FiltroNumero = null;
+        FiltroProductoServicio = null;
+        _ = CargarAsync();
     }
 }

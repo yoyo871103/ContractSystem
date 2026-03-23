@@ -16,13 +16,15 @@ public partial class FacturasWindow : Window
 {
     private readonly ISender _sender;
     private readonly int _contratoId;
+    private readonly bool _readOnly;
     private readonly ObservableCollection<Factura> _facturas = new();
 
-    public FacturasWindow(ISender sender, int contratoId, string contratoNumero)
+    public FacturasWindow(ISender sender, int contratoId, string contratoNumero, bool readOnly = false)
     {
         InitializeComponent();
         _sender = sender;
         _contratoId = contratoId;
+        _readOnly = readOnly;
         TxtTitulo.Text = $"Facturas — {contratoNumero}";
         DgFacturas.ItemsSource = _facturas;
         Loaded += async (_, _) => await CargarAsync();
@@ -54,6 +56,7 @@ public partial class FacturasWindow : Window
 
     private async void BtnNueva_Click(object sender, RoutedEventArgs e)
     {
+        if (_readOnly) return;
         var dialog = new FacturaDialogWindow();
         dialog.Owner = this;
 
@@ -80,6 +83,7 @@ public partial class FacturasWindow : Window
 
     private async void BtnEditar_Click(object sender, RoutedEventArgs e)
     {
+        if (_readOnly) return;
         if (DgFacturas.SelectedItem is not Factura factura) return;
 
         var dialog = new FacturaDialogWindow();
@@ -109,6 +113,7 @@ public partial class FacturasWindow : Window
 
     private async void BtnEliminar_Click(object sender, RoutedEventArgs e)
     {
+        if (_readOnly) return;
         if (DgFacturas.SelectedItem is not Factura factura) return;
 
         var result = MessageBox.Show(
@@ -147,7 +152,7 @@ public partial class FacturasWindow : Window
 
         if (e.ClickCount == 2)
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        else
+        else if (e.LeftButton == MouseButtonState.Pressed)
             DragMove();
     }
 

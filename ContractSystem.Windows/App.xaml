@@ -13,6 +13,7 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
         <converters:BoolToEstadoUsuarioConverter x:Key="BoolToEstadoUsuario"/>
         <converters:ByteArrayToImageSourceConverter x:Key="ByteArrayToImageSource"/>
+        <converters:BoolToSistemaRolConverter x:Key="BoolToSistemaRol"/>
         <!-- Paleta de colores estilo Microsoft Store / App moderna -->
         <SolidColorBrush x:Key="BrushBackground" Color="#F0F2F5"/>
         <SolidColorBrush x:Key="BrushError" Color="#C42B1C"/>
@@ -166,6 +167,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:GestionUsuariosViewModel}">
             <viewsGestionUsuarios:GestionUsuariosView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:GestionRolesViewModel}">
+            <viewsGestionUsuarios:GestionRolesView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:ConfiguracionViewModel}">
             <viewsConfiguracion:ConfiguracionView/>

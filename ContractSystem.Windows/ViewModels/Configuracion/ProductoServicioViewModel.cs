@@ -8,6 +8,7 @@ using ContractSystem.Application.Nomencladores.Commands.UpdateProductoServicio;
 using ContractSystem.Application.Nomencladores.Queries.GetPagedProductosServicios;
 using ContractSystem.Application.Nomencladores.Queries.GetAllUnidadesMedida;
 using ContractSystem.Domain.Nomencladores;
+using ContractSystem.Application.Auth;
 using MediatR;
 using System.Windows;
 
@@ -16,6 +17,7 @@ namespace ContractSystem.Windows.ViewModels;
 public sealed partial class ProductoServicioViewModel : ObservableObject
 {
     private readonly ISender _sender;
+    private readonly IAuthContext _authContext;
     private const int PageSize = 20;
 
     [ObservableProperty]
@@ -55,9 +57,14 @@ public sealed partial class ProductoServicioViewModel : ObservableObject
     private IReadOnlyList<UnidadMedida> _unidadesMedida = Array.Empty<UnidadMedida>();
     private CancellationTokenSource? _searchCts;
 
-    public ProductoServicioViewModel(ISender sender)
+    public bool PuedeCrearProducto => _authContext.TienePermiso(Permissions.ProductosCrear);
+    public bool PuedeEditarProducto => _authContext.TienePermiso(Permissions.ProductosEditar);
+    public bool PuedeEliminarProducto => _authContext.TienePermiso(Permissions.ProductosEliminar);
+
+    public ProductoServicioViewModel(ISender sender, IAuthContext authContext)
     {
         _sender = sender;
+        _authContext = authContext;
         _ = CargarAsync();
     }
 
@@ -114,7 +121,7 @@ public sealed partial class ProductoServicioViewModel : ObservableObject
     private bool PuedeRetroceder() => PaginaActual > 1;
     private bool PuedeAvanzar() => PaginaActual < TotalPaginas;
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(PuedeCrearProducto))]
     private void Nuevo()
     {
         var dialog = new Views.Configuracion.ProductoServicioDialogWindow();
@@ -175,7 +182,7 @@ public sealed partial class ProductoServicioViewModel : ObservableObject
         }
     }
 
-    private bool HaySeleccionado() => Seleccionado is not null;
+    private bool HaySeleccionado() => Seleccionado is not null && _authContext.TienePermiso(Permissions.ProductosEditar);
 
     [RelayCommand(CanExecute = nameof(PuedeEliminar))]
     private async Task EliminarAsync(CancellationToken cancellationToken = default)
@@ -202,7 +209,7 @@ public sealed partial class ProductoServicioViewModel : ObservableObject
         }
     }
 
-    private bool PuedeEliminar() => Seleccionado is not null && !Seleccionado.IsDeleted;
+    private bool PuedeEliminar() => Seleccionado is not null && !Seleccionado.IsDeleted && _authContext.TienePermiso(Permissions.ProductosEliminar);
 
     [RelayCommand(CanExecute = nameof(PuedeReactivar))]
     private async Task ReactivarAsync(CancellationToken cancellationToken = default)
@@ -229,7 +236,7 @@ public sealed partial class ProductoServicioViewModel : ObservableObject
         }
     }
 
-    private bool PuedeReactivar() => Seleccionado is not null && Seleccionado.IsDeleted;
+    private bool PuedeReactivar() => Seleccionado is not null && Seleccionado.IsDeleted && _authContext.TienePermiso(Permissions.ProductosEliminar);
 
     partial void OnIncludeDeletedChanged(bool value) { PaginaActual = 1; _ = CargarAsync(); }
     partial void OnFiltroTipoChanged(TipoProductoServicio? value) { PaginaActual = 1; _ = CargarAsync(); }

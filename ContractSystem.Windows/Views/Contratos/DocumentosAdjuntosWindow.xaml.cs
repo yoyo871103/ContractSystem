@@ -18,10 +18,12 @@ public partial class DocumentosAdjuntosWindow : Window
 {
     private readonly ISender _sender;
     private readonly int _contratoId;
+    private readonly bool _readOnly;
     private readonly ObservableCollection<AdjuntoListItem> _adjuntos = new();
 
-    public DocumentosAdjuntosWindow(ISender sender, int contratoId, string contratoNumero)
+    public DocumentosAdjuntosWindow(ISender sender, int contratoId, string contratoNumero, bool readOnly = false)
     {
+        _readOnly = readOnly;
         InitializeComponent();
         _sender = sender;
         _contratoId = contratoId;
@@ -48,6 +50,7 @@ public partial class DocumentosAdjuntosWindow : Window
 
     private async void BtnAdjuntar_Click(object sender, RoutedEventArgs e)
     {
+        if (_readOnly) return;
         var filtro = string.Join(";", DocumentoAdjunto.ExtensionesPermitidas.Select(ext => "*" + ext));
         var openDialog = new OpenFileDialog
         {
@@ -125,6 +128,7 @@ public partial class DocumentosAdjuntosWindow : Window
 
     private async void BtnEliminar_Click(object sender, RoutedEventArgs e)
     {
+        if (_readOnly) return;
         if (DgAdjuntos.SelectedItem is not AdjuntoListItem item) return;
 
         var result = MessageBox.Show(
@@ -182,7 +186,7 @@ public partial class DocumentosAdjuntosWindow : Window
 
         if (e.ClickCount == 2)
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        else
+        else if (e.LeftButton == MouseButtonState.Pressed)
             DragMove();
     }
 

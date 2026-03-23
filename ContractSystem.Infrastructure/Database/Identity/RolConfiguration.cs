@@ -18,6 +18,9 @@ internal sealed class RolConfiguration : IEntityTypeConfiguration<Rol>
         builder.HasIndex(e => e.Nombre)
             .IsUnique();
 
+        builder.Property(e => e.Descripcion)
+            .HasMaxLength(256);
+
         builder.HasMany(e => e.UsuarioRoles)
             .WithOne(ur => ur.Rol)
             .HasForeignKey(ur => ur.RolId)

@@ -7,6 +7,7 @@ using ContractSystem.Application.Nomencladores.Commands.ReactivarUnidadMedida;
 using ContractSystem.Application.Nomencladores.Commands.UpdateUnidadMedida;
 using ContractSystem.Application.Nomencladores.Queries.GetAllUnidadesMedida;
 using ContractSystem.Domain.Nomencladores;
+using ContractSystem.Application.Auth;
 using MediatR;
 using System.Windows;
 
@@ -18,6 +19,7 @@ namespace ContractSystem.Windows.ViewModels;
 public sealed partial class UnidadMedidaViewModel : ObservableObject
 {
     private readonly ISender _sender;
+    private readonly IAuthContext _authContext;
 
     [ObservableProperty]
     private ObservableCollection<UnidadMedida> _unidades = new();
@@ -43,9 +45,12 @@ public sealed partial class UnidadMedidaViewModel : ObservableObject
     [ObservableProperty]
     private bool _includeDeleted;
 
-    public UnidadMedidaViewModel(ISender sender)
+    public bool PuedeGestionarUM => _authContext.TienePermiso(Permissions.UnidadesMedidaGestionar);
+
+    public UnidadMedidaViewModel(ISender sender, IAuthContext authContext)
     {
         _sender = sender;
+        _authContext = authContext;
         _ = CargarAsync();
     }
 
@@ -81,7 +86,7 @@ public sealed partial class UnidadMedidaViewModel : ObservableObject
         EsModoEdicion = true;
     }
 
-    private bool HaySeleccionado() => Seleccionado is not null;
+    private bool HaySeleccionado() => Seleccionado is not null && _authContext.TienePermiso(Permissions.UnidadesMedidaGestionar);
 
     [RelayCommand]
     private void Nuevo()
@@ -127,7 +132,7 @@ public sealed partial class UnidadMedidaViewModel : ObservableObject
         }
     }
 
-    private bool FormularioValido() => !string.IsNullOrWhiteSpace(NombreCorto);
+    private bool FormularioValido() => !string.IsNullOrWhiteSpace(NombreCorto) && _authContext.TienePermiso(Permissions.UnidadesMedidaGestionar);
 
     [RelayCommand(CanExecute = nameof(PuedeEliminar))]
     private async Task EliminarAsync(CancellationToken cancellationToken = default)
@@ -158,7 +163,7 @@ public sealed partial class UnidadMedidaViewModel : ObservableObject
         }
     }
 
-    private bool PuedeEliminar() => Seleccionado is not null && !Seleccionado.IsDeleted;
+    private bool PuedeEliminar() => Seleccionado is not null && !Seleccionado.IsDeleted && _authContext.TienePermiso(Permissions.UnidadesMedidaGestionar);
 
     [RelayCommand(CanExecute = nameof(PuedeReactivar))]
     private async Task ReactivarAsync(CancellationToken cancellationToken = default)
@@ -189,7 +194,7 @@ public sealed partial class UnidadMedidaViewModel : ObservableObject
         }
     }
 
-    private bool PuedeReactivar() => Seleccionado is not null && Seleccionado.IsDeleted;
+    private bool PuedeReactivar() => Seleccionado is not null && Seleccionado.IsDeleted && _authContext.TienePermiso(Permissions.UnidadesMedidaGestionar);
 
     private void LimpiarFormulario()
     {

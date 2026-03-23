@@ -95,6 +95,9 @@ public sealed class Contrato : ISoftDeletable, IAuditable
     /// </summary>
     public ICollection<ModificacionDocumento> ModificadoPor { get; set; } = new List<ModificacionDocumento>();
 
+    // --- Anexos (secciones internas) ---
+    public ICollection<Anexo> Anexos { get; set; } = new List<Anexo>();
+
     // --- Documentos adjuntos ---
     public ICollection<DocumentoAdjunto> DocumentosAdjuntos { get; set; } = new List<DocumentoAdjunto>();
 

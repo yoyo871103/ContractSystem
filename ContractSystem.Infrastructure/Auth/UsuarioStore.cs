@@ -29,6 +29,8 @@ internal sealed class UsuarioStore : IUsuarioStore
             .ThenInclude(ur => ur.Rol)
             .ThenInclude(r => r.RolPermisos)
             .ThenInclude(rp => rp.Permiso)
+            .Include(u => u.UsuarioPermisos)
+            .ThenInclude(up => up.Permiso)
             .FirstOrDefaultAsync(u => u.NombreUsuario == nombreUsuario && u.Activo, cancellationToken);
     }
 
@@ -227,6 +229,14 @@ internal sealed class UsuarioStore : IUsuarioStore
             await db.SaveChangesAsync(cancellationToken);
         }
 
+        var permisoIds = request.PermisoDirectoIds?.Where(id => id > 0).Distinct().ToList() ?? new List<int>();
+        if (permisoIds.Count > 0)
+        {
+            foreach (var permisoId in permisoIds)
+                db.UsuarioPermisos.Add(new UsuarioPermiso { UsuarioId = usuario.Id, PermisoId = permisoId });
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
         return usuario;
     }
 
@@ -239,6 +249,7 @@ internal sealed class UsuarioStore : IUsuarioStore
         var u = await db.Usuarios
             .AsNoTracking()
             .Include(us => us.UsuarioRoles)
+            .Include(us => us.UsuarioPermisos)
             .FirstOrDefaultAsync(us => us.Id == usuarioId, cancellationToken);
         if (u is null)
             return null;
@@ -250,11 +261,12 @@ internal sealed class UsuarioStore : IUsuarioStore
             NombreParaMostrar = u.NombreParaMostrar,
             Email = u.Email,
             Activo = u.Activo,
-            RolIds = u.UsuarioRoles.Select(ur => ur.RolId).ToList()
+            RolIds = u.UsuarioRoles.Select(ur => ur.RolId).ToList(),
+            PermisoDirectoIds = u.UsuarioPermisos.Select(up => up.PermisoId).ToList()
         };
     }
 
-    public async Task UpdateUsuarioAsync(int usuarioId, string nombreParaMostrar, string? email, bool activo, IReadOnlyList<int> rolIds, CancellationToken cancellationToken = default)
+    public async Task UpdateUsuarioAsync(int usuarioId, string nombreParaMostrar, string? email, bool activo, IReadOnlyList<int> rolIds, IReadOnlyList<int>? permisoDirectoIds = null, CancellationToken cancellationToken = default)
     {
         using var context = _contextFactory.CreateDbContext();
         if (context is not DatabaseApplicationDbContext db)
@@ -262,6 +274,7 @@ internal sealed class UsuarioStore : IUsuarioStore
 
         var user = await db.Usuarios
             .Include(u => u.UsuarioRoles)
+            .Include(u => u.UsuarioPermisos)
             .FirstOrDefaultAsync(u => u.Id == usuarioId, cancellationToken);
         if (user is null)
             return;
@@ -272,12 +285,24 @@ internal sealed class UsuarioStore : IUsuarioStore
             ? true
             : activo;
 
+        // Sincronizar roles
         var newRolIds = (rolIds ?? Array.Empty<int>()).Where(id => id > 0).Distinct().ToHashSet();
-        var current = user.UsuarioRoles.Select(ur => ur.RolId).ToHashSet();
+        var currentRoles = user.UsuarioRoles.Select(ur => ur.RolId).ToHashSet();
         foreach (var ur in user.UsuarioRoles.Where(ur => !newRolIds.Contains(ur.RolId)).ToList())
             db.UsuarioRoles.Remove(ur);
-        foreach (var rolId in newRolIds.Where(id => !current.Contains(id)))
+        foreach (var rolId in newRolIds.Where(id => !currentRoles.Contains(id)))
             db.UsuarioRoles.Add(new UsuarioRol { UsuarioId = usuarioId, RolId = rolId });
+
+        // Sincronizar permisos directos
+        if (permisoDirectoIds is not null)
+        {
+            var newPermisoIds = permisoDirectoIds.Where(id => id > 0).Distinct().ToHashSet();
+            var currentPermisos = user.UsuarioPermisos.Select(up => up.PermisoId).ToHashSet();
+            foreach (var up in user.UsuarioPermisos.Where(up => !newPermisoIds.Contains(up.PermisoId)).ToList())
+                db.UsuarioPermisos.Remove(up);
+            foreach (var permisoId in newPermisoIds.Where(id => !currentPermisos.Contains(id)))
+                db.UsuarioPermisos.Add(new UsuarioPermiso { UsuarioId = usuarioId, PermisoId = permisoId });
+        }
 
         await db.SaveChangesAsync(cancellationToken);
     }

@@ -1,0 +1,67 @@
+<UserControl x:Class="ContractSystem.Windows.Views.GestionUsuarios.GestionRolesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBlock Text="&#xE7EF;" FontFamily="Segoe MDL2 Assets" FontSize="24"
+                       Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBlock Text="Gesti&#243;n de roles" FontSize="16" FontWeight="SemiBold"
+                       Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <TextBlock Grid.Row="1" Text="{Binding MensajeError}" Foreground="{StaticResource BrushError}"
+                   FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button Content="Actualizar" Padding="12,6" Height="28" Margin="0,0,4,0"
+                    Command="{Binding CargarCommand}"/>
+            <Button Content="Nuevo rol" Padding="12,6" Height="28" Margin="0,0,4,0"
+                    Command="{Binding NuevoRolCommand}"
+                    Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0"/>
+            <Button Content="Editar" Padding="12,6" Height="28" Margin="0,0,4,0"
+                    Command="{Binding EditarRolCommand}"/>
+            <Button Content="Eliminar" Padding="12,6" Height="28"
+                    Command="{Binding EliminarRolCommand}"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="3" ItemsSource="{Binding Roles}"
+                  SelectedItem="{Binding RolSeleccionado, Mode=TwoWay}"
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  CanUserAddRows="False" CanUserDeleteRows="False"
+                  SelectionMode="Single" SelectionUnit="FullRow"
+                  HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                  BorderBrush="{StaticResource BrushBorder}" BorderThickness="1">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="180"/>
+                <DataGridTextColumn Header="Descripci&#243;n" Binding="{Binding Descripcion}" Width="*"/>
+                <DataGridTextColumn Header="Permisos" Binding="{Binding CantidadPermisos}" Width="80">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Usuarios" Binding="{Binding CantidadUsuarios}" Width="80">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Tipo" Width="90">
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="EsSistema" Converter="{StaticResource BoolToSistemaRol}"/>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

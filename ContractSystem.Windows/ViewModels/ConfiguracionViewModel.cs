@@ -12,29 +12,16 @@ public sealed partial class ConfiguracionViewModel : ObservableObject
     [ObservableProperty]
     private int _selectedTabIndex;
 
-    /// <summary>
-    /// ViewModel del tab "Gestión de usuarios" (listado, CRUD y asignación de roles).
-    /// </summary>
     public GestionUsuariosViewModel GestionUsuarios { get; }
-
-    /// <summary>
-    /// ViewModel del tab "Datos del Negocio".
-    /// </summary>
+    public GestionRolesViewModel GestionRoles { get; }
     public BusinessInfoViewModel BusinessInfo { get; }
-
-    /// <summary>
-    /// ViewModel del tab "Nomencladores".
-    /// </summary>
     public NomencladoresViewModel Nomencladores { get; }
-
-    /// <summary>
-    /// ViewModel del tab "Numeración de Documentos".
-    /// </summary>
     public NumeracionConfigViewModel NumeracionConfig { get; }
 
     public ConfiguracionViewModel(IServiceProvider services)
     {
         GestionUsuarios = services.GetRequiredService<GestionUsuariosViewModel>();
+        GestionRoles = services.GetRequiredService<GestionRolesViewModel>();
         BusinessInfo = services.GetRequiredService<BusinessInfoViewModel>();
         Nomencladores = services.GetRequiredService<NomencladoresViewModel>();
         NumeracionConfig = services.GetRequiredService<NumeracionConfigViewModel>();

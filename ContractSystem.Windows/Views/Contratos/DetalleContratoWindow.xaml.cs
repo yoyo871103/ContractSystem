@@ -7,6 +7,7 @@ using ContractSystem.Application.Contratos.Queries.GetAnexosByContrato;
 using ContractSystem.Application.Contratos.Queries.GetDocumentosAdjuntos;
 using ContractSystem.Application.Contratos.Queries.GetFacturasByContrato;
 using ContractSystem.Application.Contratos.Queries.GetLineasByContrato;
+using ContractSystem.Application.Auth;
 using ContractSystem.Domain.Contratos;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,12 +17,14 @@ namespace ContractSystem.Windows.Views.Contratos;
 public partial class DetalleContratoWindow : Window
 {
     private readonly ISender _sender;
+    private readonly IAuthContext _authContext;
     private readonly Contrato _contrato;
 
     public DetalleContratoWindow(ISender sender, Contrato contrato)
     {
         InitializeComponent();
         _sender = sender;
+        _authContext = App.Services.GetRequiredService<IAuthContext>();
         _contrato = contrato;
 
         CargarDatosGenerales();
@@ -164,7 +167,8 @@ public partial class DetalleContratoWindow : Window
 
     private void BtnAbrirAnexos_Click(object sender, RoutedEventArgs e)
     {
-        var window = new AnexosLineasWindow(_sender, _contrato.Id, _contrato.Numero);
+        var window = new AnexosLineasWindow(_sender, _contrato.Id, _contrato.Numero,
+            readOnly: !_authContext.TienePermiso(Permissions.AnexosGestionar));
         window.Owner = this;
         window.ShowDialog();
         _ = CargarDetallesAsync();
@@ -172,7 +176,8 @@ public partial class DetalleContratoWindow : Window
 
     private void BtnAbrirAdjuntos_Click(object sender, RoutedEventArgs e)
     {
-        var window = new DocumentosAdjuntosWindow(_sender, _contrato.Id, _contrato.Numero);
+        var window = new DocumentosAdjuntosWindow(_sender, _contrato.Id, _contrato.Numero,
+            readOnly: !_authContext.TienePermiso(Permissions.AdjuntosGestionar));
         window.Owner = this;
         window.ShowDialog();
         _ = CargarDetallesAsync();
@@ -180,7 +185,8 @@ public partial class DetalleContratoWindow : Window
 
     private void BtnAbrirFacturas_Click(object sender, RoutedEventArgs e)
     {
-        var window = new FacturasWindow(_sender, _contrato.Id, _contrato.Numero);
+        var window = new FacturasWindow(_sender, _contrato.Id, _contrato.Numero,
+            readOnly: !_authContext.TienePermiso(Permissions.FacturasGestionar));
         window.Owner = this;
         window.ShowDialog();
         _ = CargarDetallesAsync();
@@ -200,7 +206,7 @@ public partial class DetalleContratoWindow : Window
     {
         if (e.ClickCount == 2)
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        else
+        else if (e.LeftButton == MouseButtonState.Pressed)
             DragMove();
     }
 }

@@ -6,6 +6,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -15,12 +16,54 @@
                        Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center" Margin="0,0,8,0"/>
             <TextBlock Text="Informes" FontSize="16" FontWeight="SemiBold"
                        Foreground="{StaticResource BrushTextInactive}" VerticalAlignment="Center"/>
-            <Button Content="Actualizar" Padding="12,6" Margin="16,0,0,0"
-                    Command="{Binding CargarCommand}"/>
         </StackPanel>
 
+        <!-- Panel de filtros -->
+        <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                CornerRadius="4" Padding="12,10" Margin="0,0,0,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Filtro por tercero -->
+                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                    <TextBlock Text="Cliente / Proveedor" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding FiltroTercero, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="6,4" VerticalContentAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Filtro por producto/servicio -->
+                <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                    <TextBlock Text="Producto / Servicio" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding FiltroProductoServicio, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="6,4" VerticalContentAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Filtro por número -->
+                <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                    <TextBlock Text="N&#250;mero contrato / suplemento" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding FiltroNumero, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="6,4" VerticalContentAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Botones -->
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Bottom">
+                    <Button Content="&#xE71E;" FontFamily="Segoe MDL2 Assets" ToolTip="Buscar"
+                            Padding="10,6" Margin="0,0,4,0"
+                            Command="{Binding CargarCommand}"/>
+                    <Button Content="&#xE894;" FontFamily="Segoe MDL2 Assets" ToolTip="Limpiar filtros"
+                            Padding="10,6"
+                            Command="{Binding LimpiarFiltrosCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Tarjetas resumen -->
-        <WrapPanel Grid.Row="1" Margin="0,0,0,12">
+        <WrapPanel Grid.Row="2" Margin="0,0,0,12">
             <!-- Total contratos -->
             <Border Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
                     CornerRadius="4" Padding="16,10" Margin="0,0,12,0" MinWidth="140">
@@ -60,11 +103,11 @@
         </WrapPanel>
 
         <!-- Error -->
-        <TextBlock Grid.Row="2" x:Name="TxtError" Text="{Binding MensajeError}" Foreground="{StaticResource BrushError}"
+        <TextBlock Grid.Row="3" x:Name="TxtError" Text="{Binding MensajeError}" Foreground="{StaticResource BrushError}"
                    FontSize="12" Margin="0,0,0,8"/>
 
         <!-- TabControl con informes -->
-        <TabControl Grid.Row="3" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+        <TabControl Grid.Row="4" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
                     Padding="8">
 
             <!-- 1. Facturación por contrato -->

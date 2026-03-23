@@ -38,6 +38,6 @@ public partial class CambiarEstadoWindow : Window
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ClickCount == 2) return;
-        DragMove();
+        if (e.LeftButton == MouseButtonState.Pressed) DragMove();
     }
 }

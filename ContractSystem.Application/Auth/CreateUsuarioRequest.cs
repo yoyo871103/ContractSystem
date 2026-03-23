@@ -13,4 +13,6 @@ public sealed class CreateUsuarioRequest
     public bool RequiereCambioContraseña { get; init; }
     /// <summary>Ids de roles a asignar. Si vacío, no se asigna ningún rol.</summary>
     public IReadOnlyList<int>? RolIds { get; init; }
+    /// <summary>Ids de permisos directos a asignar (sin pasar por rol).</summary>
+    public IReadOnlyList<int>? PermisoDirectoIds { get; init; }
 }

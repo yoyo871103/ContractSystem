@@ -20,7 +20,7 @@ internal sealed class AnexoConfiguration : IEntityTypeConfiguration<Anexo>
         builder.HasIndex(e => e.ContratoId);
 
         builder.HasOne(e => e.Contrato)
-            .WithMany()
+            .WithMany(c => c.Anexos)
             .HasForeignKey(e => e.ContratoId)
             .OnDelete(DeleteBehavior.Cascade);
     }

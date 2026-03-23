@@ -38,6 +38,7 @@ public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<UsuarioRol> UsuarioRoles => Set<UsuarioRol>();
     public DbSet<Permiso> Permisos => Set<Permiso>();
     public DbSet<RolPermiso> RolPermisos => Set<RolPermiso>();
+    public DbSet<UsuarioPermiso> UsuarioPermisos => Set<UsuarioPermiso>();
     public DbSet<BusinessInfo> BusinessInfos => Set<BusinessInfo>();
     public DbSet<UnidadMedida> UnidadesMedida => Set<UnidadMedida>();
     public DbSet<Tercero> Terceros => Set<Tercero>();

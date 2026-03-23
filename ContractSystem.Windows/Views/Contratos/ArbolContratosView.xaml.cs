@@ -10,6 +10,7 @@ using ContractSystem.Application.Contratos.Queries.GetAllContratos;
 using ContractSystem.Application.Contratos.Queries.GetContratosMarco;
 using ContractSystem.Application.Nomencladores.Queries.GetAllTerceros;
 using ContractSystem.Domain.Contratos;
+using ContractSystem.Application.Auth;
 using ContractSystem.Windows.ViewModels;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -93,6 +94,8 @@ public partial class ArbolContratosView : UserControl
 
     private async void CtxEditar_Click(object sender, RoutedEventArgs e)
     {
+        var auth = App.Services.GetRequiredService<IAuthContext>();
+        if (!auth.TienePermiso(Permissions.ContratosEditar)) return;
         var nodo = GetNodoFromContextMenu(sender);
         if (nodo is null) return;
 
@@ -141,6 +144,8 @@ public partial class ArbolContratosView : UserControl
 
     private async void CtxCambiarEstado_Click(object sender, RoutedEventArgs e)
     {
+        var auth = App.Services.GetRequiredService<IAuthContext>();
+        if (!auth.TienePermiso(Permissions.ContratosCambiarEstado)) return;
         var nodo = GetNodoFromContextMenu(sender);
         if (nodo is null) return;
 
@@ -170,6 +175,8 @@ public partial class ArbolContratosView : UserControl
 
     private async void CtxHistorial_Click(object sender, RoutedEventArgs e)
     {
+        var auth = App.Services.GetRequiredService<IAuthContext>();
+        if (!auth.TienePermiso(Permissions.HistorialVer)) return;
         var nodo = GetNodoFromContextMenu(sender);
         if (nodo is null) return;
 
@@ -192,7 +199,9 @@ public partial class ArbolContratosView : UserControl
         if (nodo is null) return;
 
         var mediator = App.Services.GetRequiredService<ISender>();
-        var window = new DocumentosAdjuntosWindow(mediator, nodo.Id, nodo.Numero);
+        var auth = App.Services.GetRequiredService<IAuthContext>();
+        var window = new DocumentosAdjuntosWindow(mediator, nodo.Id, nodo.Numero,
+            readOnly: !auth.TienePermiso(Permissions.AdjuntosGestionar));
         window.Owner = System.Windows.Application.Current.MainWindow;
         window.ShowDialog();
     }
@@ -210,7 +219,9 @@ public partial class ArbolContratosView : UserControl
         }
 
         var mediator = App.Services.GetRequiredService<ISender>();
-        var window = new FacturasWindow(mediator, nodo.Id, nodo.Numero);
+        var auth = App.Services.GetRequiredService<IAuthContext>();
+        var window = new FacturasWindow(mediator, nodo.Id, nodo.Numero,
+            readOnly: !auth.TienePermiso(Permissions.FacturasGestionar));
         window.Owner = System.Windows.Application.Current.MainWindow;
         window.ShowDialog();
     }
@@ -239,6 +250,8 @@ public partial class ArbolContratosView : UserControl
 
     private async void CtxNuevoSuplemento_Click(object sender, RoutedEventArgs e)
     {
+        var auth = App.Services.GetRequiredService<IAuthContext>();
+        if (!auth.TienePermiso(Permissions.SuplementosCrear)) return;
         var nodo = GetNodoFromContextMenu(sender);
         if (nodo is null) return;
 
@@ -308,6 +321,8 @@ public partial class ArbolContratosView : UserControl
 
     private async void CtxEliminar_Click(object sender, RoutedEventArgs e)
     {
+        var auth = App.Services.GetRequiredService<IAuthContext>();
+        if (!auth.TienePermiso(Permissions.ContratosEliminar)) return;
         var nodo = GetNodoFromContextMenu(sender);
         if (nodo is null) return;
 

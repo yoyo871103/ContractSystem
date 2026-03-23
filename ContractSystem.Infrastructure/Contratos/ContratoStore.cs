@@ -49,6 +49,7 @@ public sealed class ContratoStore : IContratoStore
         DateTime? fechaFirmaHasta = null,
         string? textoBusqueda = null,
         string? textoTercero = null,
+        string? textoProductoServicio = null,
         CancellationToken cancellationToken = default)
     {
         using var context = _contextFactory.CreateDbContext();
@@ -96,6 +97,14 @@ public sealed class ContratoStore : IContratoStore
                 (e.Tercero.Nombre.ToLower().Contains(tt) ||
                  (e.Tercero.Codigo != null && e.Tercero.Codigo.ToLower().Contains(tt)) ||
                  e.Tercero.NifCif.ToLower().Contains(tt)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(textoProductoServicio))
+        {
+            var tp = textoProductoServicio.Trim().ToLower();
+            query = query.Where(e => e.Anexos.Any(a => a.Lineas.Any(l =>
+                l.Concepto.ToLower().Contains(tp) ||
+                (l.Descripcion != null && l.Descripcion.ToLower().Contains(tp)))));
         }
 
         return await query

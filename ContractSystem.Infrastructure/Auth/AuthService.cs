@@ -34,8 +34,12 @@ internal sealed class AuthService : IAuthService
 
         var roles = usuario.UsuarioRoles.Select(ur => ur.Rol.Nombre).ToList();
         var esAdmin = roles.Contains(DefaultUsers.RolAdministradorSistema, StringComparer.OrdinalIgnoreCase);
-        var permisos = usuario.UsuarioRoles
-            .SelectMany(ur => ur.Rol.RolPermisos.Select(rp => rp.Permiso.Nombre))
+        // Permisos de roles + permisos directos del usuario
+        var permisosDeRoles = usuario.UsuarioRoles
+            .SelectMany(ur => ur.Rol.RolPermisos.Select(rp => rp.Permiso.Nombre));
+        var permisosDirectos = usuario.UsuarioPermisos
+            .Select(up => up.Permiso.Nombre);
+        var permisos = permisosDeRoles.Concat(permisosDirectos)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
         var userInfo = new AuthUserInfo

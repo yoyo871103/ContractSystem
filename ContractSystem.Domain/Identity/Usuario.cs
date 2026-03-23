@@ -31,4 +31,5 @@ public sealed class Usuario : ISoftDeletable
     public DateTimeOffset? DeletedAt { get; set; }
 
     public ICollection<UsuarioRol> UsuarioRoles { get; set; } = new List<UsuarioRol>();
+    public ICollection<UsuarioPermiso> UsuarioPermisos { get; set; } = new List<UsuarioPermiso>();
 }

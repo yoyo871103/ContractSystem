@@ -57,7 +57,7 @@ public partial class HistorialCambiosWindow : Window
     {
         if (e.ClickCount == 2)
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        else
+        else if (e.LeftButton == MouseButtonState.Pressed)
             DragMove();
     }
 }

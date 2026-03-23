@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ContractSystem.Application.Business.Commands.UpdateBusinessInfo;
 using ContractSystem.Application.Business.Queries.GetBusinessInfo;
+using ContractSystem.Application.Auth;
 using MediatR;
 using Microsoft.Win32;
 using System.IO;
@@ -12,6 +13,7 @@ namespace ContractSystem.Windows.ViewModels;
 public partial class BusinessInfoViewModel : ObservableObject
 {
     private readonly ISender _sender;
+    private readonly IAuthContext _authContext;
 
     [ObservableProperty]
     private string _nombre = string.Empty;
@@ -37,10 +39,12 @@ public partial class BusinessInfoViewModel : ObservableObject
     [ObservableProperty]
     private string _nombreDueno = string.Empty;
 
-    public BusinessInfoViewModel(ISender sender)
+    public bool PuedeEditarDatosNegocio => _authContext.TienePermiso(Permissions.DatosNegocioEditar);
+
+    public BusinessInfoViewModel(ISender sender, IAuthContext authContext)
     {
         _sender = sender;
-        // Cargar datos al iniciar
+        _authContext = authContext;
         LoadDataCommand.Execute(null);
     }
 
@@ -69,7 +73,7 @@ public partial class BusinessInfoViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(PuedeEditarDatosNegocio))]
     private async Task SaveAsync()
     {
         try

@@ -39,7 +39,8 @@
             <Button Padding="12,6" Margin="8,0,0,0"
                     Background="#28A745" Foreground="White" BorderThickness="0"
                     Click="BtnImportarCsv_Click"
-                    ToolTip="Importar terceros desde archivo CSV">
+                    ToolTip="Importar terceros desde archivo CSV"
+                    Visibility="{Binding PuedeCrearTercero, Converter={StaticResource BoolToVisibility}}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE8DE;" FontFamily="Segoe MDL2 Assets" FontSize="12"
                                VerticalAlignment="Center" Margin="0,0,6,0"/>

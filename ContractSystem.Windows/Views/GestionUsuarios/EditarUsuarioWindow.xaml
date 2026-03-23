@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Editar usuario"
-        Height="480" Width="440"
-        MinHeight="420" MinWidth="380"
+        Height="560" Width="500"
+        MinHeight="480" MinWidth="420"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None" ResizeMode="CanResize"
         Background="{StaticResource BrushBackground}"
@@ -23,24 +23,54 @@
             </Border>
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="24,16">
                 <StackPanel>
-                    <TextBlock Text="Nombre de usuario (inicio de sesión)" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Nombre de usuario (inicio de sesi&#243;n)" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
                     <TextBox x:Name="TxtNombreUsuario" FontSize="14" Padding="10,8" Margin="0,0,0,12" IsReadOnly="True"
                              Background="{StaticResource BrushSidebar}" Foreground="{StaticResource BrushTextInactive}"/>
 
                     <TextBlock Text="Nombre para mostrar" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
                     <TextBox x:Name="TxtNombreParaMostrar" FontSize="14" Padding="10,8" Margin="0,0,0,12"/>
 
-                    <TextBlock Text="Correo electrónico (opcional)" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Correo electr&#243;nico (opcional)" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
                     <TextBox x:Name="TxtEmail" FontSize="14" Padding="10,8" Margin="0,0,0,12"/>
 
                     <CheckBox x:Name="ChkActivo" Content="Usuario activo" FontSize="12" Margin="0,0,0,16"/>
 
                     <TextBlock Text="Roles" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,6"/>
-                    <ItemsControl x:Name="RolesPanel" Margin="0,0,0,8">
+                    <ItemsControl x:Name="RolesPanel" Margin="0,0,0,16">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <CheckBox Content="{Binding Nombre}" IsChecked="{Binding IsSelected}" Margin="0,2"
                                           FontSize="13"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Text="Permisos directos (adicionales a los del rol)" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,6"/>
+                    <TextBlock Text="Estos permisos se otorgan al usuario sin necesidad de pertenecer a un rol."
+                               FontSize="10" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                    <ItemsControl x:Name="PermisosPanel" Margin="0,0,0,8">
+                        <ItemsControl.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" FontSize="11" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource BrushAccent}" Margin="0,8,0,2"/>
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                            </GroupStyle>
+                        </ItemsControl.GroupStyle>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected}" Margin="0,1" FontSize="12">
+                                    <CheckBox.Content>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Nombre}" Margin="0,0,6,0"/>
+                                            <TextBlock Text="{Binding Descripcion}" Foreground="{StaticResource BrushTextInactive}" FontSize="10"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </CheckBox.Content>
+                                </CheckBox>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

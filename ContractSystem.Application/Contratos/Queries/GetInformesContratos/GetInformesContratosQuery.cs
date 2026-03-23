@@ -66,7 +66,11 @@ public record InformesContratosResult(
 
 // --- Query ---
 
-public record GetInformesContratosQuery(int DiasAlertaVencimiento = 60) : IRequest<InformesContratosResult>;
+public record GetInformesContratosQuery(
+    int DiasAlertaVencimiento = 60,
+    string? TextoTercero = null,
+    string? TextoNumero = null,
+    string? TextoProductoServicio = null) : IRequest<InformesContratosResult>;
 
 public class GetInformesContratosQueryHandler : IRequestHandler<GetInformesContratosQuery, InformesContratosResult>
 {
@@ -81,7 +85,11 @@ public class GetInformesContratosQueryHandler : IRequestHandler<GetInformesContr
 
     public async Task<InformesContratosResult> Handle(GetInformesContratosQuery request, CancellationToken cancellationToken)
     {
-        var contratos = await _contratoStore.GetAllAsync(cancellationToken: cancellationToken);
+        var contratos = await _contratoStore.GetAllAsync(
+            textoBusqueda: request.TextoNumero,
+            textoTercero: request.TextoTercero,
+            textoProductoServicio: request.TextoProductoServicio,
+            cancellationToken: cancellationToken);
         var hoy = DateTime.UtcNow.Date;
 
         // Cargar facturas para todos los contratos no-Marco

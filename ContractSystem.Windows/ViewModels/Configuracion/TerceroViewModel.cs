@@ -8,6 +8,7 @@ using ContractSystem.Application.Nomencladores.Commands.UpdateTercero;
 using ContractSystem.Application.Nomencladores.Queries.GetPagedTerceros;
 using ContractSystem.Application.Nomencladores.Queries.GetTerceroById;
 using ContractSystem.Domain.Nomencladores;
+using ContractSystem.Application.Auth;
 using MediatR;
 using System.Windows;
 
@@ -16,6 +17,7 @@ namespace ContractSystem.Windows.ViewModels;
 public sealed partial class TerceroViewModel : ObservableObject
 {
     private readonly ISender _sender;
+    private readonly IAuthContext _authContext;
     private const int PageSize = 20;
 
     [ObservableProperty]
@@ -54,9 +56,14 @@ public sealed partial class TerceroViewModel : ObservableObject
 
     private CancellationTokenSource? _searchCts;
 
-    public TerceroViewModel(ISender sender)
+    public bool PuedeCrearTercero => _authContext.TienePermiso(Permissions.TercerosCrear);
+    public bool PuedeEditarTercero => _authContext.TienePermiso(Permissions.TercerosEditar);
+    public bool PuedeEliminarTercero => _authContext.TienePermiso(Permissions.TercerosEliminar);
+
+    public TerceroViewModel(ISender sender, IAuthContext authContext)
     {
         _sender = sender;
+        _authContext = authContext;
         _ = CargarAsync();
     }
 
@@ -111,7 +118,7 @@ public sealed partial class TerceroViewModel : ObservableObject
     private bool PuedeRetroceder() => PaginaActual > 1;
     private bool PuedeAvanzar() => PaginaActual < TotalPaginas;
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(PuedeCrearTercero))]
     private void Nuevo()
     {
         var dialog = new Views.Configuracion.TerceroDialogWindow();
@@ -193,7 +200,7 @@ public sealed partial class TerceroViewModel : ObservableObject
         }
     }
 
-    private bool HaySeleccionado() => Seleccionado is not null;
+    private bool HaySeleccionado() => Seleccionado is not null && _authContext.TienePermiso(Permissions.TercerosEditar);
 
     [RelayCommand(CanExecute = nameof(PuedeEliminar))]
     private async Task EliminarAsync(CancellationToken cancellationToken = default)
@@ -220,7 +227,7 @@ public sealed partial class TerceroViewModel : ObservableObject
         }
     }
 
-    private bool PuedeEliminar() => Seleccionado is not null && !Seleccionado.IsDeleted;
+    private bool PuedeEliminar() => Seleccionado is not null && !Seleccionado.IsDeleted && _authContext.TienePermiso(Permissions.TercerosEliminar);
 
     [RelayCommand(CanExecute = nameof(PuedeReactivar))]
     private async Task ReactivarAsync(CancellationToken cancellationToken = default)
@@ -247,7 +254,7 @@ public sealed partial class TerceroViewModel : ObservableObject
         }
     }
 
-    private bool PuedeReactivar() => Seleccionado is not null && Seleccionado.IsDeleted;
+    private bool PuedeReactivar() => Seleccionado is not null && Seleccionado.IsDeleted && _authContext.TienePermiso(Permissions.TercerosEliminar);
 
     partial void OnIncludeDeletedChanged(bool value) { PaginaActual = 1; _ = CargarAsync(); }
     partial void OnFiltroTipoChanged(TipoTercero? value) { PaginaActual = 1; _ = CargarAsync(); }

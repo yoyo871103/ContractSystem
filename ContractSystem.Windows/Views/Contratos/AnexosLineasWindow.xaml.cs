@@ -21,19 +21,23 @@ public partial class AnexosLineasWindow : Window
 {
     private readonly ISender _sender;
     private readonly int _contratoId;
+    private readonly bool _readOnly;
     private readonly ObservableCollection<Anexo> _anexos = new();
     private readonly ObservableCollection<LineaDetalle> _lineas = new();
 
     private Anexo? _anexoSeleccionado;
 
-    public AnexosLineasWindow(ISender sender, int contratoId, string contratoNumero)
+    public AnexosLineasWindow(ISender sender, int contratoId, string contratoNumero, bool readOnly = false)
     {
         InitializeComponent();
         _sender = sender;
         _contratoId = contratoId;
+        _readOnly = readOnly;
         TxtTitulo.Text = $"Anexos y Líneas — {contratoNumero}";
         LstAnexos.ItemsSource = _anexos;
         DgLineas.ItemsSource = _lineas;
+        if (_readOnly)
+            DgLineas.IsReadOnly = true;
         Loaded += async (_, _) => await CargarAsync();
     }
 
@@ -91,6 +95,7 @@ public partial class AnexosLineasWindow : Window
 
     private async void BtnAgregarAnexo_Click(object sender, RoutedEventArgs e)
     {
+        if (_readOnly) return;
         var nombre = Microsoft.VisualBasic.Interaction.InputBox(
             "Nombre del anexo:", "Nuevo Anexo", "Anexo " + (_anexos.Count + 1));
         if (string.IsNullOrWhiteSpace(nombre)) return;
@@ -108,6 +113,7 @@ public partial class AnexosLineasWindow : Window
 
     private async void BtnEliminarAnexo_Click(object sender, RoutedEventArgs e)
     {
+        if (_readOnly) return;
         if (LstAnexos.SelectedItem is not Anexo anexo) return;
 
         var result = MessageBox.Show($"¿Eliminar el anexo '{anexo.Nombre}' y todas sus líneas?", "Confirmar",
@@ -130,6 +136,7 @@ public partial class AnexosLineasWindow : Window
 
     private async void BtnAgregarDesdeCatalogo_Click(object sender, RoutedEventArgs e)
     {
+        if (_readOnly) return;
         if (_anexoSeleccionado is null) return;
 
         try
@@ -174,6 +181,7 @@ public partial class AnexosLineasWindow : Window
 
     private async void BtnAgregarInline_Click(object sender, RoutedEventArgs e)
     {
+        if (_readOnly) return;
         if (_anexoSeleccionado is null) return;
 
         var concepto = Microsoft.VisualBasic.Interaction.InputBox(
@@ -205,6 +213,7 @@ public partial class AnexosLineasWindow : Window
 
     private async void BtnEliminarLinea_Click(object sender, RoutedEventArgs e)
     {
+        if (_readOnly) return;
         if (DgLineas.SelectedItem is not LineaDetalle linea) return;
 
         var result = MessageBox.Show($"¿Eliminar la línea '{linea.Concepto}'?", "Confirmar",
@@ -226,6 +235,7 @@ public partial class AnexosLineasWindow : Window
 
     private async void DgLineas_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
     {
+        if (_readOnly) { e.Cancel = true; return; }
         if (e.EditAction == DataGridEditAction.Cancel) return;
         if (e.Row.Item is not LineaDetalle linea) return;
 
@@ -292,7 +302,7 @@ public partial class AnexosLineasWindow : Window
     {
         if (e.ClickCount == 2)
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        else
+        else if (e.LeftButton == MouseButtonState.Pressed)
             DragMove();
     }
 }

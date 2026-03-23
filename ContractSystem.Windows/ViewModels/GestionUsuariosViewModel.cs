@@ -237,6 +237,7 @@ public sealed partial class GestionUsuariosViewModel : ObservableObject
         if (UsuarioSeleccionado is null) return;
 
         var roles = await _rolStore.GetAllAsync(default);
+        var permisos = await _rolStore.GetAllPermisosAsync(default);
         var dto = await _usuarioStore.GetByIdForEditAsync(UsuarioSeleccionado.Id, default);
         if (dto is null)
         {
@@ -248,7 +249,7 @@ public sealed partial class GestionUsuariosViewModel : ObservableObject
         {
             Owner = System.Windows.Application.Current.MainWindow
         };
-        dialog.CargarDatos(dto, roles);
+        dialog.CargarDatos(dto, roles, permisos);
         if (dialog.ShowDialog() != true) return;
 
         MensajeError = null;
@@ -260,6 +261,7 @@ public sealed partial class GestionUsuariosViewModel : ObservableObject
                 dialog.Email,
                 dialog.Activo,
                 dialog.RolIdsSeleccionados,
+                dialog.PermisoDirectoIdsSeleccionados,
                 default);
             System.Windows.MessageBox.Show("Usuario actualizado correctamente.", "Gestión de usuarios",
                 System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
@@ -280,11 +282,12 @@ public sealed partial class GestionUsuariosViewModel : ObservableObject
     private async Task NuevoUsuarioAsync()
     {
         var roles = await _rolStore.GetAllAsync(default);
+        var permisos = await _rolStore.GetAllPermisosAsync(default);
         var dialog = new Views.GestionUsuarios.CrearUsuarioWindow
         {
             Owner = System.Windows.Application.Current.MainWindow
         };
-        dialog.CargarRoles(roles);
+        dialog.CargarRoles(roles, permisos);
         if (dialog.ShowDialog() != true) return;
 
         MensajeError = null;
@@ -299,7 +302,8 @@ public sealed partial class GestionUsuariosViewModel : ObservableObject
                 HashContraseña = hash,
                 Salt = salt,
                 RequiereCambioContraseña = dialog.RequiereCambioContraseña,
-                RolIds = dialog.RolIdsSeleccionados
+                RolIds = dialog.RolIdsSeleccionados,
+                PermisoDirectoIds = dialog.PermisoDirectoIdsSeleccionados
             };
             var creado = await _usuarioStore.CreateAsync(request, default);
             if (creado is null)

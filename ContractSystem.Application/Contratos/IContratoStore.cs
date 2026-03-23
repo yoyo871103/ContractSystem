@@ -16,6 +16,7 @@ public interface IContratoStore
         DateTime? fechaFirmaHasta = null,
         string? textoBusqueda = null,
         string? textoTercero = null,
+        string? textoProductoServicio = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>

@@ -11,9 +11,6 @@ internal sealed class SeedDataService : ISeedDataService
     private readonly IApplicationDbContextFactory _contextFactory;
     private readonly IPasswordHasher _passwordHasher;
 
-    /// <summary>
-    /// Contraseña por defecto del usuario admin inicial. El usuario debe cambiarla en el primer login.
-    /// </summary>
     private const string DefaultAdminPassword = "Admin123!";
 
     public SeedDataService(IApplicationDbContextFactory contextFactory, IPasswordHasher passwordHasher)
@@ -36,31 +33,34 @@ internal sealed class SeedDataService : ISeedDataService
             return;
         }
 
-        await EnsureRolAdministradorSistemaAsync(db, cancellationToken);
+        await EnsurePermisosYRolesAsync(db, cancellationToken);
     }
 
     private async Task SeedInitialAdminAsync(DatabaseApplicationDbContext db, CancellationToken cancellationToken)
     {
         var (hash, salt) = _passwordHasher.HashPassword(DefaultAdminPassword);
 
-        var rolAdmin = new Rol { Nombre = DefaultUsers.RolAdministradorSistema };
-        var rolGestorUsuarios = new Rol { Nombre = "Gestor de usuarios" };
+        // Crear todos los permisos
+        await EnsureAllPermisosAsync(db, cancellationToken);
+
+        // Crear roles base
+        var rolAdmin = new Rol { Nombre = DefaultUsers.RolAdministradorSistema, Descripcion = "Acceso total al sistema" };
+        var rolGestorUsuarios = new Rol { Nombre = "Gestor de usuarios", Descripcion = "Puede gestionar usuarios" };
         db.Roles.Add(rolAdmin);
         db.Roles.Add(rolGestorUsuarios);
         await db.SaveChangesAsync(cancellationToken);
 
-        var permisoGestionarUsuarios = new Permiso
-        {
-            Nombre = "GestionarUsuarios",
-            Descripcion = "Gestionar usuarios (ver pestaña y realizar CRUD)"
-        };
-        db.Permisos.Add(permisoGestionarUsuarios);
+        // Asignar TODOS los permisos al rol Admin
+        var todosPermisoIds = await db.Permisos.Select(p => p.Id).ToListAsync(cancellationToken);
+        foreach (var permisoId in todosPermisoIds)
+            db.RolPermisos.Add(new RolPermiso { RolId = rolAdmin.Id, PermisoId = permisoId });
+
+        // Asignar GestionarUsuarios al rol Gestor
+        var permisoGU = await db.Permisos.FirstAsync(p => p.Nombre == Permissions.GestionarUsuarios, cancellationToken);
+        db.RolPermisos.Add(new RolPermiso { RolId = rolGestorUsuarios.Id, PermisoId = permisoGU.Id });
         await db.SaveChangesAsync(cancellationToken);
 
-        db.RolPermisos.Add(new RolPermiso { RolId = rolAdmin.Id, PermisoId = permisoGestionarUsuarios.Id });
-        db.RolPermisos.Add(new RolPermiso { RolId = rolGestorUsuarios.Id, PermisoId = permisoGestionarUsuarios.Id });
-        await db.SaveChangesAsync(cancellationToken);
-
+        // Crear usuario admin
         var usuarioAdmin = new Usuario
         {
             NombreUsuario = "admin",
@@ -79,31 +79,20 @@ internal sealed class SeedDataService : ISeedDataService
     }
 
     /// <summary>
-    /// Asegura que exista el rol "Administrador de sistema", que tenga TODOS los permisos
-    /// de la tabla Permisos, y que existan los permisos y roles base.
-    /// Renombra el antiguo "Administrador" si existe.
+    /// Asegura que todos los permisos definidos en Permissions.Todos existan en la BD,
+    /// y que el rol Admin tenga todos los permisos.
     /// </summary>
-    private static async Task EnsureRolAdministradorSistemaAsync(DatabaseApplicationDbContext db, CancellationToken cancellationToken)
+    private static async Task EnsurePermisosYRolesAsync(DatabaseApplicationDbContext db, CancellationToken cancellationToken)
     {
-        // --- Permisos base ---
-        var permisoGU = await db.Permisos.FirstOrDefaultAsync(p => p.Nombre == "GestionarUsuarios", cancellationToken);
-        if (permisoGU is null)
-        {
-            permisoGU = new Permiso
-            {
-                Nombre = "GestionarUsuarios",
-                Descripcion = "Gestionar usuarios (ver pestaña y realizar CRUD)"
-            };
-            db.Permisos.Add(permisoGU);
-            await db.SaveChangesAsync(cancellationToken);
-        }
+        // Asegurar todos los permisos
+        await EnsureAllPermisosAsync(db, cancellationToken);
 
-        // --- Rol Administrador de sistema (renombra si viene del antiguo "Administrador") ---
+        // Asegurar rol Administrador de sistema
         var rolAdmin = await db.Roles.FirstOrDefaultAsync(
             r => r.Nombre == DefaultUsers.RolAdministradorSistema || r.Nombre == "Administrador", cancellationToken);
         if (rolAdmin is null)
         {
-            rolAdmin = new Rol { Nombre = DefaultUsers.RolAdministradorSistema };
+            rolAdmin = new Rol { Nombre = DefaultUsers.RolAdministradorSistema, Descripcion = "Acceso total al sistema" };
             db.Roles.Add(rolAdmin);
             await db.SaveChangesAsync(cancellationToken);
         }
@@ -113,13 +102,13 @@ internal sealed class SeedDataService : ISeedDataService
             await db.SaveChangesAsync(cancellationToken);
         }
 
-        // Asignar TODOS los permisos al rol Administrador de sistema
-        var todosLosPermisoIds = await db.Permisos.Select(p => p.Id).ToListAsync(cancellationToken);
+        // Asignar TODOS los permisos al rol Admin
+        var todosPermisoIds = await db.Permisos.Select(p => p.Id).ToListAsync(cancellationToken);
         var permisosYaAsignados = await db.RolPermisos
             .Where(rp => rp.RolId == rolAdmin.Id)
             .Select(rp => rp.PermisoId)
             .ToListAsync(cancellationToken);
-        var faltantes = todosLosPermisoIds.Except(permisosYaAsignados).ToList();
+        var faltantes = todosPermisoIds.Except(permisosYaAsignados).ToList();
         if (faltantes.Count > 0)
         {
             foreach (var permisoId in faltantes)
@@ -127,18 +116,60 @@ internal sealed class SeedDataService : ISeedDataService
             await db.SaveChangesAsync(cancellationToken);
         }
 
-        // --- Rol Gestor de usuarios ---
+        // Asegurar rol Gestor de usuarios
         var rolGestor = await db.Roles.FirstOrDefaultAsync(r => r.Nombre == "Gestor de usuarios", cancellationToken);
         if (rolGestor is null)
         {
-            rolGestor = new Rol { Nombre = "Gestor de usuarios" };
+            rolGestor = new Rol { Nombre = "Gestor de usuarios", Descripcion = "Puede gestionar usuarios" };
             db.Roles.Add(rolGestor);
             await db.SaveChangesAsync(cancellationToken);
         }
-        if (!await db.RolPermisos.AnyAsync(rp => rp.RolId == rolGestor.Id && rp.PermisoId == permisoGU.Id, cancellationToken))
+        var permisoGU = await db.Permisos.FirstOrDefaultAsync(p => p.Nombre == Permissions.GestionarUsuarios, cancellationToken);
+        if (permisoGU is not null && !await db.RolPermisos.AnyAsync(rp => rp.RolId == rolGestor.Id && rp.PermisoId == permisoGU.Id, cancellationToken))
         {
             db.RolPermisos.Add(new RolPermiso { RolId = rolGestor.Id, PermisoId = permisoGU.Id });
             await db.SaveChangesAsync(cancellationToken);
         }
+    }
+
+    /// <summary>
+    /// Crea todos los permisos que no existan aún en la BD.
+    /// Actualiza descripción y categoría de los existentes si han cambiado.
+    /// </summary>
+    private static async Task EnsureAllPermisosAsync(DatabaseApplicationDbContext db, CancellationToken cancellationToken)
+    {
+        var existentes = await db.Permisos.ToListAsync(cancellationToken);
+        var existentesPorNombre = existentes.ToDictionary(p => p.Nombre, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var def in Permissions.Todos)
+        {
+            if (existentesPorNombre.TryGetValue(def.Nombre, out var permiso))
+            {
+                var changed = false;
+                if (permiso.Descripcion != def.Descripcion)
+                {
+                    permiso.Descripcion = def.Descripcion;
+                    changed = true;
+                }
+                if (permiso.Categoria != def.Categoria)
+                {
+                    permiso.Categoria = def.Categoria;
+                    changed = true;
+                }
+                if (changed)
+                    db.Permisos.Update(permiso);
+            }
+            else
+            {
+                db.Permisos.Add(new Permiso
+                {
+                    Nombre = def.Nombre,
+                    Descripcion = def.Descripcion,
+                    Categoria = def.Categoria
+                });
+            }
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
     }
 }

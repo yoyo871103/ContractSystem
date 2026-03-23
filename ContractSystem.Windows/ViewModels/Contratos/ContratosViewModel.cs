@@ -17,6 +17,7 @@ using ContractSystem.Application.Nomencladores;
 using ContractSystem.Application.Nomencladores.Queries.GetAllTerceros;
 using ContractSystem.Domain.Contratos;
 using ContractSystem.Domain.Nomencladores;
+using ContractSystem.Application.Auth;
 using MediatR;
 using System.Windows;
 
@@ -29,6 +30,7 @@ public sealed partial class ContratosViewModel : ObservableObject
 {
     private readonly ISender _sender;
     private readonly IDocumentoNumeracionService _numeracionService;
+    private readonly IAuthContext _authContext;
 
     [ObservableProperty]
     private ObservableCollection<Contrato> _contratos = new();
@@ -86,10 +88,22 @@ public sealed partial class ContratosViewModel : ObservableObject
     private IReadOnlyList<Contrato> _contratosMarco = Array.Empty<Contrato>();
     private IReadOnlyList<Tercero> _terceros = Array.Empty<Tercero>();
 
-    public ContratosViewModel(ISender sender, IDocumentoNumeracionService numeracionService)
+    // --- Permisos ---
+    public bool PuedeCrear => _authContext.TienePermiso(Permissions.ContratosCrear);
+    public bool PuedeEditar => _authContext.TienePermiso(Permissions.ContratosEditar);
+    public bool PuedeEliminarPermiso => _authContext.TienePermiso(Permissions.ContratosEliminar);
+    public bool PuedeCambiarEstadoPermiso => _authContext.TienePermiso(Permissions.ContratosCambiarEstado);
+    public bool PuedeCrearSuplementoPermiso => _authContext.TienePermiso(Permissions.SuplementosCrear);
+    public bool PuedeVerAnexos => _authContext.TienePermiso(Permissions.AnexosGestionar) || _authContext.TienePermiso(Permissions.ContratosVer);
+    public bool PuedeVerAdjuntosPermiso => _authContext.TienePermiso(Permissions.AdjuntosVer) || _authContext.TienePermiso(Permissions.AdjuntosGestionar);
+    public bool PuedeVerFacturasPermiso => _authContext.TienePermiso(Permissions.FacturasVer) || _authContext.TienePermiso(Permissions.FacturasGestionar);
+    public bool PuedeVerHistorialPermiso => _authContext.TienePermiso(Permissions.HistorialVer);
+
+    public ContratosViewModel(ISender sender, IDocumentoNumeracionService numeracionService, IAuthContext authContext)
     {
         _sender = sender;
         _numeracionService = numeracionService;
+        _authContext = authContext;
         _ = CargarAsync();
     }
 
@@ -152,7 +166,7 @@ public sealed partial class ContratosViewModel : ObservableObject
     private bool PuedeRetroceder() => PaginaActual > 1;
     private bool PuedeAvanzar() => PaginaActual < TotalPaginas;
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(PuedeCrear))]
     private async Task NuevoAsync(CancellationToken cancellationToken = default)
     {
         try
@@ -204,7 +218,7 @@ public sealed partial class ContratosViewModel : ObservableObject
         }
     }
 
-    [RelayCommand(CanExecute = nameof(HaySeleccionado))]
+    [RelayCommand(CanExecute = nameof(HaySeleccionadoYPuedeEditar))]
     private async Task EditarAsync(CancellationToken cancellationToken = default)
     {
         if (Seleccionado is null) return;
@@ -326,24 +340,27 @@ public sealed partial class ContratosViewModel : ObservableObject
 
     private bool PuedeCrearSuplemento() => Seleccionado is not null && !Seleccionado.IsDeleted
         && Seleccionado.Estado != EstadoContrato.Rescindido
-        && Seleccionado.TipoDocumento != TipoDocumentoContrato.Suplemento;
+        && Seleccionado.TipoDocumento != TipoDocumentoContrato.Suplemento
+        && _authContext.TienePermiso(Permissions.SuplementosCrear);
 
     [RelayCommand(CanExecute = nameof(HaySeleccionado))]
     private void VerAnexosLineas()
     {
         if (Seleccionado is null) return;
 
-        var window = new Views.Contratos.AnexosLineasWindow(_sender, Seleccionado.Id, Seleccionado.Numero);
+        var window = new Views.Contratos.AnexosLineasWindow(_sender, Seleccionado.Id, Seleccionado.Numero,
+            readOnly: !_authContext.TienePermiso(Permissions.AnexosGestionar));
         window.Owner = System.Windows.Application.Current.MainWindow;
         window.ShowDialog();
     }
 
-    [RelayCommand(CanExecute = nameof(HaySeleccionado))]
+    [RelayCommand(CanExecute = nameof(PuedeVerAdjuntos))]
     private void VerAdjuntos()
     {
         if (Seleccionado is null) return;
 
-        var window = new Views.Contratos.DocumentosAdjuntosWindow(_sender, Seleccionado.Id, Seleccionado.Numero);
+        var window = new Views.Contratos.DocumentosAdjuntosWindow(_sender, Seleccionado.Id, Seleccionado.Numero,
+            readOnly: !_authContext.TienePermiso(Permissions.AdjuntosGestionar));
         window.Owner = System.Windows.Application.Current.MainWindow;
         window.ShowDialog();
     }
@@ -353,13 +370,15 @@ public sealed partial class ContratosViewModel : ObservableObject
     {
         if (Seleccionado is null) return;
 
-        var window = new Views.Contratos.FacturasWindow(_sender, Seleccionado.Id, Seleccionado.Numero);
+        var window = new Views.Contratos.FacturasWindow(_sender, Seleccionado.Id, Seleccionado.Numero,
+            readOnly: !_authContext.TienePermiso(Permissions.FacturasGestionar));
         window.Owner = System.Windows.Application.Current.MainWindow;
         window.ShowDialog();
     }
 
     private bool PuedeVerFacturas() => Seleccionado is not null
-        && Seleccionado.TipoDocumento != TipoDocumentoContrato.Marco;
+        && Seleccionado.TipoDocumento != TipoDocumentoContrato.Marco
+        && (_authContext.TienePermiso(Permissions.FacturasVer) || _authContext.TienePermiso(Permissions.FacturasGestionar));
 
     [RelayCommand(CanExecute = nameof(PuedeCambiarEstado))]
     private async Task CambiarEstadoAsync(CancellationToken cancellationToken = default)
@@ -451,7 +470,7 @@ public sealed partial class ContratosViewModel : ObservableObject
         MessageBox.Show("Contrato marcado como ejecutado.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
-    [RelayCommand(CanExecute = nameof(HaySeleccionado))]
+    [RelayCommand(CanExecute = nameof(PuedeVerHistorial))]
     private void VerHistorial()
     {
         if (Seleccionado is null) return;
@@ -461,7 +480,8 @@ public sealed partial class ContratosViewModel : ObservableObject
         window.ShowDialog();
     }
 
-    private bool PuedeCambiarEstado() => Seleccionado is not null && !Seleccionado.IsDeleted;
+    private bool PuedeCambiarEstado() => Seleccionado is not null && !Seleccionado.IsDeleted
+        && _authContext.TienePermiso(Permissions.ContratosCambiarEstado);
 
     [RelayCommand(CanExecute = nameof(PuedeEliminar))]
     private async Task EliminarAsync(CancellationToken cancellationToken = default)
@@ -489,7 +509,10 @@ public sealed partial class ContratosViewModel : ObservableObject
     }
 
     private bool HaySeleccionado() => Seleccionado is not null;
-    private bool PuedeEliminar() => Seleccionado is not null && !Seleccionado.IsDeleted;
+    private bool HaySeleccionadoYPuedeEditar() => Seleccionado is not null && _authContext.TienePermiso(Permissions.ContratosEditar);
+    private bool PuedeEliminar() => Seleccionado is not null && !Seleccionado.IsDeleted && _authContext.TienePermiso(Permissions.ContratosEliminar);
+    private bool PuedeVerAdjuntos() => Seleccionado is not null && (_authContext.TienePermiso(Permissions.AdjuntosVer) || _authContext.TienePermiso(Permissions.AdjuntosGestionar));
+    private bool PuedeVerHistorial() => Seleccionado is not null && _authContext.TienePermiso(Permissions.HistorialVer);
 
     private async Task CargarDatosAuxiliaresAsync(CancellationToken cancellationToken)
     {
@@ -527,6 +550,7 @@ public sealed partial class ContratosViewModel : ObservableObject
 
     partial void OnSeleccionadoChanged(Contrato? value)
     {
+        NuevoCommand.NotifyCanExecuteChanged();
         EditarCommand.NotifyCanExecuteChanged();
         EliminarCommand.NotifyCanExecuteChanged();
         NuevoSuplementoCommand.NotifyCanExecuteChanged();

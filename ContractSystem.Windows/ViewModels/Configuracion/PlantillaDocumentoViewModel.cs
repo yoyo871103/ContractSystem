@@ -8,6 +8,7 @@ using ContractSystem.Application.Nomencladores.Commands.UpdatePlantillaDocumento
 using ContractSystem.Application.Nomencladores.Queries.GetAllPlantillasDocumento;
 using ContractSystem.Application.Nomencladores.Queries.GetPlantillaDocumentoById;
 using ContractSystem.Domain.Nomencladores;
+using ContractSystem.Application.Auth;
 using MediatR;
 using Microsoft.Win32;
 using System.Windows;
@@ -20,6 +21,7 @@ namespace ContractSystem.Windows.ViewModels;
 public sealed partial class PlantillaDocumentoViewModel : ObservableObject
 {
     private readonly ISender _sender;
+    private readonly IAuthContext _authContext;
 
     [ObservableProperty]
     private ObservableCollection<PlantillaDocumento> _plantillas = new();
@@ -33,9 +35,12 @@ public sealed partial class PlantillaDocumentoViewModel : ObservableObject
     [ObservableProperty]
     private string? _mensajeError;
 
-    public PlantillaDocumentoViewModel(ISender sender)
+    public bool PuedeGestionarPlantillas => _authContext.TienePermiso(Permissions.PlantillasGestionar);
+
+    public PlantillaDocumentoViewModel(ISender sender, IAuthContext authContext)
     {
         _sender = sender;
+        _authContext = authContext;
         _ = CargarAsync();
     }
 
@@ -61,7 +66,7 @@ public sealed partial class PlantillaDocumentoViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(PuedeGestionarPlantillas))]
     private void Nuevo()
     {
         var dialog = new Views.Configuracion.PlantillaDialogWindow();
@@ -128,7 +133,7 @@ public sealed partial class PlantillaDocumentoViewModel : ObservableObject
         }
     }
 
-    [RelayCommand(CanExecute = nameof(HaySeleccionado))]
+    [RelayCommand(CanExecute = nameof(PuedeDescargar))]
     private async Task DescargarAsync(CancellationToken cancellationToken = default)
     {
         if (Seleccionado is null) return;
@@ -185,10 +190,12 @@ public sealed partial class PlantillaDocumentoViewModel : ObservableObject
         }
     }
 
-    private bool HaySeleccionado() => Seleccionado is not null;
+    private bool HaySeleccionado() => Seleccionado is not null && _authContext.TienePermiso(Permissions.PlantillasGestionar);
+    private bool PuedeDescargar() => Seleccionado is not null && _authContext.TienePermiso(Permissions.PlantillasVer);
 
     partial void OnSeleccionadoChanged(PlantillaDocumento? value)
     {
+        NuevoCommand.NotifyCanExecuteChanged();
         EditarCommand.NotifyCanExecuteChanged();
         DescargarCommand.NotifyCanExecuteChanged();
         EliminarCommand.NotifyCanExecuteChanged();

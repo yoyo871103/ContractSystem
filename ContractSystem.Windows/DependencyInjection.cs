@@ -20,6 +20,7 @@ public static class DependencyInjection
         services.AddTransient<MainViewModel>();
         services.AddTransient<InicioViewModel>();
         services.AddTransient<GestionUsuariosViewModel>();
+        services.AddTransient<GestionRolesViewModel>();
         services.AddTransient<BusinessInfoViewModel>();
         services.AddTransient<NomencladoresViewModel>();
         services.AddTransient<UnidadMedidaViewModel>();

@@ -5,7 +5,9 @@ using System.Windows.Input;
 using ContractSystem.Application.Contratos;
 using ContractSystem.Domain.Contratos;
 using ContractSystem.Domain.Nomencladores;
+using ContractSystem.Application.Auth;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ContractSystem.Windows.Views.Contratos;
 
@@ -244,7 +246,7 @@ public partial class ContratoDialogWindow : Window
                 ? WindowState.Normal
                 : WindowState.Maximized;
         }
-        else
+        else if (e.LeftButton == MouseButtonState.Pressed)
         {
             DragMove();
         }
@@ -302,7 +304,9 @@ public partial class ContratoDialogWindow : Window
         var mediator = App.Services.GetService(typeof(ISender)) as ISender;
         if (mediator is null) return;
 
-        var window = new AnexosLineasWindow(mediator, _contratoId.Value, _contratoNumero ?? "");
+        var auth = App.Services.GetRequiredService<IAuthContext>();
+        var window = new AnexosLineasWindow(mediator, _contratoId.Value, _contratoNumero ?? "",
+            readOnly: !auth.TienePermiso(Permissions.AnexosGestionar));
         window.Owner = this;
         window.ShowDialog();
     }
@@ -314,7 +318,9 @@ public partial class ContratoDialogWindow : Window
         var mediator = App.Services.GetService(typeof(ISender)) as ISender;
         if (mediator is null) return;
 
-        var window = new FacturasWindow(mediator, _contratoId.Value, _contratoNumero ?? "");
+        var auth = App.Services.GetRequiredService<IAuthContext>();
+        var window = new FacturasWindow(mediator, _contratoId.Value, _contratoNumero ?? "",
+            readOnly: !auth.TienePermiso(Permissions.FacturasGestionar));
         window.Owner = this;
         window.ShowDialog();
     }

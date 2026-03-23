@@ -21,6 +21,9 @@ internal sealed class PermisoConfiguration : IEntityTypeConfiguration<Permiso>
         builder.Property(e => e.Descripcion)
             .HasMaxLength(256);
 
+        builder.Property(e => e.Categoria)
+            .HasMaxLength(64);
+
         builder.HasMany(e => e.RolPermisos)
             .WithOne(rp => rp.Permiso)
             .HasForeignKey(rp => rp.PermisoId)

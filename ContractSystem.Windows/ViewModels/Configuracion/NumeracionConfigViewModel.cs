@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using ContractSystem.Application.Contratos.Commands.UpdateConfiguracionNumeracion;
 using ContractSystem.Application.Contratos.Queries.GetConfiguracionNumeracion;
 using ContractSystem.Application.Contratos.Queries.GetVistaPreviaNumeracion;
+using ContractSystem.Application.Auth;
 using MediatR;
 using System.Windows;
 
@@ -14,6 +15,7 @@ namespace ContractSystem.Windows.ViewModels;
 public sealed partial class NumeracionConfigViewModel : ObservableObject
 {
     private readonly ISender _sender;
+    private readonly IAuthContext _authContext;
 
     [ObservableProperty]
     private string _formato = "CON-{TIPO}-{YYYY}-{CONTADOR}";
@@ -33,9 +35,12 @@ public sealed partial class NumeracionConfigViewModel : ObservableObject
     [ObservableProperty]
     private string? _mensajeError;
 
-    public NumeracionConfigViewModel(ISender sender)
+    public bool PuedeConfigurarNumeracion => _authContext.TienePermiso(Permissions.NumeracionConfigurar);
+
+    public NumeracionConfigViewModel(ISender sender, IAuthContext authContext)
     {
         _sender = sender;
+        _authContext = authContext;
         _ = CargarAsync();
     }
 
@@ -82,7 +87,7 @@ public sealed partial class NumeracionConfigViewModel : ObservableObject
         }
     }
 
-    private bool FormatoValido() => !string.IsNullOrWhiteSpace(Formato);
+    private bool FormatoValido() => !string.IsNullOrWhiteSpace(Formato) && _authContext.TienePermiso(Permissions.NumeracionConfigurar);
 
     [RelayCommand]
     private async Task ActualizarVistaPreviaAsync(CancellationToken cancellationToken = default)

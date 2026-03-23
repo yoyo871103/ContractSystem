@@ -35,6 +35,6 @@ public class GetAllContratosQueryHandler : IRequestHandler<GetAllContratosQuery,
             request.FechaFirmaHasta,
             request.TextoBusqueda,
             request.TextoTercero,
-            cancellationToken);
+            cancellationToken: cancellationToken);
     }
 }

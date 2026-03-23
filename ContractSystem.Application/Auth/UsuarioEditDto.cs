@@ -12,4 +12,6 @@ public sealed class UsuarioEditDto
     public bool Activo { get; init; }
     /// <summary>Ids de roles asignados al usuario.</summary>
     public IReadOnlyList<int> RolIds { get; init; } = Array.Empty<int>();
+    /// <summary>Ids de permisos directos asignados al usuario.</summary>
+    public IReadOnlyList<int> PermisoDirectoIds { get; init; } = Array.Empty<int>();
 }
