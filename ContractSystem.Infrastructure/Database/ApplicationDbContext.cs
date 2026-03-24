@@ -5,6 +5,7 @@ using ContractSystem.Domain.Identity;
 using ContractSystem.Domain.Business;
 using ContractSystem.Domain.Nomencladores;
 using ContractSystem.Domain.Contratos;
+using ContractSystem.Domain.Licensing;
 using Microsoft.EntityFrameworkCore;
 
 namespace ContractSystem.Infrastructure.Database;
@@ -54,6 +55,7 @@ public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<DocumentoAdjunto> DocumentosAdjuntos => Set<DocumentoAdjunto>();
     public DbSet<HistorialCambio> HistorialCambios => Set<HistorialCambio>();
     public DbSet<Factura> Facturas => Set<Factura>();
+    public DbSet<LicenciaInfo> Licencias => Set<LicenciaInfo>();
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {

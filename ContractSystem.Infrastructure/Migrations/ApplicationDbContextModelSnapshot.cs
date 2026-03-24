@@ -335,6 +335,23 @@ namespace ContractSystem.Infrastructure.Migrations
                     b.ToTable("nom_PlantillasDocumento");
                 });
 
+            modelBuilder.Entity("ContractSystem.Domain.Licensing.LicenciaInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Clave")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime>("FechaActivacion")
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime>("FechaExpiracion")
+                        .HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.ToTable("Licencias");
+                });
+
             modelBuilder.Entity("ContractSystem.Domain.Contratos.Contrato", b =>
                 {
                     b.Property<int>("Id")

@@ -4,12 +4,14 @@ using ContractSystem.Infrastructure.Business;
 using ContractSystem.Application.Configuration;
 using ContractSystem.Application.Nomencladores;
 using ContractSystem.Application.Contratos;
+using ContractSystem.Application.Licensing;
 using ContractSystem.Infrastructure.Auth;
 using ContractSystem.Infrastructure.Configuration;
 using ContractSystem.Infrastructure.Nomencladores;
 using ContractSystem.Infrastructure.Contratos;
 using ContractSystem.Infrastructure.Database;
 using ContractSystem.Infrastructure.DatabaseSetup;
+using ContractSystem.Infrastructure.Licensing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -71,6 +73,9 @@ public static class DependencyInjection
         services.AddTransient<IDocumentoAdjuntoStore, DocumentoAdjuntoStore>();
         services.AddTransient<IHistorialCambioStore, HistorialCambioStore>();
         services.AddTransient<IFacturaStore, FacturaStore>();
+
+        // Licenciamiento
+        services.AddTransient<ILicenciaService, LicenciaService>();
 
         return services;
     }
