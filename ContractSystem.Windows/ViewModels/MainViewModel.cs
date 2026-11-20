@@ -146,6 +146,9 @@ public sealed partial class MainViewModel : ObservableObject
         _navigation.NavigateTo(_services.GetRequiredService<PlantillaDocumentoViewModel>());
 
     [RelayCommand]
+    private void AbrirPanelWord() => Views.LlenadoContratos.PanelWordWindow.Mostrar();
+
+    [RelayCommand]
     private void NavigateToConfiguracion() =>
         _navigation.NavigateTo(_services.GetRequiredService<ConfiguracionViewModel>());
 

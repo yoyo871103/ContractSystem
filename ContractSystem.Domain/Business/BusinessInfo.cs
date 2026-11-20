@@ -25,6 +25,14 @@ public class BusinessInfo
     /// <summary>Documento de constitución (ej: "Resolución No. 45/2010 del Ministerio de …").</summary>
     public string? DocumentoConstitucion { get; set; }
 
+    // --- Textos para contratos (null = usar el texto predeterminado) ---
+
+    /// <summary>Plantilla del bloque de comparecencia, con marcadores {Campo}.</summary>
+    public string? PlantillaComparecencia { get; set; }
+
+    /// <summary>Plantilla del bloque de firma, con marcadores {Campo}.</summary>
+    public string? PlantillaFirma { get; set; }
+
     public ICollection<RepresentanteLegal> Representantes { get; set; } = new List<RepresentanteLegal>();
     public ICollection<CuentaBancaria> CuentasBancarias { get; set; } = new List<CuentaBancaria>();
 }

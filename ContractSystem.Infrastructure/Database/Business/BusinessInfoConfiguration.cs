@@ -15,5 +15,7 @@ internal sealed class BusinessInfoConfiguration : IEntityTypeConfiguration<Busin
         builder.Property(e => e.CodigoReeup).HasMaxLength(32);
         builder.Property(e => e.RegistroMercantil).HasMaxLength(256);
         builder.Property(e => e.DocumentoConstitucion).HasMaxLength(512);
+        builder.Property(e => e.PlantillaComparecencia).HasMaxLength(4000);
+        builder.Property(e => e.PlantillaFirma).HasMaxLength(2000);
     }
 }

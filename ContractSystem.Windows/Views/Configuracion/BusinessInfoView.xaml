@@ -38,6 +38,39 @@
                 <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,1,0,0" Padding="0,16,0,0" Margin="0,8,0,0">
                     <controls:DatosLegalesEditor DataContext="{Binding DatosLegales}"/>
                 </Border>
+
+                <!-- Textos de los bloques que inserta el panel "Llenar en Word" -->
+                <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,1,0,0" Padding="0,16,0,0" Margin="0,16,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Textos para contratos" FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                        <TextBlock FontSize="11" Foreground="{StaticResource BrushTextInactive}" TextWrapping="Wrap" Margin="0,0,0,8"
+                                   Text="Son los bloques que se insertan desde «Llenar en Word». Los marcadores entre llaves se sustituyen por los datos de cada parte; si falta un dato se deja una línea ________ para completarla a mano."/>
+
+                        <DockPanel Margin="0,0,0,4">
+                            <Button DockPanel.Dock="Right" Content="Restaurar predeterminado" Padding="8,2" FontSize="11"
+                                    Command="{Binding RestaurarComparecenciaCommand}"/>
+                            <TextBlock Text="Bloque de comparecencia" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </DockPanel>
+                        <TextBox Text="{Binding PlantillaComparecencia, UpdateSourceTrigger=PropertyChanged}"
+                                 AcceptsReturn="True" TextWrapping="Wrap" MinHeight="110" MaxLength="4000"
+                                 VerticalScrollBarVisibility="Auto" Padding="4" Margin="0,0,0,12"/>
+
+                        <DockPanel Margin="0,0,0,4">
+                            <Button DockPanel.Dock="Right" Content="Restaurar predeterminado" Padding="8,2" FontSize="11"
+                                    Command="{Binding RestaurarFirmaCommand}"/>
+                            <TextBlock Text="Bloque de firma" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </DockPanel>
+                        <TextBox Text="{Binding PlantillaFirma, UpdateSourceTrigger=PropertyChanged}"
+                                 AcceptsReturn="True" TextWrapping="Wrap" MinHeight="110" MaxLength="2000"
+                                 VerticalScrollBarVisibility="Auto" Padding="4" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Marcadores disponibles:" FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding AyudaMarcadores}" FontSize="11" TextWrapping="Wrap"
+                                   Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,16"/>
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </ScrollViewer>
 

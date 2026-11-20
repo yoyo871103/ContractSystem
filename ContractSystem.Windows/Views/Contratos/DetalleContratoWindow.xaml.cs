@@ -185,6 +185,9 @@ public partial class DetalleContratoWindow : Window
         _ = CargarDetallesAsync();
     }
 
+    private void BtnLlenarEnWord_Click(object sender, RoutedEventArgs e) =>
+        LlenadoContratos.PanelWordWindow.Mostrar(_contrato);
+
     private void BtnAbrirAdjuntos_Click(object sender, RoutedEventArgs e)
     {
         var window = new DocumentosAdjuntosWindow(_sender, _contrato.Id, _contrato.Numero,

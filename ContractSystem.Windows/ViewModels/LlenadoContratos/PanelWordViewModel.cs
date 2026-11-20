@@ -1,0 +1,322 @@
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using ContractSystem.Application.Business.Queries.GetBusinessInfo;
+using ContractSystem.Application.LlenadoContratos;
+using ContractSystem.Application.Nomencladores.Queries.GetAllTerceros;
+using ContractSystem.Application.Nomencladores.Queries.GetTerceroById;
+using ContractSystem.Domain.Contratos;
+using ContractSystem.Domain.DatosLegales;
+using ContractSystem.Domain.Nomencladores;
+using ContractSystem.Windows.Services;
+using MediatR;
+using Microsoft.Win32;
+
+namespace ContractSystem.Windows.ViewModels.LlenadoContratos;
+
+/// <summary>
+/// Panel que acompaña a Word: cada clic inserta un dato (o un bloque completo) donde está el cursor.
+/// Maneja dos partes: la entidad propia ("Mis datos") y la contraparte ("Otra parte").
+/// </summary>
+public sealed partial class PanelWordViewModel : ObservableObject
+{
+    private readonly ISender _sender;
+    private string _plantillaComparecencia = BloquesContrato.ComparecenciaPredeterminada;
+    private string _plantillaFirma = BloquesContrato.FirmaPredeterminada;
+
+    public PanelWordViewModel(ISender sender)
+    {
+        _sender = sender;
+        Mia = new ParteViewModel("Mis datos", this);
+        Otra = new ParteViewModel("Otra parte", this);
+        _parDenominaciones = ParDenominaciones.Habituales[0];
+        AplicarDenominaciones();
+    }
+
+    public ParteViewModel Mia { get; }
+    public ParteViewModel Otra { get; }
+
+    public IReadOnlyList<ParDenominaciones> ParesDenominaciones => ParDenominaciones.Habituales;
+    public IReadOnlyList<string> Monedas { get; } = new[] { "CUP", "MLC", "USD", "EUR" };
+
+    [ObservableProperty]
+    private IReadOnlyList<Tercero> _terceros = Array.Empty<Tercero>();
+
+    [ObservableProperty]
+    private Tercero? _terceroSeleccionado;
+
+    /// <summary>true: actúo como proveedor (presto, vendo, suministro…); false: como cliente.</summary>
+    [ObservableProperty]
+    private bool _soyProveedor = true;
+
+    [ObservableProperty]
+    private ParDenominaciones _parDenominaciones;
+
+    [ObservableProperty]
+    private string _denominacionMia = string.Empty;
+
+    [ObservableProperty]
+    private string _denominacionOtra = string.Empty;
+
+    [ObservableProperty]
+    private string _moneda = "CUP";
+
+    /// <summary>Contrato desde el que se abrió el panel (texto informativo), o null.</summary>
+    [ObservableProperty]
+    private string? _contratoDescripcion;
+
+    [ObservableProperty]
+    private string _estado = "Coloque el cursor en Word y haga clic en un dato para insertarlo.";
+
+    [ObservableProperty]
+    private bool _estadoEsError;
+
+    public bool SoyCliente
+    {
+        get => !SoyProveedor;
+        set => SoyProveedor = !value;
+    }
+
+    partial void OnSoyProveedorChanged(bool value)
+    {
+        OnPropertyChanged(nameof(SoyCliente));
+        AplicarDenominaciones();
+    }
+
+    partial void OnParDenominacionesChanged(ParDenominaciones value) => AplicarDenominaciones();
+
+    partial void OnMonedaChanged(string value)
+    {
+        Mia.ElegirCuentaPara(value);
+        Otra.ElegirCuentaPara(value);
+    }
+
+    partial void OnTerceroSeleccionadoChanged(Tercero? value) => _ = CargarOtraParteAsync(value?.Id);
+
+    private void AplicarDenominaciones()
+    {
+        if (ParDenominaciones is null) return;
+        DenominacionMia = SoyProveedor ? ParDenominaciones.Proveedor : ParDenominaciones.Cliente;
+        DenominacionOtra = SoyProveedor ? ParDenominaciones.Cliente : ParDenominaciones.Proveedor;
+    }
+
+    /// <summary>Carga los datos propios, los terceros y, si se indica, el contexto de un contrato.</summary>
+    public async Task InicializarAsync(Contrato? contrato)
+    {
+        try
+        {
+            await CargarDatosAsync();
+            await AplicarContratoAsync(contrato);
+        }
+        catch (Exception ex)
+        {
+            MostrarError("No se pudieron cargar los datos: " + ex.Message);
+        }
+    }
+
+    private async Task CargarDatosAsync()
+    {
+        var info = await _sender.Send(new GetBusinessInfoQuery());
+        Mia.Ficha = info is null ? null : FichaParte.DesdeEntidad(info);
+        _plantillaComparecencia = string.IsNullOrWhiteSpace(info?.PlantillaComparecencia)
+            ? BloquesContrato.ComparecenciaPredeterminada : info.PlantillaComparecencia;
+        _plantillaFirma = string.IsNullOrWhiteSpace(info?.PlantillaFirma)
+            ? BloquesContrato.FirmaPredeterminada : info.PlantillaFirma;
+
+        Terceros = await _sender.Send(new GetAllTercerosQuery());
+    }
+
+    /// <summary>Vuelve a leer los datos (por si se completaron en Configuración con el panel abierto).</summary>
+    [RelayCommand]
+    private async Task RecargarAsync()
+    {
+        try
+        {
+            var terceroId = TerceroSeleccionado?.Id;
+            await CargarDatosAsync();
+            var tercero = Terceros.FirstOrDefault(t => t.Id == terceroId);
+            if (tercero is not null)
+                TerceroSeleccionado = tercero; // objeto nuevo: dispara la recarga de la otra parte
+            EstadoEsError = false;
+            Estado = "Datos actualizados.";
+        }
+        catch (Exception ex)
+        {
+            MostrarError("No se pudieron recargar los datos: " + ex.Message);
+        }
+    }
+
+    /// <summary>Toma del contrato el papel propio y la contraparte.</summary>
+    public async Task AplicarContratoAsync(Contrato? contrato)
+    {
+        if (contrato is null) return;
+
+        ContratoDescripcion = $"Contrato {contrato.Numero}";
+        SoyProveedor = contrato.Rol == RolContrato.Proveedor;
+
+        if (contrato.TerceroId is int terceroId)
+        {
+            var tercero = Terceros.FirstOrDefault(t => t.Id == terceroId);
+            if (tercero is not null && !ReferenceEquals(tercero, TerceroSeleccionado))
+                TerceroSeleccionado = tercero; // dispara la carga
+            else if (tercero is null)
+                await CargarOtraParteAsync(terceroId);
+        }
+    }
+
+    private async Task CargarOtraParteAsync(int? terceroId)
+    {
+        if (terceroId is null)
+        {
+            Otra.Ficha = null;
+            return;
+        }
+
+        try
+        {
+            // La lista de terceros no trae representantes ni cuentas: se carga el tercero completo.
+            var tercero = await _sender.Send(new GetTerceroByIdQuery(terceroId.Value));
+            Otra.Ficha = tercero is null ? null : FichaParte.DesdeTercero(tercero);
+        }
+        catch (Exception ex)
+        {
+            MostrarError("No se pudieron cargar los datos de la otra parte: " + ex.Message);
+        }
+    }
+
+    internal string Denominacion(ParteViewModel parte) =>
+        ReferenceEquals(parte, Mia) ? DenominacionMia : DenominacionOtra;
+
+    internal string PlantillaComparecencia => _plantillaComparecencia;
+    internal string PlantillaFirma => _plantillaFirma;
+
+    internal void Insertar(string texto, string descripcion)
+    {
+        var resultado = WordInterop.InsertarEnCursor(texto);
+        if (resultado.Ok)
+        {
+            EstadoEsError = false;
+            Estado = $"Insertado: {descripcion} — en «{resultado.Documento}».";
+        }
+        else
+        {
+            MostrarError(resultado.Mensaje ?? "No se pudo insertar.");
+        }
+    }
+
+    private void MostrarError(string mensaje)
+    {
+        EstadoEsError = true;
+        Estado = mensaje;
+    }
+
+    [RelayCommand]
+    private void AbrirDocumento()
+    {
+        var dialogo = new OpenFileDialog
+        {
+            Title = "Abrir la proforma de contrato",
+            Filter = "Documentos de Word|*.docx;*.doc;*.docm;*.rtf|Todos los archivos|*.*"
+        };
+        if (dialogo.ShowDialog() != true) return;
+
+        var resultado = WordInterop.AbrirDocumento(dialogo.FileName);
+        if (resultado.Ok)
+        {
+            EstadoEsError = false;
+            Estado = $"Abriendo «{resultado.Documento}» en Word. Coloque el cursor donde quiera insertar y haga clic en un dato.";
+        }
+        else
+        {
+            MostrarError(resultado.Mensaje ?? "No se pudo abrir el documento.");
+        }
+    }
+}
+
+/// <summary>Una de las dos partes del contrato dentro del panel.</summary>
+public sealed partial class ParteViewModel : ObservableObject
+{
+    private readonly PanelWordViewModel _panel;
+    private readonly ObservableCollection<CampoInsertable> _campos = new();
+
+    public ParteViewModel(string titulo, PanelWordViewModel panel)
+    {
+        Titulo = titulo;
+        _panel = panel;
+        CamposVista = new ListCollectionView(_campos);
+        CamposVista.GroupDescriptions.Add(new PropertyGroupDescription(nameof(CampoInsertable.Grupo)));
+    }
+
+    public string Titulo { get; }
+
+    /// <summary>Campos agrupados (Entidad, Representante, Cuenta bancaria).</summary>
+    public ICollectionView CamposVista { get; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TieneFicha), nameof(Representantes), nameof(Cuentas))]
+    [NotifyCanExecuteChangedFor(nameof(InsertarComparecenciaCommand), nameof(InsertarFirmaCommand))]
+    private FichaParte? _ficha;
+
+    [ObservableProperty]
+    private RepresentanteLegal? _representante;
+
+    [ObservableProperty]
+    private CuentaBancaria? _cuenta;
+
+    public bool TieneFicha => Ficha is not null;
+
+    public IReadOnlyList<RepresentanteLegal> Representantes => Ficha?.Representantes ?? Array.Empty<RepresentanteLegal>();
+    public IReadOnlyList<CuentaBancaria> Cuentas => Ficha?.Cuentas ?? Array.Empty<CuentaBancaria>();
+
+    partial void OnFichaChanged(FichaParte? value)
+    {
+        Representante = value?.RepresentantePredeterminado;
+        Cuenta = value?.CuentaPara(_panel.Moneda);
+        Recalcular();
+    }
+
+    partial void OnRepresentanteChanged(RepresentanteLegal? value) => Recalcular();
+    partial void OnCuentaChanged(CuentaBancaria? value) => Recalcular();
+
+    internal void ElegirCuentaPara(string moneda)
+    {
+        if (Ficha is not null)
+            Cuenta = Ficha.CuentaPara(moneda);
+    }
+
+    private ContextoParte? Contexto() =>
+        Ficha is null ? null : new ContextoParte(Ficha, Representante, Cuenta, _panel.Denominacion(this));
+
+    private void Recalcular()
+    {
+        _campos.Clear();
+        if (Contexto() is { } ctx)
+        {
+            foreach (var campo in BloquesContrato.Campos(ctx))
+                _campos.Add(campo);
+        }
+    }
+
+    [RelayCommand]
+    private void InsertarCampo(CampoInsertable? campo)
+    {
+        if (campo is null || !campo.TieneValor) return;
+        _panel.Insertar(campo.Valor, $"{campo.Etiqueta.ToLowerInvariant()} ({Titulo.ToLowerInvariant()})");
+    }
+
+    [RelayCommand(CanExecute = nameof(TieneFicha))]
+    private void InsertarComparecencia()
+    {
+        if (Contexto() is { } ctx)
+            _panel.Insertar(BloquesContrato.Renderizar(_panel.PlantillaComparecencia, ctx), $"comparecencia ({Titulo.ToLowerInvariant()})");
+    }
+
+    [RelayCommand(CanExecute = nameof(TieneFicha))]
+    private void InsertarFirma()
+    {
+        if (Contexto() is { } ctx)
+            _panel.Insertar(BloquesContrato.Renderizar(_panel.PlantillaFirma, ctx), $"bloque de firma ({Titulo.ToLowerInvariant()})");
+    }
+}

@@ -56,6 +56,8 @@ public class BusinessInfoStore : IBusinessInfoStore
             existing.Email = businessInfo.Email;
             existing.Eslogan = businessInfo.Eslogan;
             existing.NombreDueno = businessInfo.NombreDueno;
+            existing.PlantillaComparecencia = businessInfo.PlantillaComparecencia;
+            existing.PlantillaFirma = businessInfo.PlantillaFirma;
 
             if (actualizarDatosLegales)
             {

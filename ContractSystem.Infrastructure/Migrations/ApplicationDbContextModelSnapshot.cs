@@ -61,6 +61,12 @@ namespace ContractSystem.Infrastructure.Migrations
                     b.Property<string>("DocumentoConstitucion")
                         .HasMaxLength(512)
                         .HasColumnType("TEXT");
+                    b.Property<string>("PlantillaComparecencia")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("PlantillaFirma")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
                     b.HasKey("Id");
                     b.ToTable("BusinessInfos");
                 });

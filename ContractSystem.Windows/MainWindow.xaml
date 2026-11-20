@@ -302,6 +302,21 @@
                             </Grid>
                         </Button>
 
+                        <!-- 7. Llenar contrato en Word (abre un panel flotante, no navega) -->
+                        <Button Style="{StaticResource NavItemButtonStyle}" ToolTip="Llenar una proforma de contrato en Word con sus datos"
+                                Command="{Binding AbrirPanelWordCommand}">
+                            <Grid Width="56">
+                                <StackPanel>
+                                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="20" Foreground="{StaticResource BrushAccent}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Llenar en Word" FontSize="10" Foreground="{StaticResource BrushTextActive}"
+                                               HorizontalAlignment="Center" Margin="0,4,0,0"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+
                         <!-- Separador -->
                         <Border Height="1" Background="{StaticResource BrushBorder}" Margin="8,8"/>
 
