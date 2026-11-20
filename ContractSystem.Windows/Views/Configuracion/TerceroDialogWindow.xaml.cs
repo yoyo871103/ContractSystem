@@ -1,19 +1,26 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using ContractSystem.Application.DatosLegales;
 using ContractSystem.Domain.Nomencladores;
+using ContractSystem.Windows.ViewModels.Shared;
 
 namespace ContractSystem.Windows.Views.Configuracion;
 
 public partial class TerceroDialogWindow : Window
 {
     private readonly ObservableCollection<ContactoEditItem> _contactos = new();
+    private readonly DatosLegalesEditModel _datosLegales = new();
 
     public TerceroDialogWindow()
     {
         InitializeComponent();
         DgContactos.ItemsSource = _contactos;
+        EditorDatosLegales.DataContext = _datosLegales;
     }
+
+    /// <summary>REEUP, registro, constitución, representantes y cuentas bancarias del tercero.</summary>
+    public DatosLegalesDto DatosLegales => _datosLegales.ToDto();
 
     public string? CodigoTercero => string.IsNullOrWhiteSpace(TxtCodigo.Text) ? null : TxtCodigo.Text.Trim();
     public string? UbicacionExpediente => string.IsNullOrWhiteSpace(TxtUbicacion.Text) ? null : TxtUbicacion.Text.Trim();
@@ -81,6 +88,10 @@ public partial class TerceroDialogWindow : Window
             _ => 0
         };
 
+        _datosLegales.Cargar(
+            tercero.CodigoReeup, tercero.RegistroMercantil, tercero.DocumentoConstitucion,
+            tercero.Representantes, tercero.CuentasBancarias);
+
         _contactos.Clear();
         foreach (var c in tercero.Contactos)
         {
@@ -119,6 +130,13 @@ public partial class TerceroDialogWindow : Window
         {
             MessageBox.Show("El nombre es obligatorio.", "Tercero", MessageBoxButton.OK, MessageBoxImage.Warning);
             TxtNombre.Focus();
+            return;
+        }
+
+        var errorDatosLegales = _datosLegales.Validar();
+        if (errorDatosLegales is not null)
+        {
+            MessageBox.Show(errorDatosLegales, "Tercero", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 

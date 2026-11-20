@@ -1,3 +1,5 @@
+using ContractSystem.Domain.DatosLegales;
+
 namespace ContractSystem.Domain.Nomencladores;
 
 /// <summary>
@@ -18,6 +20,18 @@ public sealed class Tercero : ISoftDeletable, IAuditable
     /// Ubicación física del expediente del tercero (uso del área legal).
     /// </summary>
     public string? UbicacionExpediente { get; set; }
+
+    // --- Datos legales (para llenar contratos) ---
+
+    /// <summary>Código REEUP (Registro Estatal de Empresas y Unidades Presupuestadas).</summary>
+    public string? CodigoReeup { get; set; }
+
+    /// <summary>Inscripción en el Registro Mercantil (ej: "Tomo 5, Folio 23, Hoja 1234").</summary>
+    public string? RegistroMercantil { get; set; }
+
+    /// <summary>Documento de constitución (ej: "Resolución No. 45/2010 del Ministerio de …").</summary>
+    public string? DocumentoConstitucion { get; set; }
+
     public DateTimeOffset? DeletedAt { get; set; }
 
     public bool IsDeleted => DeletedAt != null;
@@ -32,4 +46,7 @@ public sealed class Tercero : ISoftDeletable, IAuditable
     /// Contactos asociados al tercero.
     /// </summary>
     public ICollection<ContactoTercero> Contactos { get; set; } = new List<ContactoTercero>();
+
+    public ICollection<RepresentanteLegal> Representantes { get; set; } = new List<RepresentanteLegal>();
+    public ICollection<CuentaBancaria> CuentasBancarias { get; set; } = new List<CuentaBancaria>();
 }

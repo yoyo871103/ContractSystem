@@ -40,6 +40,15 @@ internal sealed class TerceroConfiguration : IEntityTypeConfiguration<Tercero>
         builder.Property(e => e.UbicacionExpediente)
             .HasMaxLength(128);
 
+        builder.Property(e => e.CodigoReeup)
+            .HasMaxLength(32);
+
+        builder.Property(e => e.RegistroMercantil)
+            .HasMaxLength(256);
+
+        builder.Property(e => e.DocumentoConstitucion)
+            .HasMaxLength(512);
+
         builder.Property(e => e.DeletedAt);
 
         builder.HasIndex(e => e.NifCif);

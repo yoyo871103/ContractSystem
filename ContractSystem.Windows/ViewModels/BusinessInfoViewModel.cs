@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using ContractSystem.Application.Business.Commands.UpdateBusinessInfo;
 using ContractSystem.Application.Business.Queries.GetBusinessInfo;
 using ContractSystem.Application.Auth;
+using ContractSystem.Windows.ViewModels.Shared;
 using MediatR;
 using Microsoft.Win32;
 using System.IO;
@@ -39,6 +40,9 @@ public partial class BusinessInfoViewModel : ObservableObject
     [ObservableProperty]
     private string _nombreDueno = string.Empty;
 
+    /// <summary>REEUP, registro, constitución, representantes y cuentas bancarias.</summary>
+    public DatosLegalesEditModel DatosLegales { get; } = new();
+
     public bool PuedeEditarDatosNegocio => _authContext.TienePermiso(Permissions.DatosNegocioEditar);
 
     public BusinessInfoViewModel(ISender sender, IAuthContext authContext)
@@ -64,6 +68,9 @@ public partial class BusinessInfoViewModel : ObservableObject
                 Email = info.Email;
                 Eslogan = info.Eslogan;
                 NombreDueno = info.NombreDueno;
+                DatosLegales.Cargar(
+                    info.CodigoReeup, info.RegistroMercantil, info.DocumentoConstitucion,
+                    info.Representantes, info.CuentasBancarias);
             }
         }
         catch (Exception ex)
@@ -76,10 +83,18 @@ public partial class BusinessInfoViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(PuedeEditarDatosNegocio))]
     private async Task SaveAsync()
     {
+        var errorDatosLegales = DatosLegales.Validar();
+        if (errorDatosLegales is not null)
+        {
+            MessageBox.Show(errorDatosLegales, "Datos legales", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         try
         {
             var command = new UpdateBusinessInfoCommand(
-                Nombre, Logo, Nit, Direccion, Telefono, Email, Eslogan, NombreDueno
+                Nombre, Logo, Nit, Direccion, Telefono, Email, Eslogan, NombreDueno,
+                DatosLegales.ToDto()
             );
 
             await _sender.Send(command);

@@ -3,6 +3,7 @@ using ContractSystem.Application.Auth;
 using ContractSystem.Domain;
 using ContractSystem.Domain.Identity;
 using ContractSystem.Domain.Business;
+using ContractSystem.Domain.DatosLegales;
 using ContractSystem.Domain.Nomencladores;
 using ContractSystem.Domain.Contratos;
 using ContractSystem.Domain.Licensing;
@@ -56,6 +57,8 @@ public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<HistorialCambio> HistorialCambios => Set<HistorialCambio>();
     public DbSet<Factura> Facturas => Set<Factura>();
     public DbSet<LicenciaInfo> Licencias => Set<LicenciaInfo>();
+    public DbSet<RepresentanteLegal> RepresentantesLegales => Set<RepresentanteLegal>();
+    public DbSet<CuentaBancaria> CuentasBancarias => Set<CuentaBancaria>();
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {

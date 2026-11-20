@@ -1,0 +1,153 @@
+<UserControl x:Class="ContractSystem.Windows.Shared.Controls.DatosLegalesEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:shared="clr-namespace:ContractSystem.Windows.ViewModels.Shared"
+             mc:Ignorable="d" d:DesignWidth="700"
+             d:DataContext="{d:DesignInstance Type=shared:DatosLegalesEditModel}">
+    <!-- DataContext esperado: DatosLegalesEditModel -->
+    <UserControl.Resources>
+        <Style x:Key="EtiquetaCampo" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushTextInactive}"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style x:Key="TituloSeccion" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushTextInactive}"/>
+            <Setter Property="Margin" Value="0,12,0,8"/>
+        </Style>
+        <Style x:Key="Campo" TargetType="TextBox">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        <Style x:Key="Rejilla" TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrushBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="MinHeight" Value="80"/>
+            <Setter Property="MaxHeight" Value="200"/>
+        </Style>
+        <Style x:Key="BotonAgregar" TargetType="Button">
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Background" Value="{StaticResource BrushAccent}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style x:Key="BotonEliminar" TargetType="Button">
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushTextActive}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrushBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <!-- Identificación legal -->
+        <TextBlock Text="Datos legales (para llenar contratos)" Style="{StaticResource TituloSeccion}" Margin="0,0,0,8"/>
+
+        <TextBlock Text="Código REEUP" Style="{StaticResource EtiquetaCampo}"/>
+        <TextBox Text="{Binding CodigoReeup, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Campo}" MaxLength="32"/>
+
+        <TextBlock Text="Inscripción en el Registro Mercantil" Style="{StaticResource EtiquetaCampo}"/>
+        <TextBox Text="{Binding RegistroMercantil, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Campo}" MaxLength="256"
+                 ToolTip="Ej: Tomo 5, Folio 23, Hoja 1234"/>
+
+        <TextBlock Text="Documento de constitución" Style="{StaticResource EtiquetaCampo}"/>
+        <TextBox Text="{Binding DocumentoConstitucion, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Campo}" MaxLength="512"
+                 ToolTip="Ej: Resolución No. 45/2010 del Ministerio de …"/>
+
+        <!-- Representantes legales -->
+        <TextBlock Text="Representantes legales" Style="{StaticResource TituloSeccion}"/>
+        <DataGrid Style="{StaticResource Rejilla}"
+                  ItemsSource="{Binding Representantes}"
+                  SelectedItem="{Binding RepresentanteSeleccionado}">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Pred." Width="45">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding EsPredeterminado, UpdateSourceTrigger=PropertyChanged}"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Nombre" Width="2*"
+                                    Binding="{Binding Nombre, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Cargo" Width="1.3*"
+                                    Binding="{Binding Cargo, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Carné de identidad" Width="*"
+                                    Binding="{Binding CarneIdentidad, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Documento de nombramiento" Width="2*"
+                                    Binding="{Binding DocumentoNombramiento, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTemplateColumn Header="Fecha" Width="115">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DatePicker SelectedDate="{Binding FechaNombramiento, UpdateSourceTrigger=PropertyChanged}"
+                                        BorderThickness="0" Background="Transparent"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+            <Button Content="Agregar representante" Style="{StaticResource BotonAgregar}" Command="{Binding AgregarRepresentanteCommand}"/>
+            <Button Content="Eliminar seleccionado" Style="{StaticResource BotonEliminar}" Command="{Binding EliminarRepresentanteCommand}"/>
+        </StackPanel>
+
+        <!-- Cuentas bancarias -->
+        <TextBlock Text="Cuentas bancarias" Style="{StaticResource TituloSeccion}"/>
+        <DataGrid Style="{StaticResource Rejilla}"
+                  ItemsSource="{Binding Cuentas}"
+                  SelectedItem="{Binding CuentaSeleccionada}">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Pred." Width="45">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding EsPredeterminada, UpdateSourceTrigger=PropertyChanged}"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Número" Width="1.6*"
+                                    Binding="{Binding Numero, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTemplateColumn Header="Moneda" Width="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox IsEditable="True" BorderThickness="0"
+                                      ItemsSource="{x:Static shared:DatosLegalesEditModel.MonedasSugeridas}"
+                                      Text="{Binding Moneda, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Banco" Width="*"
+                                    Binding="{Binding Banco, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Sucursal" Width="*"
+                                    Binding="{Binding Sucursal, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Dirección sucursal" Width="1.4*"
+                                    Binding="{Binding DireccionSucursal, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Titular (si difiere)" Width="1.4*"
+                                    Binding="{Binding Titular, UpdateSourceTrigger=PropertyChanged}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+            <Button Content="Agregar cuenta" Style="{StaticResource BotonAgregar}" Command="{Binding AgregarCuentaCommand}"/>
+            <Button Content="Eliminar seleccionada" Style="{StaticResource BotonEliminar}" Command="{Binding EliminarCuentaCommand}"/>
+        </StackPanel>
+        <TextBlock Text="“Pred.” marca el representante y la cuenta (por moneda) que se proponen al llenar un contrato."
+                   FontSize="11" Foreground="{StaticResource BrushTextInactive}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+    </StackPanel>
+</UserControl>

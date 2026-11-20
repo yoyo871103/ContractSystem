@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:ContractSystem.Windows.ViewModels"
+             xmlns:controls="clr-namespace:ContractSystem.Windows.Shared.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450">
     <Grid Margin="16">
         <Grid.ColumnDefinitions>
@@ -16,7 +17,7 @@
                 <TextBlock Text="Nombre del Negocio" FontWeight="SemiBold" Margin="0,0,0,4"/>
                 <TextBox Text="{Binding Nombre, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16" Padding="4"/>
 
-                <TextBlock Text="NIT / RUC" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <TextBlock Text="NIT" FontWeight="SemiBold" Margin="0,0,0,4"/>
                 <TextBox Text="{Binding Nit, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16" Padding="4"/>
 
                 <TextBlock Text="Dirección" FontWeight="SemiBold" Margin="0,0,0,4"/>
@@ -33,6 +34,10 @@
                 
                 <TextBlock Text="Nombre del Dueño" FontWeight="SemiBold" Margin="0,0,0,4"/>
                 <TextBox Text="{Binding NombreDueno, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16" Padding="4"/>
+
+                <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,1,0,0" Padding="0,16,0,0" Margin="0,8,0,0">
+                    <controls:DatosLegalesEditor DataContext="{Binding DatosLegales}"/>
+                </Border>
             </StackPanel>
         </ScrollViewer>
 

@@ -1,8 +1,10 @@
 using MediatR;
+using ContractSystem.Application.DatosLegales;
 using ContractSystem.Domain.Business;
 
 namespace ContractSystem.Application.Business.Commands.UpdateBusinessInfo;
 
+/// <param name="DatosLegales">Si es null, los datos legales existentes no se modifican.</param>
 public record UpdateBusinessInfoCommand(
     string Nombre,
     byte[]? Logo,
@@ -11,7 +13,8 @@ public record UpdateBusinessInfoCommand(
     string Telefono,
     string Email,
     string Eslogan,
-    string NombreDueno
+    string NombreDueno,
+    DatosLegalesDto? DatosLegales = null
 ) : IRequest<Unit>;
 
 public class UpdateBusinessInfoCommandHandler : IRequestHandler<UpdateBusinessInfoCommand, Unit>
@@ -36,7 +39,17 @@ public class UpdateBusinessInfoCommandHandler : IRequestHandler<UpdateBusinessIn
         businessInfo.Eslogan = request.Eslogan;
         businessInfo.NombreDueno = request.NombreDueno;
 
-        await _store.UpdateAsync(businessInfo, cancellationToken);
+        var actualizarDatosLegales = request.DatosLegales is not null;
+        if (request.DatosLegales is { } legales)
+        {
+            businessInfo.CodigoReeup = DatosLegalesMapper.Limpiar(legales.CodigoReeup);
+            businessInfo.RegistroMercantil = DatosLegalesMapper.Limpiar(legales.RegistroMercantil);
+            businessInfo.DocumentoConstitucion = DatosLegalesMapper.Limpiar(legales.DocumentoConstitucion);
+            businessInfo.Representantes = DatosLegalesMapper.CrearRepresentantes(legales);
+            businessInfo.CuentasBancarias = DatosLegalesMapper.CrearCuentas(legales);
+        }
+
+        await _store.UpdateAsync(businessInfo, actualizarDatosLegales, cancellationToken);
 
         return Unit.Value;
     }
