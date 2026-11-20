@@ -31,13 +31,15 @@
                     Command="{Binding EliminarRolCommand}"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="3" ItemsSource="{Binding Roles}"
+        <DataGrid Grid.Row="3" x:Name="GridRoles" ItemsSource="{Binding Roles}"
                   SelectedItem="{Binding RolSeleccionado, Mode=TwoWay}"
                   AutoGenerateColumns="False" IsReadOnly="True"
                   CanUserAddRows="False" CanUserDeleteRows="False"
                   SelectionMode="Single" SelectionUnit="FullRow"
                   HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                  BorderBrush="{StaticResource BrushBorder}" BorderThickness="1">
+                  BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                  MouseDoubleClick="GridRoles_MouseDoubleClick"
+                  ToolTip="Doble clic para editar el rol">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="180"/>
                 <DataGridTextColumn Header="Descripci&#243;n" Binding="{Binding Descripcion}" Width="*"/>

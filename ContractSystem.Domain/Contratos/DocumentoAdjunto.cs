@@ -1,7 +1,10 @@
 namespace ContractSystem.Domain.Contratos;
 
 /// <summary>
-/// Archivo adjunto asociado a un contrato o suplemento.
+/// Archivo adjunto asociado a un contrato, suplemento, factura o anexo.
+/// Siempre cuelga de un Contrato (ContratoId). Si además se asocia a una
+/// factura o a un anexo concreto, FacturaId / AnexoId apuntan a la fila correspondiente
+/// (como máximo uno de los dos).
 /// </summary>
 public class DocumentoAdjunto : IAuditable
 {
@@ -25,11 +28,24 @@ public class DocumentoAdjunto : IAuditable
     public Contrato Contrato { get; set; } = null!;
 
     /// <summary>
+    /// Si está informado, el adjunto pertenece a una factura concreta del contrato.
+    /// Si es null, el adjunto es del contrato (o suplemento) en general.
+    /// </summary>
+    public int? FacturaId { get; set; }
+    public Factura? Factura { get; set; }
+
+    /// <summary>
+    /// Si está informado, el adjunto pertenece a un anexo concreto del contrato.
+    /// </summary>
+    public int? AnexoId { get; set; }
+    public Anexo? Anexo { get; set; }
+
+    /// <summary>
     /// Extensiones permitidas para adjuntos.
     /// </summary>
     public static readonly HashSet<string> ExtensionesPermitidas = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".pdf", ".jpg", ".jpeg", ".png", ".gif",
+        ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".bmp",
         ".doc", ".docx", ".xls", ".xlsx", ".txt"
     };
 

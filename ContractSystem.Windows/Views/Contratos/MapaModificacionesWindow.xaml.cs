@@ -419,7 +419,7 @@ public partial class MapaModificacionesWindow : Window
 
         sp.Children.Add(info);
 
-        return new Border
+        var border = new Border
         {
             Width = CardWidth,
             Height = CardHeight,
@@ -429,6 +429,9 @@ public partial class MapaModificacionesWindow : Window
             CornerRadius = new CornerRadius(8),
             Padding = new Thickness(12, 8, 12, 8),
             Child = sp,
+            Tag = doc,
+            Cursor = System.Windows.Input.Cursors.Hand,
+            ToolTip = "Doble clic para ver el detalle del documento",
             Effect = new System.Windows.Media.Effects.DropShadowEffect
             {
                 BlurRadius = 6,
@@ -437,6 +440,19 @@ public partial class MapaModificacionesWindow : Window
                 Color = Colors.Black
             }
         };
+        border.MouseLeftButtonDown += Tarjeta_MouseLeftButtonDown;
+        return border;
+    }
+
+    private void Tarjeta_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount != 2) return;
+        if (sender is not Border b || b.Tag is not Contrato doc) return;
+        if (doc.Id == _contrato.Id) return; // ya estamos viendo este
+
+        e.Handled = true;
+        var detalle = new DetalleContratoWindow(_sender, doc) { Owner = this };
+        detalle.ShowDialog();
     }
 
     #endregion
@@ -586,7 +602,7 @@ public partial class MapaModificacionesWindow : Window
         });
         sp.Children.Add(info);
 
-        return new Border
+        var border = new Border
         {
             Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colorFondo)),
             BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colorBorde)),
@@ -594,8 +610,13 @@ public partial class MapaModificacionesWindow : Window
             CornerRadius = new CornerRadius(6),
             Padding = new Thickness(12, 8, 12, 8),
             Margin = new Thickness(0, 2, 0, 2),
-            Child = sp
+            Child = sp,
+            Tag = doc,
+            Cursor = System.Windows.Input.Cursors.Hand,
+            ToolTip = "Doble clic para ver el detalle del documento"
         };
+        border.MouseLeftButtonDown += Tarjeta_MouseLeftButtonDown;
+        return border;
     }
 
     private UIElement CrearFilaModificacion(ModificacionDocumento mod, string origenNum, string destinoNum,

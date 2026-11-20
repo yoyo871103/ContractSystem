@@ -7,6 +7,7 @@ using ContractSystem.Application.Nomencladores.Commands.DeletePlantillaDocumento
 using ContractSystem.Application.Nomencladores.Commands.UpdatePlantillaDocumento;
 using ContractSystem.Application.Nomencladores.Queries.GetAllPlantillasDocumento;
 using ContractSystem.Application.Nomencladores.Queries.GetPlantillaDocumentoById;
+using ContractSystem.Application.Nomencladores.Queries.GetTiposPersonalizadosPlantilla;
 using ContractSystem.Domain.Nomencladores;
 using ContractSystem.Application.Auth;
 using MediatR;
@@ -66,11 +67,24 @@ public sealed partial class PlantillaDocumentoViewModel : ObservableObject
         }
     }
 
+    private async Task CargarTiposPersonalizadosAsync(Views.Configuracion.PlantillaDialogWindow dialog)
+    {
+        try
+        {
+            dialog.CargarTiposPersonalizados(await _sender.Send(new GetTiposPersonalizadosPlantillaQuery()));
+        }
+        catch
+        {
+            // No crítico: el usuario puede escribir el tipo a mano.
+        }
+    }
+
     [RelayCommand(CanExecute = nameof(PuedeGestionarPlantillas))]
-    private void Nuevo()
+    private async Task NuevoAsync()
     {
         var dialog = new Views.Configuracion.PlantillaDialogWindow();
         dialog.Owner = System.Windows.Application.Current.MainWindow;
+        await CargarTiposPersonalizadosAsync(dialog);
         if (dialog.ShowDialog() == true)
         {
             _ = CrearAsync(dialog);
@@ -87,7 +101,8 @@ public sealed partial class PlantillaDocumentoViewModel : ObservableObject
                 dialog.RolPlantilla,
                 dialog.ArchivoBytes,
                 dialog.NombreArchivo,
-                dialog.RevisadoPorLegal));
+                dialog.RevisadoPorLegal,
+                dialog.TipoPersonalizado));
 
             MessageBox.Show("Plantilla creada correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
             await CargarAsync();
@@ -99,19 +114,20 @@ public sealed partial class PlantillaDocumentoViewModel : ObservableObject
     }
 
     [RelayCommand(CanExecute = nameof(HaySeleccionado))]
-    private void Editar()
+    private async Task EditarAsync()
     {
         if (Seleccionado is null) return;
 
         var dialog = new Views.Configuracion.PlantillaDialogWindow(Seleccionado);
         dialog.Owner = System.Windows.Application.Current.MainWindow;
+        await CargarTiposPersonalizadosAsync(dialog);
         if (dialog.ShowDialog() == true)
         {
-            _ = EditarAsync(dialog);
+            _ = GuardarEdicionAsync(dialog);
         }
     }
 
-    private async Task EditarAsync(Views.Configuracion.PlantillaDialogWindow dialog)
+    private async Task GuardarEdicionAsync(Views.Configuracion.PlantillaDialogWindow dialog)
     {
         try
         {
@@ -122,7 +138,8 @@ public sealed partial class PlantillaDocumentoViewModel : ObservableObject
                 dialog.RolPlantilla,
                 dialog.ArchivoBytes,
                 dialog.ArchivoBytes is not null ? dialog.NombreArchivo : null,
-                dialog.RevisadoPorLegal));
+                dialog.RevisadoPorLegal,
+                dialog.TipoPersonalizado));
 
             MessageBox.Show("Plantilla actualizada correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
             await CargarAsync();
@@ -131,6 +148,29 @@ public sealed partial class PlantillaDocumentoViewModel : ObservableObject
         {
             MessageBox.Show("Error al actualizar: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    /// <summary>
+    /// Abre la plantilla en el visor integrado, sin necesidad de descargarla.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(PuedeDescargar))]
+    private void Ver()
+    {
+        if (Seleccionado is null) return;
+
+        var id = Seleccionado.Id;
+        var visor = new Views.Contratos.VisorAdjuntoWindow(
+            Seleccionado.NombreArchivo,
+            Path.GetExtension(Seleccionado.NombreArchivo),
+            async ct =>
+            {
+                var plantilla = await _sender.Send(new GetPlantillaDocumentoByIdQuery(id), ct);
+                return plantilla?.Archivo ?? Array.Empty<byte>();
+            })
+        {
+            Owner = System.Windows.Application.Current.MainWindow
+        };
+        visor.ShowDialog();
     }
 
     [RelayCommand(CanExecute = nameof(PuedeDescargar))]
@@ -198,6 +238,7 @@ public sealed partial class PlantillaDocumentoViewModel : ObservableObject
         NuevoCommand.NotifyCanExecuteChanged();
         EditarCommand.NotifyCanExecuteChanged();
         DescargarCommand.NotifyCanExecuteChanged();
+        VerCommand.NotifyCanExecuteChanged();
         EliminarCommand.NotifyCanExecuteChanged();
     }
 }

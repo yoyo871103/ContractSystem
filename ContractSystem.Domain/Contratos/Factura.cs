@@ -32,6 +32,9 @@ public class Factura : IAuditable
     public int ContratoId { get; set; }
     public Contrato Contrato { get; set; } = null!;
 
+    // --- Documentos adjuntos específicos de esta factura ---
+    public ICollection<DocumentoAdjunto> DocumentosAdjuntos { get; set; } = new List<DocumentoAdjunto>();
+
     // --- Auditoría (IAuditable) ---
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
     public string? CreadoPor { get; set; }

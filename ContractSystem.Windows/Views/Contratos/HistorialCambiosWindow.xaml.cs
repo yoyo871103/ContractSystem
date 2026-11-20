@@ -51,6 +51,16 @@ public partial class HistorialCambiosWindow : Window
         }
     }
 
+    private void DgHistorial_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+        if (DgHistorial.SelectedItem is not HistorialCambio cambio) return;
+        if (e.OriginalSource is FrameworkElement fe && fe.DataContext is not HistorialCambio) return;
+
+        var detalle = new HistorialCambioDetalleWindow(cambio) { Owner = this };
+        detalle.ShowDialog();
+    }
+
     private void BtnCerrar_Click(object sender, RoutedEventArgs e) => Close();
 
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

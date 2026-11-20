@@ -22,5 +22,25 @@ public class DocumentoAdjuntoConfiguration : IEntityTypeConfiguration<DocumentoA
             .WithMany(c => c.DocumentosAdjuntos)
             .HasForeignKey(d => d.ContratoId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Restrict para no chocar con la cascada Contratos -> DocumentosAdjuntos en SQL Server.
+        // El borrado de adjuntos asociados a una factura se hace explícitamente al eliminar la factura.
+        builder.HasOne(d => d.Factura)
+            .WithMany(f => f.DocumentosAdjuntos)
+            .HasForeignKey(d => d.FacturaId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+
+        builder.HasIndex(d => d.FacturaId);
+
+        // Restrict por el mismo motivo (Contratos -> Anexos ya cascadea). El borrado de los
+        // adjuntos de un anexo se hace explícitamente al eliminar el anexo.
+        builder.HasOne(d => d.Anexo)
+            .WithMany(a => a.DocumentosAdjuntos)
+            .HasForeignKey(d => d.AnexoId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+
+        builder.HasIndex(d => d.AnexoId);
     }
 }

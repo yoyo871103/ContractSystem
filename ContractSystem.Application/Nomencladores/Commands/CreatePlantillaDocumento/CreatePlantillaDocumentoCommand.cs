@@ -9,7 +9,8 @@ public record CreatePlantillaDocumentoCommand(
     RolPlantilla Rol,
     byte[] Archivo,
     string NombreArchivo,
-    bool RevisadoPorLegal) : IRequest<PlantillaDocumento>;
+    bool RevisadoPorLegal,
+    string? TipoPersonalizado = null) : IRequest<PlantillaDocumento>;
 
 public class CreatePlantillaDocumentoCommandHandler : IRequestHandler<CreatePlantillaDocumentoCommand, PlantillaDocumento>
 {
@@ -22,10 +23,14 @@ public class CreatePlantillaDocumentoCommandHandler : IRequestHandler<CreatePlan
 
     public async Task<PlantillaDocumento> Handle(CreatePlantillaDocumentoCommand request, CancellationToken cancellationToken)
     {
+        var tipoPersonalizado = PlantillaValidacion.Validar(
+            request.Nombre, request.TipoDocumento, request.TipoPersonalizado, request.NombreArchivo);
+
         var entity = new PlantillaDocumento
         {
             Nombre = request.Nombre.Trim(),
             TipoDocumento = request.TipoDocumento,
+            TipoPersonalizado = tipoPersonalizado,
             Rol = request.Rol,
             Archivo = request.Archivo,
             NombreArchivo = request.NombreArchivo,

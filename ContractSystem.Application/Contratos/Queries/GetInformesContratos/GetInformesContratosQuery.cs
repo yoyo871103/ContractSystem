@@ -41,6 +41,7 @@ public record ContratosPorEstadoDto(
 
 /// <summary>Contratos próximos a vencer.</summary>
 public record ContratoProximoVencerDto(
+    int ContratoId,
     string Numero,
     string Objeto,
     string? Tercero,
@@ -185,6 +186,7 @@ public class GetInformesContratosQueryHandler : IRequestHandler<GetInformesContr
                         && c.FechaVigencia.Value.Date >= hoy
                         && c.FechaVigencia.Value.Date <= limite)
             .Select(c => new ContratoProximoVencerDto(
+                c.Id,
                 c.Numero, c.Objeto,
                 c.Tercero?.Nombre,
                 c.TipoDocumento.ToString(),

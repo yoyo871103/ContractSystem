@@ -42,6 +42,24 @@ public partial class TerceroDialogWindow : Window
         _contactos.Where(c => !string.IsNullOrWhiteSpace(c.Nombre)).ToList();
 
     /// <summary>
+    /// Pre-rellena el nombre y el tipo (alta rápida desde el formulario de contrato).
+    /// </summary>
+    public void PrecargarAlta(string? nombre, TipoTercero? tipo)
+    {
+        if (!string.IsNullOrWhiteSpace(nombre))
+            TxtNombre.Text = nombre.Trim();
+        if (tipo.HasValue)
+        {
+            CmbTipo.SelectedIndex = tipo.Value switch
+            {
+                TipoTercero.Proveedor => 1,
+                TipoTercero.Ambos => 2,
+                _ => 0
+            };
+        }
+    }
+
+    /// <summary>
     /// Carga los datos de un tercero existente para edición.
     /// </summary>
     public void CargarTercero(Tercero tercero)

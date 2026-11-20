@@ -73,6 +73,13 @@ public sealed class FacturaStore : IFacturaStore
         var entity = await db.Set<Factura>().FirstOrDefaultAsync(f => f.Id == id, cancellationToken);
         if (entity is null) return;
 
+        // Borrar primero los adjuntos asociados a la factura (FK Restrict, no cascadea por DB).
+        var adjuntos = await db.Set<DocumentoAdjunto>()
+            .Where(d => d.FacturaId == id)
+            .ToListAsync(cancellationToken);
+        if (adjuntos.Count > 0)
+            db.Set<DocumentoAdjunto>().RemoveRange(adjuntos);
+
         db.Set<Factura>().Remove(entity);
         await db.SaveChangesAsync(cancellationToken);
     }

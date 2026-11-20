@@ -39,6 +39,15 @@ public partial class ProductoServicioDialogWindow : Window
         CmbUnidadMedida.ItemsSource = unidades;
     }
 
+    /// <summary>
+    /// Pre-rellena el nombre (ej: con el texto buscado al dar de alta desde otra ventana).
+    /// </summary>
+    public void PrecargarNombre(string? nombre)
+    {
+        if (!string.IsNullOrWhiteSpace(nombre))
+            TxtNombre.Text = nombre.Trim();
+    }
+
     public void CargarProducto(ProductoServicio producto)
     {
         TxtTitulo.Text = "Editar producto/servicio";

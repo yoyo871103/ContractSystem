@@ -6,6 +6,8 @@ using ContractSystem.Application.Contratos;
 using ContractSystem.Domain.Contratos;
 using ContractSystem.Domain.Nomencladores;
 using ContractSystem.Application.Auth;
+using ContractSystem.Application.Nomencladores.Commands.CreateTercero;
+using ContractSystem.Application.Nomencladores.Queries.GetAllTerceros;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,10 +19,15 @@ public partial class ContratoDialogWindow : Window
     private bool _esEdicion;
     private int? _contratoId;
     private string? _contratoNumero;
+    private TipoDocumentoContrato _contratoTipo;
 
     public ContratoDialogWindow()
     {
         InitializeComponent();
+
+        var auth = App.Services.GetRequiredService<IAuthContext>();
+        CmbTercero.ShowAddButton = auth.TienePermiso(Permissions.TercerosCrear);
+        CmbTercero.AddButtonToolTip = "Dar de alta un tercero nuevo sin salir del formulario";
     }
 
     // --- Propiedades públicas para leer los valores del formulario ---
@@ -103,10 +110,14 @@ public partial class ContratoDialogWindow : Window
         _esEdicion = true;
         _contratoId = contrato.Id;
         _contratoNumero = contrato.Numero;
+        _contratoTipo = contrato.TipoDocumento;
         TxtTitulo.Text = "Editar contrato";
 
-        // Mostrar botón Anexos/Líneas en edición
+        // Mostrar botones Anexos/Líneas y Adjuntos en edición
+        var auth = App.Services.GetRequiredService<IAuthContext>();
         BtnAnexosLineas.Visibility = Visibility.Visible;
+        if (auth.TienePermiso(Permissions.AdjuntosVer) || auth.TienePermiso(Permissions.AdjuntosGestionar))
+            BtnAdjuntos.Visibility = Visibility.Visible;
 
         // Mostrar botón Facturas solo si no es Marco
         if (contrato.TipoDocumento != TipoDocumentoContrato.Marco)
@@ -323,6 +334,61 @@ public partial class ContratoDialogWindow : Window
             readOnly: !auth.TienePermiso(Permissions.FacturasGestionar));
         window.Owner = this;
         window.ShowDialog();
+    }
+
+    private void BtnAdjuntos_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_contratoId.HasValue) return;
+
+        var mediator = App.Services.GetRequiredService<ISender>();
+        var auth = App.Services.GetRequiredService<IAuthContext>();
+        var window = new DocumentosAdjuntosWindow(mediator, _contratoId.Value, _contratoNumero ?? "",
+            readOnly: !auth.TienePermiso(Permissions.AdjuntosGestionar), tipoDocumento: _contratoTipo);
+        window.Owner = this;
+        window.ShowDialog();
+    }
+
+    /// <summary>
+    /// Alta rápida de un tercero desde el propio formulario; queda seleccionado al guardarlo.
+    /// </summary>
+    private async void CmbTercero_AddNewRequested(object? sender, EventArgs e)
+    {
+        var dialog = new Configuracion.TerceroDialogWindow { Owner = this };
+        var tipoSugerido = RolContrato == Domain.Contratos.RolContrato.Cliente ? TipoTercero.Cliente : TipoTercero.Proveedor;
+        dialog.PrecargarAlta(CmbTercero.SearchText.Trim() == ((CmbTercero.SelectedItem as Tercero)?.Nombre ?? "")
+            ? null : CmbTercero.SearchText, tipoSugerido);
+
+        if (dialog.ShowDialog() != true) return;
+
+        try
+        {
+            var mediator = App.Services.GetRequiredService<ISender>();
+            var contactos = dialog.Contactos
+                .Select(c => new ContactoTerceroDto(c.Nombre, c.Cargo, c.Email, c.Telefono))
+                .ToList();
+
+            var creado = await mediator.Send(new CreateTerceroCommand(
+                dialog.CodigoTercero,
+                dialog.NombreTercero,
+                dialog.RazonSocial,
+                dialog.NifCif,
+                dialog.Direccion,
+                dialog.TelefonoTercero,
+                dialog.EmailTercero,
+                dialog.TipoTercero,
+                dialog.UbicacionExpediente,
+                contactos));
+
+            // Recargar la lista para incluir el nuevo tercero y seleccionarlo.
+            var terceros = await mediator.Send(new GetAllTercerosQuery());
+            CmbTercero.ItemsSource = terceros;
+            CmbTercero.SelectedItem = terceros.FirstOrDefault(t => t.Id == creado.Id) ?? creado;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Error al crear el tercero: " + ex.Message, "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void OnlyDecimal_PreviewTextInput(object sender, TextCompositionEventArgs e)

@@ -19,6 +19,9 @@ internal sealed class PlantillaDocumentoConfiguration : IEntityTypeConfiguration
         builder.Property(e => e.TipoDocumento)
             .IsRequired();
 
+        builder.Property(e => e.TipoPersonalizado)
+            .HasMaxLength(150);
+
         builder.Property(e => e.Rol)
             .IsRequired();
 

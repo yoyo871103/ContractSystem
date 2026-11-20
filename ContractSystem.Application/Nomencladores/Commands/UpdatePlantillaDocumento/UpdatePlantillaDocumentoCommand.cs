@@ -10,7 +10,8 @@ public record UpdatePlantillaDocumentoCommand(
     RolPlantilla Rol,
     byte[]? NuevoArchivo,
     string? NuevoNombreArchivo,
-    bool RevisadoPorLegal) : IRequest<Unit>;
+    bool RevisadoPorLegal,
+    string? TipoPersonalizado = null) : IRequest<Unit>;
 
 public class UpdatePlantillaDocumentoCommandHandler : IRequestHandler<UpdatePlantillaDocumentoCommand, Unit>
 {
@@ -27,8 +28,13 @@ public class UpdatePlantillaDocumentoCommandHandler : IRequestHandler<UpdatePlan
         if (entity is null)
             throw new InvalidOperationException($"Plantilla con Id {request.Id} no encontrada.");
 
+        var tipoPersonalizado = PlantillaValidacion.Validar(
+            request.Nombre, request.TipoDocumento, request.TipoPersonalizado,
+            request.NuevoArchivo is not null ? request.NuevoNombreArchivo : null);
+
         entity.Nombre = request.Nombre.Trim();
         entity.TipoDocumento = request.TipoDocumento;
+        entity.TipoPersonalizado = tipoPersonalizado;
         entity.Rol = request.Rol;
         entity.RevisadoPorLegal = request.RevisadoPorLegal;
 

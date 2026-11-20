@@ -8,12 +8,15 @@ using ContractSystem.Application.Contratos.Commands.CreateLineaDetalle;
 using ContractSystem.Application.Contratos.Commands.DeleteAnexo;
 using ContractSystem.Application.Contratos.Commands.DeleteLineaDetalle;
 using ContractSystem.Application.Contratos.Commands.UpdateLineaDetalle;
+using ContractSystem.Application.Auth;
+using ContractSystem.Application.Contratos.Queries.GetAdjuntosByAnexo;
 using ContractSystem.Application.Contratos.Queries.GetAnexosByContrato;
 using ContractSystem.Application.Contratos.Queries.GetLineasByContrato;
 using ContractSystem.Application.Nomencladores.Queries.GetAllProductosServicios;
 using ContractSystem.Domain.Contratos;
 using ContractSystem.Domain.Nomencladores;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ContractSystem.Windows.Views.Contratos;
 
@@ -37,7 +40,26 @@ public partial class AnexosLineasWindow : Window
         LstAnexos.ItemsSource = _anexos;
         DgLineas.ItemsSource = _lineas;
         if (_readOnly)
+        {
             DgLineas.IsReadOnly = true;
+            BtnEliminarLinea.IsEnabled = false;
+        }
+
+        var auth = App.Services.GetRequiredService<IAuthContext>();
+        PanelAdjuntos.Inicializar(sender, soloLectura: !auth.TienePermiso(Permissions.AdjuntosGestionar),
+            mostrarAsociacion: false, titulo: "Adjuntos del anexo");
+        PanelAdjuntos.TextoVacio = "Este anexo no tiene documentos adjuntos.";
+        PanelAdjuntos.Cargador = async () =>
+        {
+            if (_anexoSeleccionado is not { } anexo) return Array.Empty<AdjuntoListItem>();
+            var lista = await _sender.Send(new GetAdjuntosByAnexoQuery(anexo.Id));
+            return lista.Select(a => new AdjuntoListItem(a, $"Anexo «{anexo.Nombre}»", TipoAsociacionAdjunto.Anexo)).ToList();
+        };
+        PanelAdjuntos.Destinos = () => _anexoSeleccionado is { } a
+            ? new[] { new AdjuntoDestino(TipoAsociacionAdjunto.Anexo, $"Anexo «{a.Nombre}»", _contratoId, AnexoId: a.Id) }
+            : Array.Empty<AdjuntoDestino>();
+        PanelAdjuntos.SetDisponible(false, "Seleccione un anexo para ver sus adjuntos.");
+
         Loaded += async (_, _) => await CargarAsync();
     }
 
@@ -81,11 +103,23 @@ public partial class AnexosLineasWindow : Window
     {
         _anexoSeleccionado = LstAnexos.SelectedItem as Anexo;
         var hayAnexo = _anexoSeleccionado is not null;
-        BtnDesdeCatalogo.IsEnabled = hayAnexo;
-        BtnInline.IsEnabled = hayAnexo;
+        BtnDesdeCatalogo.IsEnabled = hayAnexo && !_readOnly;
+        BtnInline.IsEnabled = hayAnexo && !_readOnly;
         TxtAnexoSeleccionado.Text = hayAnexo
             ? $"Líneas — {_anexoSeleccionado!.Nombre}"
             : "Seleccione un anexo";
+
+        if (hayAnexo)
+        {
+            PanelAdjuntos.Titulo = $"Adjuntos del anexo «{_anexoSeleccionado!.Nombre}»";
+            PanelAdjuntos.SetDisponible(true);
+            if (IsLoaded) _ = PanelAdjuntos.RecargarAsync();
+        }
+        else
+        {
+            PanelAdjuntos.Titulo = "Adjuntos del anexo";
+            PanelAdjuntos.SetDisponible(false, "Seleccione un anexo para ver sus adjuntos.");
+        }
 
         if (_sender is not null && IsLoaded)
             _ = CargarLineasAsync();
@@ -116,7 +150,7 @@ public partial class AnexosLineasWindow : Window
         if (_readOnly) return;
         if (LstAnexos.SelectedItem is not Anexo anexo) return;
 
-        var result = MessageBox.Show($"¿Eliminar el anexo '{anexo.Nombre}' y todas sus líneas?", "Confirmar",
+        var result = MessageBox.Show($"¿Eliminar el anexo '{anexo.Nombre}' con todas sus líneas y documentos adjuntos?", "Confirmar",
             MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (result != MessageBoxResult.Yes) return;
 
@@ -142,14 +176,9 @@ public partial class AnexosLineasWindow : Window
         try
         {
             var productos = await _sender.Send(new GetAllProductosServiciosQuery());
-            if (productos.Count == 0)
-            {
-                MessageBox.Show("No hay productos/servicios en el catálogo.", "Información",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
 
-            var dialog = new SeleccionProductoWindow(productos);
+            // Aunque el catálogo esté vacío se abre: desde ahí se puede dar de alta un producto/servicio.
+            var dialog = new SeleccionProductoWindow(_sender, productos);
             dialog.Owner = this;
             if (dialog.ShowDialog() == true && dialog.ProductoSeleccionado is not null)
             {

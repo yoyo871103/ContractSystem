@@ -28,6 +28,11 @@ public sealed class Anexo : IAuditable
     /// </summary>
     public ICollection<LineaDetalle> Lineas { get; set; } = new List<LineaDetalle>();
 
+    /// <summary>
+    /// Documentos adjuntos asociados directamente a este anexo.
+    /// </summary>
+    public ICollection<DocumentoAdjunto> DocumentosAdjuntos { get; set; } = new List<DocumentoAdjunto>();
+
     // --- Auditoría (IAuditable) ---
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
     public string? CreadoPor { get; set; }

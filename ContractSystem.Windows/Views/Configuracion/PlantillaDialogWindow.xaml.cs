@@ -37,6 +37,7 @@ public partial class PlantillaDialogWindow : Window
         // Cargar datos existentes
         TxtNombre.Text = plantilla.Nombre;
         CmbTipo.SelectedIndex = (int)plantilla.TipoDocumento;
+        CmbTipoPersonalizado.Text = plantilla.TipoPersonalizado ?? string.Empty;
         CmbRol.SelectedIndex = (int)plantilla.Rol;
         ChkRevisadoLegal.IsChecked = plantilla.RevisadoPorLegal;
         _nombreArchivo = plantilla.NombreArchivo;
@@ -53,8 +54,27 @@ public partial class PlantillaDialogWindow : Window
             "1" => TipoDocumentoPlantilla.Especifico,
             "2" => TipoDocumentoPlantilla.Independiente,
             "3" => TipoDocumentoPlantilla.Suplemento,
+            "4" => TipoDocumentoPlantilla.Otros,
             _ => TipoDocumentoPlantilla.Marco
         };
+
+    /// <summary>
+    /// Nombre del tipo personalizado (solo si TipoDocumento == Otros).
+    /// </summary>
+    public string? TipoPersonalizado =>
+        TipoDocumento == TipoDocumentoPlantilla.Otros && !string.IsNullOrWhiteSpace(CmbTipoPersonalizado.Text)
+            ? CmbTipoPersonalizado.Text.Trim()
+            : null;
+
+    /// <summary>
+    /// Tipos personalizados ya usados en otras plantillas, para reutilizarlos.
+    /// </summary>
+    public void CargarTiposPersonalizados(IReadOnlyList<string> tipos)
+    {
+        var texto = CmbTipoPersonalizado.Text;
+        CmbTipoPersonalizado.ItemsSource = tipos;
+        CmbTipoPersonalizado.Text = texto;
+    }
 
     public RolPlantilla RolPlantilla =>
         (CmbRol.SelectedItem as ComboBoxItem)?.Tag?.ToString() == "1"
@@ -74,16 +94,38 @@ public partial class PlantillaDialogWindow : Window
         }
     }
 
+    private void CmbTipo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (PnlTipoPersonalizado is null) return;
+        PnlTipoPersonalizado.Visibility = TipoDocumento == TipoDocumentoPlantilla.Otros
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+    }
+
     private void BtnSeleccionarArchivo_Click(object sender, RoutedEventArgs e)
     {
+        var todos = string.Join(";", PlantillaDocumento.ExtensionesPermitidas.Select(x => "*" + x));
         var ofd = new OpenFileDialog
         {
-            Filter = "Documentos Word (*.doc;*.docx)|*.doc;*.docx|PDF (*.pdf)|*.pdf|Todos los archivos (*.*)|*.*",
-            Title = "Seleccionar plantilla de documento"
+            Filter = $"Documentos admitidos|{todos}" +
+                     "|Word (*.doc;*.docx)|*.doc;*.docx" +
+                     "|PDF (*.pdf)|*.pdf" +
+                     "|Excel (*.xls;*.xlsx)|*.xls;*.xlsx" +
+                     "|Imágenes (*.png;*.jpg;*.jpeg;*.gif;*.bmp)|*.png;*.jpg;*.jpeg;*.gif;*.bmp" +
+                     "|Texto (*.txt)|*.txt",
+            Title = "Seleccionar archivo de la plantilla"
         };
 
         if (ofd.ShowDialog() == true)
         {
+            var ext = Path.GetExtension(ofd.FileName);
+            if (!PlantillaDocumento.ExtensionesPermitidas.Contains(ext))
+            {
+                MessageBox.Show(
+                    $"El tipo de archivo '{ext}' no está permitido.\n\nTipos permitidos: {string.Join(", ", PlantillaDocumento.ExtensionesPermitidas)}",
+                    "Plantilla", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             _archivoBytes = File.ReadAllBytes(ofd.FileName);
             _nombreArchivo = Path.GetFileName(ofd.FileName);
             TxtArchivoSeleccionado.Text = _nombreArchivo;
@@ -96,6 +138,14 @@ public partial class PlantillaDialogWindow : Window
         {
             MessageBox.Show("El nombre es obligatorio.", "Plantilla", MessageBoxButton.OK, MessageBoxImage.Warning);
             TxtNombre.Focus();
+            return;
+        }
+
+        if (TipoDocumento == TipoDocumentoPlantilla.Otros && string.IsNullOrWhiteSpace(CmbTipoPersonalizado.Text))
+        {
+            MessageBox.Show("Indique el nombre del tipo de documento (o elija uno existente).", "Plantilla",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            CmbTipoPersonalizado.Focus();
             return;
         }
 

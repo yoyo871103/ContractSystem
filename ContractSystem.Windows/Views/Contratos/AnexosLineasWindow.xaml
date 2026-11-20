@@ -1,8 +1,9 @@
 <Window x:Class="ContractSystem.Windows.Views.Contratos.AnexosLineasWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ContractSystem.Windows.Views.Contratos"
         Title="Anexos y Líneas de Detalle"
-        Height="650" Width="900"
+        Height="760" Width="1000"
         MinHeight="550" MinWidth="750"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None" ResizeMode="CanResize"
@@ -66,8 +67,14 @@
                     </Grid>
                 </Border>
 
-                <!-- Panel derecho: Líneas del anexo seleccionado -->
-                <Border Grid.Column="1" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="4">
+                <!-- Panel derecho: Líneas del anexo seleccionado + sus adjuntos -->
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" MinHeight="200"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="200" MinHeight="110"/>
+                    </Grid.RowDefinitions>
+                <Border Grid.Row="0" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" CornerRadius="4">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -87,7 +94,8 @@
                                     Cursor="Hand" Click="BtnAgregarInline_Click"
                                     x:Name="BtnInline" IsEnabled="False"/>
                             <Button Content="Eliminar" Padding="10,4" Margin="6,0,0,0" FontSize="11"
-                                    Cursor="Hand" Click="BtnEliminarLinea_Click"/>
+                                    Cursor="Hand" Click="BtnEliminarLinea_Click"
+                                    x:Name="BtnEliminarLinea"/>
                         </StackPanel>
                         <DataGrid Grid.Row="2" x:Name="DgLineas" Margin="4"
                                   AutoGenerateColumns="False"
@@ -115,6 +123,16 @@
                         </Border>
                     </Grid>
                 </Border>
+
+                    <GridSplitter Grid.Row="1" Height="6" HorizontalAlignment="Stretch"
+                                  Background="Transparent" Cursor="SizeNS" ResizeDirection="Rows"
+                                  ResizeBehavior="PreviousAndNext"/>
+
+                    <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource BrushBorder}"
+                            BorderThickness="1" CornerRadius="4" Padding="8">
+                        <local:AdjuntosPanel x:Name="PanelAdjuntos"/>
+                    </Border>
+                </Grid>
             </Grid>
 
             <!-- Pie fijo -->

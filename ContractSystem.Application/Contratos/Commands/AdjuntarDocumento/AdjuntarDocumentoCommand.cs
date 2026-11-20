@@ -7,7 +7,9 @@ public record AdjuntarDocumentoCommand(
     int ContratoId,
     string NombreArchivo,
     string Objetivo,
-    byte[] Contenido) : IRequest<DocumentoAdjunto>;
+    byte[] Contenido,
+    int? FacturaId = null,
+    int? AnexoId = null) : IRequest<DocumentoAdjunto>;
 
 public class AdjuntarDocumentoCommandHandler : IRequestHandler<AdjuntarDocumentoCommand, DocumentoAdjunto>
 {
@@ -17,6 +19,12 @@ public class AdjuntarDocumentoCommandHandler : IRequestHandler<AdjuntarDocumento
 
     public async Task<DocumentoAdjunto> Handle(AdjuntarDocumentoCommand request, CancellationToken cancellationToken)
     {
+        if (request.FacturaId.HasValue && request.AnexoId.HasValue)
+            throw new InvalidOperationException("Un adjunto no puede asociarse a la vez a una factura y a un anexo.");
+
+        if (string.IsNullOrWhiteSpace(request.Objetivo))
+            throw new InvalidOperationException("El objetivo del adjunto es obligatorio.");
+
         var extension = Path.GetExtension(request.NombreArchivo);
 
         if (string.IsNullOrEmpty(extension))
@@ -33,6 +41,8 @@ public class AdjuntarDocumentoCommandHandler : IRequestHandler<AdjuntarDocumento
         var adjunto = new DocumentoAdjunto
         {
             ContratoId = request.ContratoId,
+            FacturaId = request.FacturaId,
+            AnexoId = request.AnexoId,
             NombreArchivo = Path.GetFileName(request.NombreArchivo),
             Extension = extension.ToLowerInvariant(),
             Objetivo = request.Objetivo.Trim(),

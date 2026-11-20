@@ -117,7 +117,9 @@
                           CanUserAddRows="False" CanUserDeleteRows="False"
                           SelectionMode="Single" SelectionUnit="FullRow"
                           HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                          BorderThickness="0">
+                          BorderThickness="0"
+                          MouseDoubleClick="DgFacturacionPorContrato_MouseDoubleClick"
+                          ToolTip="Doble clic para ver el detalle del contrato">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Número" Binding="{Binding Numero}" Width="130"/>
                         <DataGridTextColumn Header="Tipo" Binding="{Binding TipoDocumento}" Width="100"/>
@@ -284,7 +286,9 @@
                           CanUserAddRows="False" CanUserDeleteRows="False"
                           SelectionMode="Single" SelectionUnit="FullRow"
                           HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                          BorderThickness="0">
+                          BorderThickness="0"
+                          MouseDoubleClick="DgProximosAVencer_MouseDoubleClick"
+                          ToolTip="Doble clic para ver el detalle del contrato">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Número" Binding="{Binding Numero}" Width="130"/>
                         <DataGridTextColumn Header="Tipo" Binding="{Binding TipoDocumento}" Width="100"/>

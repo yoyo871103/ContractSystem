@@ -46,6 +46,7 @@ public sealed class PlantillaDocumentoStore : IPlantillaDocumentoStore
                 Id = e.Id,
                 Nombre = e.Nombre,
                 TipoDocumento = e.TipoDocumento,
+                TipoPersonalizado = e.TipoPersonalizado,
                 Rol = e.Rol,
                 NombreArchivo = e.NombreArchivo,
                 FechaCreacion = e.FechaCreacion,
@@ -54,6 +55,26 @@ public sealed class PlantillaDocumentoStore : IPlantillaDocumentoStore
             })
             .OrderBy(e => e.Nombre)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<string>> GetTiposPersonalizadosAsync(CancellationToken cancellationToken = default)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        if (context is not DatabaseApplicationDbContext db)
+            return Array.Empty<string>();
+
+        var tipos = await db.Set<PlantillaDocumento>()
+            .Where(e => e.TipoDocumento == TipoDocumentoPlantilla.Otros && e.TipoPersonalizado != null && e.TipoPersonalizado != "")
+            .Select(e => e.TipoPersonalizado!)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        // Distinct sin distinguir mayúsculas (SQLite y SQL Server difieren en collation).
+        return tipos
+            .GroupBy(t => t.Trim(), StringComparer.CurrentCultureIgnoreCase)
+            .Select(g => g.Key)
+            .OrderBy(t => t, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
     }
 
     public async Task<PlantillaDocumento> CreateAsync(PlantillaDocumento entity, CancellationToken cancellationToken = default)

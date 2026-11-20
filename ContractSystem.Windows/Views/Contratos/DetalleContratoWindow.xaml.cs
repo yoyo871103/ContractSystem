@@ -4,7 +4,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using ContractSystem.Application.Contratos;
 using ContractSystem.Application.Contratos.Queries.GetAnexosByContrato;
-using ContractSystem.Application.Contratos.Queries.GetDocumentosAdjuntos;
 using ContractSystem.Application.Contratos.Queries.GetFacturasByContrato;
 using ContractSystem.Application.Contratos.Queries.GetLineasByContrato;
 using ContractSystem.Application.Auth;
@@ -19,6 +18,7 @@ public partial class DetalleContratoWindow : Window
     private readonly ISender _sender;
     private readonly IAuthContext _authContext;
     private readonly Contrato _contrato;
+    private AdjuntosContrato? _adjuntos;
 
     public DetalleContratoWindow(ISender sender, Contrato contrato)
     {
@@ -28,6 +28,18 @@ public partial class DetalleContratoWindow : Window
         _contrato = contrato;
 
         CargarDatosGenerales();
+
+        PanelAdjuntos.Inicializar(sender, soloLectura: !_authContext.TienePermiso(Permissions.AdjuntosGestionar),
+            mostrarAsociacion: true);
+        PanelAdjuntos.TextoVacio = "Este contrato no tiene documentos adjuntos.";
+        PanelAdjuntos.Cargador = async () =>
+        {
+            _adjuntos = await AdjuntosContrato.CargarAsync(_sender, _contrato.Id, _contrato.Numero, _contrato.TipoDocumento);
+            return _adjuntos.Adjuntos;
+        };
+        PanelAdjuntos.Destinos = () => _adjuntos?.Destinos ?? Array.Empty<AdjuntoDestino>();
+        PanelAdjuntos.DestinoPorDefecto = () => _adjuntos?.Destinos.FirstOrDefault();
+
         Loaded += async (_, _) => await CargarDetallesAsync();
 
         // Mostrar botón Facturas solo si no es Marco
@@ -139,17 +151,8 @@ public partial class DetalleContratoWindow : Window
                 }
             }
 
-            // Cargar adjuntos
-            var adjuntos = await _sender.Send(new GetDocumentosAdjuntosQuery(_contrato.Id));
-            var adjuntoItems = adjuntos.Select(a => new
-            {
-                a.NombreArchivo,
-                a.Extension,
-                a.Objetivo,
-                TamanioTexto = FormatBytes(a.TamanioBytes),
-                a.FechaCarga
-            }).ToList();
-            DgAdjuntos.ItemsSource = adjuntoItems;
+            // Cargar adjuntos (todos, indicando a qué documento pertenece cada uno)
+            await PanelAdjuntos.RecargarAsync();
         }
         catch (Exception ex)
         {
@@ -158,12 +161,20 @@ public partial class DetalleContratoWindow : Window
         }
     }
 
-    private static string FormatBytes(long bytes) => bytes switch
+    private void DgFacturas_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
-        < 1024 => $"{bytes} B",
-        < 1024 * 1024 => $"{bytes / 1024.0:N1} KB",
-        _ => $"{bytes / (1024.0 * 1024.0):N1} MB"
-    };
+        e.Handled = true;
+        if (DgFacturas.SelectedItem is not Factura factura) return;
+        if (e.OriginalSource is FrameworkElement fe && fe.DataContext is not Factura) return;
+
+        var window = new DocumentosAdjuntosWindow(_sender, _contrato.Id, factura.Id, factura.Numero,
+            readOnly: !_authContext.TienePermiso(Permissions.AdjuntosGestionar))
+        {
+            Owner = this
+        };
+        window.ShowDialog();
+        _ = CargarDetallesAsync();
+    }
 
     private void BtnAbrirAnexos_Click(object sender, RoutedEventArgs e)
     {
@@ -177,7 +188,8 @@ public partial class DetalleContratoWindow : Window
     private void BtnAbrirAdjuntos_Click(object sender, RoutedEventArgs e)
     {
         var window = new DocumentosAdjuntosWindow(_sender, _contrato.Id, _contrato.Numero,
-            readOnly: !_authContext.TienePermiso(Permissions.AdjuntosGestionar));
+            readOnly: !_authContext.TienePermiso(Permissions.AdjuntosGestionar),
+            tipoDocumento: _contrato.TipoDocumento);
         window.Owner = this;
         window.ShowDialog();
         _ = CargarDetallesAsync();
@@ -204,9 +216,26 @@ public partial class DetalleContratoWindow : Window
 
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        // No arrastrar la ventana al hacer clic dentro de las listas.
+        if (e.OriginalSource is DependencyObject d && (EsDescendiente(d, PanelAdjuntos) || EsDescendiente(d, DgFacturas)))
+            return;
+
         if (e.ClickCount == 2)
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         else if (e.LeftButton == MouseButtonState.Pressed)
             DragMove();
+    }
+
+    private static bool EsDescendiente(DependencyObject hijo, DependencyObject padre)
+    {
+        var actual = hijo;
+        while (actual is not null)
+        {
+            if (ReferenceEquals(actual, padre)) return true;
+            actual = actual is System.Windows.Media.Visual
+                ? System.Windows.Media.VisualTreeHelper.GetParent(actual)
+                : LogicalTreeHelper.GetParent(actual);
+        }
+        return false;
     }
 }

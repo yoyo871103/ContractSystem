@@ -63,7 +63,9 @@
                       SelectionMode="Single" SelectionUnit="FullRow"
                       HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                       BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
-                      MinHeight="200" Margin="0,0,0,8">
+                      MinHeight="200" Margin="0,0,0,8"
+                      MouseDoubleClick="GridUsuarios_MouseDoubleClick"
+                      ToolTip="Doble clic para editar el usuario">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Usuario" Binding="{Binding NombreUsuario}" Width="120"/>
                     <DataGridTextColumn Header="Nombre" Binding="{Binding NombreParaMostrar}" Width="*"/>

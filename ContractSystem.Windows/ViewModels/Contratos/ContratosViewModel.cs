@@ -360,7 +360,8 @@ public sealed partial class ContratosViewModel : ObservableObject
         if (Seleccionado is null) return;
 
         var window = new Views.Contratos.DocumentosAdjuntosWindow(_sender, Seleccionado.Id, Seleccionado.Numero,
-            readOnly: !_authContext.TienePermiso(Permissions.AdjuntosGestionar));
+            readOnly: !_authContext.TienePermiso(Permissions.AdjuntosGestionar),
+            tipoDocumento: Seleccionado.TipoDocumento);
         window.Owner = System.Windows.Application.Current.MainWindow;
         window.ShowDialog();
     }

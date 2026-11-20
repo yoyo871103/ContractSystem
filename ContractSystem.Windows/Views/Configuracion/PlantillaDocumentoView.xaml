@@ -16,6 +16,9 @@
             <Button Content="Editar" Padding="12,6" Margin="8,0,0,0"
                     Command="{Binding EditarCommand}"
                     ToolTip="Editar la plantilla seleccionada"/>
+            <Button Content="Ver" Padding="12,6" Margin="8,0,0,0"
+                    Command="{Binding VerCommand}"
+                    ToolTip="Ver la plantilla sin descargarla (también con doble clic)"/>
             <Button Content="Descargar" Padding="12,6" Margin="8,0,0,0"
                     Command="{Binding DescargarCommand}"
                     ToolTip="Descargar el archivo de la plantilla seleccionada"/>
@@ -31,12 +34,13 @@
                   SelectionMode="Single" SelectionUnit="FullRow"
                   HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                   BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
-                  MinHeight="200">
+                  MinHeight="200"
+                  MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*"/>
-                <DataGridTextColumn Header="Tipo" Binding="{Binding TipoDocumento}" Width="90"/>
+                <DataGridTextColumn Header="Tipo" Binding="{Binding TipoDescripcion}" Width="140"/>
                 <DataGridTextColumn Header="Rol" Binding="{Binding Rol}" Width="80"/>
-                <DataGridTextColumn Header="Archivo" Binding="{Binding NombreArchivo}" Width="150"/>
+                <DataGridTextColumn Header="Archivo" Binding="{Binding NombreArchivo}" Width="180"/>
                 <DataGridTextColumn Header="Fecha" Binding="{Binding FechaCreacion, StringFormat=dd/MM/yyyy}" Width="90"/>
                 <DataGridCheckBoxColumn Header="Legal" Binding="{Binding RevisadoPorLegal}" Width="50"/>
             </DataGrid.Columns>

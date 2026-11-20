@@ -308,6 +308,9 @@ namespace ContractSystem.Infrastructure.Migrations
                         .HasColumnType("TEXT");
                     b.Property<int>("TipoDocumento")
                         .HasColumnType("INTEGER");
+                    b.Property<string>("TipoPersonalizado")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
                     b.Property<int>("Rol")
                         .HasColumnType("INTEGER");
                     b.Property<byte[]>("Archivo")
@@ -608,8 +611,11 @@ namespace ContractSystem.Infrastructure.Migrations
                     b.Property<string>("ModificadoPor")
                         .HasMaxLength(150)
                         .HasColumnType("TEXT");
+                    b.Property<int?>("AnexoId")
+                        .HasColumnType("INTEGER");
                     b.HasKey("Id");
                     b.HasIndex("ContratoId");
+                    b.HasIndex("AnexoId");
                     b.ToTable("DocumentosAdjuntos");
                 });
 
@@ -761,7 +767,12 @@ namespace ContractSystem.Infrastructure.Migrations
                         .HasForeignKey("ContratoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                    b.HasOne("ContractSystem.Domain.Contratos.Anexo", "Anexo")
+                        .WithMany("DocumentosAdjuntos")
+                        .HasForeignKey("AnexoId")
+                        .OnDelete(DeleteBehavior.Restrict);
                     b.Navigation("Contrato");
+                    b.Navigation("Anexo");
                 });
 
             modelBuilder.Entity("ContractSystem.Domain.Contratos.HistorialCambio", b =>
@@ -806,6 +817,7 @@ namespace ContractSystem.Infrastructure.Migrations
             modelBuilder.Entity("ContractSystem.Domain.Contratos.Anexo", b =>
                 {
                     b.Navigation("Lineas");
+                    b.Navigation("DocumentosAdjuntos");
                 });
 #pragma warning restore 612, 618
         }

@@ -54,7 +54,9 @@
                       CanUserAddRows="False" CanUserDeleteRows="False"
                       SelectionMode="Single" SelectionUnit="FullRow"
                       HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                      BorderBrush="{StaticResource BrushBorder}" BorderThickness="1">
+                      BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                      MouseDoubleClick="DgHistorial_MouseDoubleClick"
+                      ToolTip="Doble clic para ver el detalle del cambio">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Fecha" Binding="{Binding FechaHora, StringFormat=dd/MM/yyyy HH:mm}" Width="130"/>
                     <DataGridTextColumn Header="Tipo" Binding="{Binding TipoCambio}" Width="80"/>

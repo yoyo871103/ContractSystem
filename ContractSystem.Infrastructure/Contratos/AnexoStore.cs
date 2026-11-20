@@ -66,6 +66,13 @@ public sealed class AnexoStore : IAnexoStore
         var entity = await db.Set<Anexo>().FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
         if (entity is null) return;
 
+        // Borrar primero los adjuntos asociados al anexo (FK Restrict, no cascadea por DB).
+        var adjuntos = await db.Set<DocumentoAdjunto>()
+            .Where(d => d.AnexoId == id)
+            .ToListAsync(cancellationToken);
+        if (adjuntos.Count > 0)
+            db.Set<DocumentoAdjunto>().RemoveRange(adjuntos);
+
         db.Set<Anexo>().Remove(entity);
         await db.SaveChangesAsync(cancellationToken);
     }

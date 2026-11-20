@@ -113,17 +113,27 @@ public static class LicenciaKeyHelper
 
     private static string UnformatKey(string formatted)
     {
-        var clean = formatted.Replace("-", "").Replace(" ", "");
-        // Restaurar base64 chars
-        clean = clean.Replace("_", "/");
-        // Re-add padding if needed
-        var raw = clean;
-        // Find the dot separator
-        var dotIdx = raw.IndexOf('.');
-        if (dotIdx < 0) return raw;
+        // FormatKey hace dos cosas conflictivas con '-':
+        //   1) sustituye '+' (base64) por '-'
+        //   2) inserta '-' como separador cada 5 chars del contenido limpio
+        // Para invertirlo correctamente quitamos primero los separadores por POSICIÓN
+        // (tras quitar espacios), no por valor; luego convertimos los '-' restantes a '+'.
+        var noSpaces = formatted.Replace(" ", "");
+        var sb = new StringBuilder(noSpaces.Length);
+        for (int i = 0; i < noSpaces.Length; i++)
+        {
+            // Los separadores quedaron en las posiciones 5, 11, 17, 23, ... del output
+            // (es decir, i >= 5 y (i - 5) % 6 == 0). Solo se omiten si efectivamente son '-'.
+            if (i >= 5 && (i - 5) % 6 == 0 && noSpaces[i] == '-') continue;
+            sb.Append(noSpaces[i]);
+        }
+        var clean = sb.ToString().Replace('-', '+').Replace('_', '/');
 
-        var part1 = PadBase64(raw[..dotIdx]);
-        var part2 = PadBase64(raw[(dotIdx + 1)..]);
+        var dotIdx = clean.IndexOf('.');
+        if (dotIdx < 0) return clean;
+
+        var part1 = PadBase64(clean[..dotIdx]);
+        var part2 = PadBase64(clean[(dotIdx + 1)..]);
         return part1 + "." + part2;
     }
 

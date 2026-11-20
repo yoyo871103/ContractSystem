@@ -60,10 +60,38 @@ public partial class ContratosView : UserControl
         };
     }
 
+    /// <summary>
+    /// Doble clic sobre un contrato: abre el formulario de edición (con accesos a Anexos/Líneas,
+    /// Facturas y Adjuntos). Si el usuario no puede editar, abre la ficha de detalle (mismos accesos).
+    /// </summary>
     private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
-        if (DataContext is ContratosViewModel vm && vm.EditarCommand.CanExecute(null))
+        // Ignorar doble clic en cabeceras / zona vacía.
+        if (e.OriginalSource is not FrameworkElement fe || fe.DataContext is not Contrato) return;
+        if (DataContext is not ContratosViewModel vm || vm.Seleccionado is null) return;
+
+        if (vm.EditarCommand.CanExecute(null))
             vm.EditarCommand.Execute(null);
+        else
+            AbrirDetalle(vm.Seleccionado);
+    }
+
+    private void CtxVerDetalle_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is ContratosViewModel { Seleccionado: { } contrato })
+            AbrirDetalle(contrato);
+    }
+
+    private void AbrirDetalle(Contrato contrato)
+    {
+        var mediator = App.Services.GetRequiredService<ISender>();
+        var window = new DetalleContratoWindow(mediator, contrato) { Owner = Window.GetWindow(this) };
+        window.ShowDialog();
+    }
+
+    private void CtxRestablecerColumnas_Click(object sender, RoutedEventArgs e)
+    {
+        Shared.Controls.DataGridColumnPreferences.Reset(DgContratos);
     }
 
     private void CtxVerMapa_Click(object sender, RoutedEventArgs e)
