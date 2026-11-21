@@ -181,6 +181,31 @@
                                            Placeholder="Buscar por nombre, código o NIT…"
                                            ShowAddButton="False"/>
 
+            <!-- Acción principal: llenar todo de una vez -->
+            <Button Command="{Binding AutollenarCommand}" Style="{StaticResource BotonBloque}" Padding="10,9" Margin="0,0,0,4"
+                    ToolTip="Busca en el documento abierto en Word los espacios a llenar (NIT, domicilio, representante, cuenta…) y los rellena con sus datos y los de la otra parte, tras su revisión">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="Autollenar la proforma"/>
+                </StackPanel>
+            </Button>
+            <Button Content="Quitar resaltado amarillo" Padding="8,4" Margin="0,0,0,4" Cursor="Hand" FontSize="11"
+                    Command="{Binding QuitarResaltadoCommand}"
+                    ToolTip="Quita el resaltado de lo escrito por el autollenado (no toca otros resaltados del documento)">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HayResaltado}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <TextBlock Text="…o coloque el cursor en Word y use los datos de abajo." FontSize="11" Margin="0,0,0,10"
+                       Foreground="{StaticResource BrushTextInactive}"/>
+
             <TextBlock Text="Tipo de contrato (denominación de las partes)" Style="{StaticResource Etiqueta}"/>
             <ComboBox ItemsSource="{Binding ParesDenominaciones}" SelectedItem="{Binding ParDenominaciones}"
                       Padding="6,4" Margin="0,0,0,6"/>

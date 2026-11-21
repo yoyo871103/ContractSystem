@@ -186,6 +186,76 @@ public sealed partial class PanelWordViewModel : ObservableObject
         }
     }
 
+    /// <summary>Datos de "Mis datos" o de "Otra parte" con el representante y la cuenta elegidos (null si no hay ficha).</summary>
+    internal ContextoParte? ContextoDe(bool mia) => (mia ? Mia : Otra).Contexto();
+
+    /// <summary>Hay datos escritos por el autollenado aún resaltados en Word.</summary>
+    [ObservableProperty]
+    private bool _hayResaltado;
+
+    /// <summary>
+    /// Lee el documento activo en Word, reconoce los huecos y a qué parte pertenecen, muestra la revisión
+    /// y escribe lo confirmado (resaltado en amarillo).
+    /// </summary>
+    [RelayCommand]
+    private void Autollenar()
+    {
+        var (lectura, error) = WordInterop.LeerDocumentoActivo();
+        if (lectura is null)
+        {
+            MostrarError(error ?? "No se pudo leer el documento.");
+            return;
+        }
+
+        var analisis = AnalizadorProforma.Analizar(lectura.Parrafos);
+        if (analisis.Huecos.Count == 0)
+        {
+            MostrarError($"No encontré en «{lectura.Nombre}» espacios para llenar que reconozca (líneas ____ o puntos …. junto a «NIT», «domicilio», «representada por»…). Use los botones de abajo para insertar donde esté el cursor.");
+            return;
+        }
+
+        // Las denominaciones del propio documento (EL ARRENDADOR, LA COMPRADORA…) pasan a ser las del panel.
+        var miDenominacion = SoyProveedor ? analisis.DenominacionProveedor : analisis.DenominacionCliente;
+        var suDenominacion = SoyProveedor ? analisis.DenominacionCliente : analisis.DenominacionProveedor;
+        if (miDenominacion is not null) DenominacionMia = miDenominacion;
+        if (suDenominacion is not null) DenominacionOtra = suDenominacion;
+
+        var revision = new RevisionAutollenadoViewModel(this, lectura, analisis);
+        var ventana = new Views.LlenadoContratos.RevisionAutollenadoWindow(revision)
+        {
+            Owner = System.Windows.Application.Current.Windows.OfType<Views.LlenadoContratos.PanelWordWindow>().FirstOrDefault()
+        };
+        if (ventana.ShowDialog() != true)
+        {
+            EstadoEsError = false;
+            Estado = "Autollenado cancelado: no se escribió nada.";
+            return;
+        }
+
+        var resultado = WordInterop.AplicarAutollenado(lectura.Documento, revision.Reemplazos());
+        if (!resultado.Ok)
+        {
+            MostrarError(resultado.Mensaje ?? "No se pudo completar el autollenado.");
+            return;
+        }
+
+        HayResaltado = resultado.Aplicados > 0;
+        EstadoEsError = resultado.Omitidos > 0;
+        Estado = $"Se llenaron {resultado.Aplicados} datos en «{lectura.Nombre}» (resaltados en amarillo; Ctrl+Z en Word los deshace todos)."
+                 + (resultado.Omitidos > 0
+                     ? $" {resultado.Omitidos} no se escribieron porque esa parte del documento cambió después de analizarla: vuelva a pulsar «Autollenar»."
+                     : " Revíselos y pulse «Quitar resaltado» al terminar.");
+    }
+
+    [RelayCommand]
+    private void QuitarResaltado()
+    {
+        var resultado = WordInterop.QuitarResaltado();
+        HayResaltado = false;
+        EstadoEsError = !resultado.Ok;
+        Estado = resultado.Ok ? $"Resaltado quitado en «{resultado.Documento}»." : resultado.Mensaje ?? string.Empty;
+    }
+
     internal string Denominacion(ParteViewModel parte) =>
         ReferenceEquals(parte, Mia) ? DenominacionMia : DenominacionOtra;
 
@@ -286,7 +356,7 @@ public sealed partial class ParteViewModel : ObservableObject
             Cuenta = Ficha.CuentaPara(moneda);
     }
 
-    private ContextoParte? Contexto() =>
+    internal ContextoParte? Contexto() =>
         Ficha is null ? null : new ContextoParte(Ficha, Representante, Cuenta, _panel.Denominacion(this));
 
     private void Recalcular()
