@@ -3,7 +3,15 @@ using System.ComponentModel;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Windows;
+using ContractSystem.Application.Auth;
 using ContractSystem.Application.Business.Queries.GetBusinessInfo;
+using ContractSystem.Application.Contratos.Commands.AdjuntarDocumento;
+using ContractSystem.Application.Contratos.Commands.ReemplazarContenidoAdjunto;
+using ContractSystem.Application.Contratos.Queries.GetAllContratos;
+using ContractSystem.Application.Contratos.Queries.GetContratoById;
+using ContractSystem.Application.Contratos.Queries.GetDocumentoAdjuntoById;
+using ContractSystem.Application.Contratos.Queries.GetDocumentosAdjuntos;
 using ContractSystem.Application.LlenadoContratos;
 using ContractSystem.Application.Nomencladores.Queries.GetAllTerceros;
 using ContractSystem.Application.Nomencladores.Queries.GetTerceroById;
@@ -12,6 +20,7 @@ using ContractSystem.Domain.DatosLegales;
 using ContractSystem.Domain.Nomencladores;
 using ContractSystem.Windows.Services;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 
 namespace ContractSystem.Windows.ViewModels.LlenadoContratos;
@@ -23,6 +32,7 @@ namespace ContractSystem.Windows.ViewModels.LlenadoContratos;
 public sealed partial class PanelWordViewModel : ObservableObject
 {
     private readonly ISender _sender;
+    private Contrato? _contrato;
     private string _plantillaComparecencia = BloquesContrato.ComparecenciaPredeterminada;
     private string _plantillaFirma = BloquesContrato.FirmaPredeterminada;
 
@@ -153,6 +163,7 @@ public sealed partial class PanelWordViewModel : ObservableObject
     {
         if (contrato is null) return;
 
+        _contrato = contrato;
         ContratoDescripcion = $"Contrato {contrato.Numero}";
         SoyProveedor = contrato.Rol == RolContrato.Proveedor;
 
@@ -223,7 +234,7 @@ public sealed partial class PanelWordViewModel : ObservableObject
         var revision = new RevisionAutollenadoViewModel(this, lectura, analisis);
         var ventana = new Views.LlenadoContratos.RevisionAutollenadoWindow(revision)
         {
-            Owner = System.Windows.Application.Current.Windows.OfType<Views.LlenadoContratos.PanelWordWindow>().FirstOrDefault()
+            Owner = VentanaPanel()
         };
         if (ventana.ShowDialog() != true)
         {
@@ -255,6 +266,140 @@ public sealed partial class PanelWordViewModel : ObservableObject
         EstadoEsError = !resultado.Ok;
         Estado = resultado.Ok ? $"Resaltado quitado en «{resultado.Documento}»." : resultado.Mensaje ?? string.Empty;
     }
+
+    private const string ObjetivoAdjunto = "Contrato llenado en Word";
+
+    /// <summary>
+    /// Guarda el documento activo de Word en los adjuntos del contrato: actualiza el adjunto del que se abrió
+    /// (o uno con el mismo nombre) o lo agrega como adjunto nuevo. Si el panel no tiene contrato, se elige.
+    /// </summary>
+    [RelayCommand]
+    private async Task GuardarEnContratoAsync()
+    {
+        try
+        {
+            var auth = App.Services.GetRequiredService<IAuthContext>();
+            if (!auth.TienePermiso(Permissions.AdjuntosGestionar))
+            {
+                MostrarError("Su usuario no tiene permiso para adjuntar documentos a los contratos.");
+                return;
+            }
+
+            var (doc, error) = WordInterop.EstadoDocumentoActivo();
+            if (doc is null)
+            {
+                MostrarError(error ?? "No se pudo consultar el documento de Word.");
+                return;
+            }
+
+            // 1) Contrato y adjunto de destino.
+            var origen = ContratosEnWord.AdjuntoDeOrigen(doc.Documento) is int origenId
+                ? await _sender.Send(new GetDocumentoAdjuntoByIdQuery(origenId))
+                : null;
+
+            Contrato? contrato = _contrato;
+            if (origen is not null && origen.ContratoId != contrato?.Id)
+                contrato = await _sender.Send(new GetContratoByIdQuery(origen.ContratoId));
+            contrato ??= ElegirContrato(await _sender.Send(new GetAllContratosQuery()), doc.Nombre);
+            if (contrato is null)
+            {
+                if (!EstadoEsError)
+                    Estado = "No se guardó: no se eligió contrato.";
+                return;
+            }
+
+            var nombreArchivo = ContratosEnWord.EsWord(System.IO.Path.GetExtension(doc.Nombre))
+                ? doc.Nombre
+                : System.IO.Path.GetFileNameWithoutExtension(doc.Nombre) + ".docx";
+
+            var reemplazar = origen;
+            if (origen is not null)
+            {
+                var r = Preguntar($"Este documento se abrió desde el adjunto «{origen.NombreArchivo}» del contrato {contrato.Numero}.\n\n" +
+                                  "Sí: actualizar ese adjunto con esta versión.\nNo: guardarlo como un adjunto nuevo.");
+                if (r == MessageBoxResult.Cancel) return;
+                if (r == MessageBoxResult.No) reemplazar = null;
+            }
+            else
+            {
+                var mismoNombre = (await _sender.Send(new GetDocumentosAdjuntosQuery(contrato.Id)))
+                    .LastOrDefault(a => string.Equals(a.NombreArchivo, nombreArchivo, StringComparison.OrdinalIgnoreCase));
+                if (mismoNombre is not null)
+                {
+                    var r = Preguntar($"El contrato {contrato.Numero} ya tiene un adjunto «{mismoNombre.NombreArchivo}» (del {mismoNombre.FechaCarga.ToLocalTime():dd/MM/yyyy HH:mm}).\n\n" +
+                                      "Sí: sustituirlo por esta versión.\nNo: guardar esta como un adjunto más.");
+                    if (r == MessageBoxResult.Cancel) return;
+                    if (r == MessageBoxResult.Yes) reemplazar = mismoNombre;
+                }
+            }
+
+            // 2) El resaltado del autollenado es una ayuda para revisar: normalmente no debe quedar en el contrato.
+            var quitarResaltado = false;
+            if (doc.TieneResaltado)
+            {
+                var r = Preguntar("El documento aún tiene en amarillo los datos escritos por el autollenado.\n\n" +
+                                  "Sí: quitar el resaltado y guardar.\nNo: guardar con el resaltado.");
+                if (r == MessageBoxResult.Cancel) return;
+                quitarResaltado = r == MessageBoxResult.Yes;
+            }
+
+            // 3) Word guarda el archivo y se lee su contenido.
+            var carpetaCopia = System.IO.Path.Combine(ContratosEnWord.CarpetaTrabajo, "nuevos");
+            var (ruta, errorGuardar) = WordInterop.GuardarDocumentoActivo(doc.Documento, quitarResaltado, carpetaCopia);
+            if (ruta is null)
+            {
+                MostrarError(errorGuardar ?? "Word no pudo guardar el documento.");
+                return;
+            }
+            if (quitarResaltado) HayResaltado = false;
+
+            var contenido = await ContratosEnWord.LeerAsync(ruta);
+            if (reemplazar is not null)
+                await _sender.Send(new ReemplazarContenidoAdjuntoCommand(reemplazar.Id, contenido));
+            else
+                await _sender.Send(new AdjuntarDocumentoCommand(contrato.Id, nombreArchivo, ObjetivoAdjunto, contenido));
+
+            ContratosEnWord.NotificarAdjuntosCambiados(contrato.Id);
+            if (_contrato?.Id != contrato.Id)
+                await AplicarContratoAsync(contrato);
+
+            EstadoEsError = false;
+            Estado = (reemplazar is not null
+                         ? $"Actualizado el adjunto «{reemplazar.NombreArchivo}» del contrato {contrato.Numero}."
+                         : $"Guardado «{nombreArchivo}» en los adjuntos del contrato {contrato.Numero}.")
+                     + (string.Equals(ruta, doc.Documento, StringComparison.OrdinalIgnoreCase)
+                         ? string.Empty
+                         : " Word lo guardó como .docx en la carpeta de trabajo de la aplicación y sigue con esa copia.");
+        }
+        catch (Exception ex)
+        {
+            MostrarError("No se pudo guardar en el contrato: " + ex.Message);
+        }
+    }
+
+    private Contrato? ElegirContrato(IReadOnlyList<Contrato> contratos, string documento)
+    {
+        if (contratos.Count == 0)
+        {
+            MostrarError("No hay contratos registrados. Cree el contrato y vuelva a pulsar «Guardar en el contrato».");
+            return null;
+        }
+
+        EstadoEsError = false;
+        var ventana = new Views.LlenadoContratos.ElegirContratoWindow(contratos, documento, TerceroSeleccionado?.Id, TerceroSeleccionado?.Nombre)
+        {
+            Owner = VentanaPanel()
+        };
+        return ventana.ShowDialog() == true ? ventana.Seleccionado : null;
+    }
+
+    private static MessageBoxResult Preguntar(string mensaje) =>
+        VentanaPanel() is { } panel
+            ? MessageBox.Show(panel, mensaje, "Guardar en el contrato", MessageBoxButton.YesNoCancel, MessageBoxImage.Question)
+            : MessageBox.Show(mensaje, "Guardar en el contrato", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+    private static Window? VentanaPanel() =>
+        System.Windows.Application.Current.Windows.OfType<Views.LlenadoContratos.PanelWordWindow>().FirstOrDefault();
 
     internal string Denominacion(ParteViewModel parte) =>
         ReferenceEquals(parte, Mia) ? DenominacionMia : DenominacionOtra;

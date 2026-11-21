@@ -5,6 +5,8 @@ using System.Windows.Input;
 using ContractSystem.Application.Contratos.Commands.AdjuntarDocumento;
 using ContractSystem.Application.Contratos.Commands.EliminarDocumentoAdjunto;
 using ContractSystem.Application.Contratos.Queries.DescargarDocumentoAdjunto;
+using ContractSystem.Application.Contratos.Queries.GetContratoById;
+using ContractSystem.Windows.Services;
 using MediatR;
 using Microsoft.Win32;
 
@@ -25,6 +27,17 @@ public partial class AdjuntosPanel : UserControl
     {
         InitializeComponent();
         ActualizarBotones();
+
+        // Si se guarda un documento de Word en un contrato desde el panel, la lista se actualiza sola.
+        Loaded += (_, _) => ContratosEnWord.AdjuntosCambiados += OnAdjuntosCambiadosDesdeWord;
+        Unloaded += (_, _) => ContratosEnWord.AdjuntosCambiados -= OnAdjuntosCambiadosDesdeWord;
+    }
+
+    private async void OnAdjuntosCambiadosDesdeWord(object? sender, int contratoId)
+    {
+        if (Cargador is null || !IsEnabled) return;
+        await RecargarAsync();
+        AdjuntosCambiados?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>Carga la lista de adjuntos a mostrar.</summary>
@@ -162,6 +175,9 @@ public partial class AdjuntosPanel : UserControl
         BtnVer.IsEnabled = haySel;
         BtnDescargar.IsEnabled = haySel;
         BtnEliminar.IsEnabled = haySel && !_soloLectura;
+        var esWord = Seleccionado is { } sel && ContratosEnWord.EsWord(sel.Extension);
+        BtnLlenarWord.IsEnabled = esWord;
+        MnuLlenarWord.Visibility = esWord ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void DgAdjuntos_SelectionChanged(object sender, SelectionChangedEventArgs e) => ActualizarBotones();
@@ -236,6 +252,35 @@ public partial class AdjuntosPanel : UserControl
             Owner = Window.GetWindow(this)
         };
         visor.ShowDialog();
+    }
+
+    /// <summary>Abre el adjunto de Word para llenarlo, con el panel ya ajustado a su contrato.</summary>
+    private async void BtnLlenarWord_Click(object sender, RoutedEventArgs e)
+    {
+        if (_sender is null || Seleccionado is not { } item || !ContratosEnWord.EsWord(item.Extension)) return;
+
+        try
+        {
+            Mouse.OverrideCursor = Cursors.Wait;
+            var resultado = await ContratosEnWord.AbrirAdjuntoAsync(_sender, item.Id, item.NombreArchivo);
+            if (!resultado.Ok)
+            {
+                MessageBox.Show(resultado.Mensaje, "Llenar en Word", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var contrato = await _sender.Send(new GetContratoByIdQuery(item.ContratoId));
+            LlenadoContratos.PanelWordWindow.Mostrar(contrato);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("No se pudo abrir el documento: " + ex.Message, "Llenar en Word",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            Mouse.OverrideCursor = null;
+        }
     }
 
     private async void BtnDescargar_Click(object sender, RoutedEventArgs e)

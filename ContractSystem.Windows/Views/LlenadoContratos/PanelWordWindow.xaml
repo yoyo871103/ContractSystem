@@ -249,6 +249,16 @@
             </TextBlock>
         </Border>
 
+        <!-- Pie: guardar el documento llenado en el contrato -->
+        <Button DockPanel.Dock="Bottom" Padding="10,7" Margin="0,8,0,0" Cursor="Hand"
+                Command="{Binding GuardarEnContratoCommand}"
+                ToolTip="Guarda el documento de Word en los adjuntos del contrato (actualiza el adjunto si lo abrió desde el contrato)">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="Guardar en el contrato" FontWeight="SemiBold"/>
+            </StackPanel>
+        </Button>
+
         <!-- Datos de cada parte -->
         <TabControl Background="Transparent">
             <TabItem Header="Mis datos" Content="{Binding Mia}" ContentTemplate="{StaticResource PlantillaParte}"/>

@@ -148,6 +148,22 @@ public sealed class DocumentoAdjuntoStore : IDocumentoAdjuntoStore
         await db.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<bool> ReemplazarContenidoAsync(int id, byte[] contenido, CancellationToken cancellationToken = default)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        if (context is not DatabaseApplicationDbContext db)
+            throw new InvalidOperationException("No se pudo crear el contexto de base de datos.");
+
+        var entity = await db.Set<DocumentoAdjunto>().FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+        if (entity is null) return false;
+
+        entity.Contenido = contenido;
+        entity.TamanioBytes = contenido.LongLength;
+        entity.FechaCarga = DateTime.UtcNow;
+        await db.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
     public async Task DeleteAsync(DocumentoAdjunto adjunto, CancellationToken cancellationToken = default)
     {
         using var context = _contextFactory.CreateDbContext();

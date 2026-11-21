@@ -1,0 +1,46 @@
+<Window x:Class="ContractSystem.Windows.Views.LlenadoContratos.ElegirContratoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Guardar en el contrato"
+        Width="560" Height="520" MinWidth="420" MinHeight="320"
+        WindowStartupLocation="CenterOwner" Topmost="True" ShowInTaskbar="False"
+        Background="{StaticResource BrushBackground}">
+    <DockPanel Margin="16">
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+            <TextBlock Text="¿En qué contrato se guarda el documento?" FontSize="14" FontWeight="SemiBold"/>
+            <TextBlock x:Name="TxtDocumento" FontSize="11" Foreground="{StaticResource BrushTextInactive}"
+                       TextWrapping="Wrap" Margin="0,4,0,8"/>
+            <TextBox x:Name="TxtBuscar" Padding="6,5" TextChanged="TxtBuscar_TextChanged"
+                     ToolTip="Buscar por número, objeto u otra parte"/>
+            <CheckBox x:Name="ChkSoloTercero" Margin="0,6,0,0" Checked="Filtro_Changed" Unchecked="Filtro_Changed"/>
+        </StackPanel>
+
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="Cancelar" Padding="16,8" Margin="0,0,8,0" IsCancel="True" Cursor="Hand"/>
+            <Button x:Name="BtnGuardar" Content="Guardar aquí" Padding="16,8" IsDefault="True" Cursor="Hand" IsEnabled="False"
+                    Background="{StaticResource BrushAccent}" Foreground="White" BorderThickness="0" FontWeight="SemiBold"
+                    Click="BtnGuardar_Click"/>
+        </StackPanel>
+
+        <Grid>
+            <ListBox x:Name="LstContratos" SelectionChanged="LstContratos_SelectionChanged"
+                     MouseDoubleClick="LstContratos_MouseDoubleClick"
+                     BorderBrush="{StaticResource BrushBorder}" HorizontalContentAlignment="Stretch">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="2,4">
+                            <TextBlock>
+                                <Run Text="{Binding Numero, Mode=OneWay}" FontWeight="SemiBold"/>
+                                <Run Text="{Binding Detalle, Mode=OneWay}" Foreground="{StaticResource BrushTextInactive}"/>
+                            </TextBlock>
+                            <TextBlock Text="{Binding Objeto}" FontSize="11" TextTrimming="CharacterEllipsis"
+                                       Foreground="{StaticResource BrushTextInactive}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <TextBlock x:Name="TxtVacio" Text="No hay contratos que coincidan." Visibility="Collapsed" IsHitTestVisible="False"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource BrushTextInactive}"/>
+        </Grid>
+    </DockPanel>
+</Window>

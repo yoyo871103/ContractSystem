@@ -43,6 +43,13 @@
                         <TextBlock Text="Descargar" Margin="6,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+                <Button x:Name="BtnLlenarWord" Padding="10,5" Margin="6,0,0,0" Cursor="Hand" Click="BtnLlenarWord_Click"
+                        ToolTip="Abre este documento de Word con el panel para llenarlo con sus datos y los de la otra parte">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="12" VerticalAlignment="Center"/>
+                        <TextBlock Text="Llenar en Word" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
                 <Button x:Name="BtnEliminar" Padding="10,5" Margin="6,0,0,0" Cursor="Hand" Click="BtnEliminar_Click"
                         ToolTip="Eliminar el adjunto seleccionado">
                     <StackPanel Orientation="Horizontal">
@@ -75,6 +82,7 @@
                     <ContextMenu>
                         <MenuItem Header="Ver" Click="BtnVer_Click"/>
                         <MenuItem Header="Descargar..." Click="BtnDescargar_Click"/>
+                        <MenuItem x:Name="MnuLlenarWord" Header="Llenar en Word" Click="BtnLlenarWord_Click"/>
                         <MenuItem x:Name="MnuEliminar" Header="Eliminar" Click="BtnEliminar_Click"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>

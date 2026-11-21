@@ -18,6 +18,9 @@ public sealed record LecturaDocumento(string Documento, string Nombre, IReadOnly
 /// <summary>Cambio a aplicar: sustituir (o insertar si Longitud = 0) en una posición, con la comprobación del párrafo.</summary>
 public sealed record ReemplazoWord(int ParrafoInicio, int ParrafoFin, string ParrafoTexto, int Inicio, int Longitud, string TextoEsperado, string Prefijo, string Texto);
 
+/// <summary>Documento activo en Word y si conserva resaltado del autollenado.</summary>
+public sealed record EstadoDocumentoWord(string Documento, string Nombre, bool TieneResaltado);
+
 public sealed record ResultadoAutollenado(bool Ok, int Aplicados, int Omitidos, string? Mensaje)
 {
     public static ResultadoAutollenado Error(string mensaje) => new(false, 0, 0, mensaje);
@@ -242,30 +245,7 @@ public static class WordInterop
                     return ResultadoWord.Error("Word no tiene ningún documento abierto.");
 
                 dynamic doc = word.ActiveDocument;
-                dynamic marcadores = doc.Bookmarks;
-                bool mostrabaOcultos = marcadores.ShowHidden;
-                marcadores.ShowHidden = true;
-                var quitados = 0;
-                try
-                {
-                    for (int i = (int)marcadores.Count; i >= 1; i--)
-                    {
-                        dynamic m = marcadores[i];
-                        string nombre = m.Name;
-                        if (!nombre.StartsWith(PrefijoMarcador, StringComparison.Ordinal) &&
-                            !nombre.StartsWith(PrefijoMarcadorVisible, StringComparison.Ordinal))
-                            continue;
-                        m.Range.HighlightColorIndex = WdNoHighlight;
-                        m.Delete();
-                        quitados++;
-                    }
-                }
-                finally
-                {
-                    marcadores.ShowHidden = mostrabaOcultos;
-                }
-
-                return quitados > 0
+                return RecorrerMarcasAutollenado(doc, quitar: true) > 0
                     ? ResultadoWord.Bien((string)doc.Name)
                     : ResultadoWord.Error("No hay nada resaltado por el autollenado en este documento.");
             }) ?? ResultadoWord.Error("Word no está abierto.");
@@ -273,6 +253,135 @@ public static class WordInterop
         catch (Exception ex)
         {
             return ResultadoWord.Error("No se pudo quitar el resaltado: " + ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Cuenta (y, si se indica, quita el resaltado y borra) los marcadores que deja el autollenado.
+    /// </summary>
+    private static int RecorrerMarcasAutollenado(dynamic doc, bool quitar)
+    {
+        dynamic marcadores = doc.Bookmarks;
+        bool mostrabaOcultos = marcadores.ShowHidden;
+        marcadores.ShowHidden = true;
+        var cantidad = 0;
+        try
+        {
+            for (int i = (int)marcadores.Count; i >= 1; i--)
+            {
+                dynamic m = marcadores[i];
+                string nombre = m.Name;
+                if (!nombre.StartsWith(PrefijoMarcador, StringComparison.Ordinal) &&
+                    !nombre.StartsWith(PrefijoMarcadorVisible, StringComparison.Ordinal))
+                    continue;
+                if (quitar)
+                {
+                    m.Range.HighlightColorIndex = WdNoHighlight;
+                    m.Delete();
+                }
+                cantidad++;
+            }
+        }
+        finally
+        {
+            marcadores.ShowHidden = mostrabaOcultos;
+        }
+        return cantidad;
+    }
+
+    // ---------- Guardar ----------
+
+    private const int WdFormatXmlDocument = 16; // .docx
+    private const int WdAlertsNone = 0;
+
+    /// <summary>
+    /// Documento activo en Word: ruta completa, nombre y si conserva resaltado del autollenado.
+    /// </summary>
+    public static (EstadoDocumentoWord? Estado, string? Error) EstadoDocumentoActivo()
+    {
+        try
+        {
+            var estado = ConWord<EstadoDocumentoWord?>(word =>
+            {
+                if ((int)word.Documents.Count == 0) return null;
+                dynamic doc = word.ActiveDocument;
+                return new EstadoDocumentoWord((string)doc.FullName, (string)doc.Name, RecorrerMarcasAutollenado(doc, quitar: false) > 0);
+            });
+            return estado is null
+                ? (null, "Word no tiene ningún documento abierto. Abra en Word el contrato que quiere guardar.")
+                : (estado, null);
+        }
+        catch (COMException ex) when (ex.HResult is RpcECallRejected or RpcEServerCallRetryLater)
+        {
+            return (null, "Word está ocupado (puede haber un cuadro de diálogo abierto). Ciérrelo e inténtelo de nuevo.");
+        }
+        catch (Exception ex)
+        {
+            return (null, "No se pudo consultar el documento de Word: " + ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Guarda el documento activo (si sigue siendo <paramref name="documento"/>) y devuelve la ruta del archivo guardado.
+    /// Se guarda en su sitio; si nunca se guardó, es de solo lectura, está en la nube o su formato no es .doc/.docx,
+    /// se guarda como .docx en <paramref name="carpetaAlternativa"/> (y Word pasa a trabajar con esa copia).
+    /// </summary>
+    public static (string? Ruta, string? Error) GuardarDocumentoActivo(string documento, bool quitarResaltado, string carpetaAlternativa)
+    {
+        try
+        {
+            var resultado = ConWord<(string?, string?)>(word =>
+            {
+                if ((int)word.Documents.Count == 0 || !string.Equals((string)word.ActiveDocument.FullName, documento, StringComparison.OrdinalIgnoreCase))
+                    return (null, "El documento activo en Word ya no es el mismo. Actívelo y vuelva a pulsar «Guardar en el contrato».");
+
+                dynamic doc = word.ActiveDocument;
+                if (quitarResaltado)
+                    RecorrerMarcasAutollenado(doc, quitar: true);
+
+                string carpeta = doc.Path;
+                string nombre = doc.Name;
+                var extension = Path.GetExtension(nombre);
+                bool enDisco = carpeta.Length > 0 && !carpeta.StartsWith("http", StringComparison.OrdinalIgnoreCase);
+                bool formatoAdmitido = extension.Equals(".docx", StringComparison.OrdinalIgnoreCase) || extension.Equals(".doc", StringComparison.OrdinalIgnoreCase);
+
+                int alertas = word.DisplayAlerts;
+                word.DisplayAlerts = WdAlertsNone; // sin avisos de compatibilidad ni preguntas
+                try
+                {
+                    if (enDisco && formatoAdmitido && !(bool)doc.ReadOnly)
+                    {
+                        doc.Save();
+                        return ((string)doc.FullName, null);
+                    }
+
+                    Directory.CreateDirectory(carpetaAlternativa);
+                    var baseNombre = Path.GetFileNameWithoutExtension(nombre);
+                    var destino = Path.Combine(carpetaAlternativa, baseNombre + ".docx");
+                    for (var n = 2; File.Exists(destino); n++)
+                        destino = Path.Combine(carpetaAlternativa, $"{baseNombre} ({n}).docx");
+
+                    try { doc.SaveAs2(destino, WdFormatXmlDocument); }
+                    catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException) { doc.SaveAs(destino, WdFormatXmlDocument); } // Word 2007
+                    return ((string)doc.FullName, null);
+                }
+                finally
+                {
+                    word.DisplayAlerts = alertas;
+                }
+            });
+
+            return resultado == default
+                ? (null, "Word no está abierto.")
+                : resultado;
+        }
+        catch (COMException ex) when (ex.HResult is RpcECallRejected or RpcEServerCallRetryLater)
+        {
+            return (null, "Word está ocupado (puede haber un cuadro de diálogo abierto). Ciérrelo e inténtelo de nuevo.");
+        }
+        catch (Exception ex)
+        {
+            return (null, "Word no pudo guardar el documento: " + ex.Message);
         }
     }
 
