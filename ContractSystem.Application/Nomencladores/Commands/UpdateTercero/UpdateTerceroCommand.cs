@@ -1,3 +1,4 @@
+using ContractSystem.Application.DatosLegales;
 using ContractSystem.Domain.Nomencladores;
 using ContractSystem.Application.Nomencladores.Commands.CreateTercero;
 using MediatR;
@@ -15,7 +16,8 @@ public record UpdateTerceroCommand(
     string Email,
     TipoTercero Tipo,
     string? UbicacionExpediente,
-    IReadOnlyList<ContactoTerceroDto> Contactos) : IRequest<Unit>;
+    IReadOnlyList<ContactoTerceroDto> Contactos,
+    DatosLegalesDto? DatosLegales = null) : IRequest<Unit>;
 
 public class UpdateTerceroCommandHandler : IRequestHandler<UpdateTerceroCommand, Unit>
 {
@@ -56,7 +58,16 @@ public class UpdateTerceroCommandHandler : IRequestHandler<UpdateTerceroCommand,
             });
         }
 
-        await _store.UpdateAsync(entity, cancellationToken);
+        if (request.DatosLegales is { } legales)
+        {
+            entity.CodigoReeup = DatosLegalesMapper.Limpiar(legales.CodigoReeup);
+            entity.RegistroMercantil = DatosLegalesMapper.Limpiar(legales.RegistroMercantil);
+            entity.DocumentoConstitucion = DatosLegalesMapper.Limpiar(legales.DocumentoConstitucion);
+            entity.Representantes = DatosLegalesMapper.CrearRepresentantes(legales);
+            entity.CuentasBancarias = DatosLegalesMapper.CrearCuentas(legales);
+        }
+
+        await _store.UpdateAsync(entity, request.DatosLegales is not null, cancellationToken);
         return Unit.Value;
     }
 }

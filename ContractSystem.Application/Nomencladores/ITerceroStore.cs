@@ -10,7 +10,8 @@ public interface ITerceroStore
     Task<PagedList<Tercero>> GetPagedAsync(int page, int pageSize, bool includeDeleted = false, TipoTercero? tipo = null, string? searchText = null, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Tercero>> SearchAsync(string texto, int maxResults = 20, CancellationToken cancellationToken = default);
     Task<Tercero> CreateAsync(Tercero tercero, CancellationToken cancellationToken = default);
-    Task UpdateAsync(Tercero tercero, CancellationToken cancellationToken = default);
+    /// <param name="actualizarDatosLegales">Si es true, reemplaza representantes y cuentas bancarias por los de <paramref name="tercero"/>.</param>
+    Task UpdateAsync(Tercero tercero, bool actualizarDatosLegales = false, CancellationToken cancellationToken = default);
     Task SoftDeleteAsync(int id, CancellationToken cancellationToken = default);
     Task UndeleteAsync(int id, CancellationToken cancellationToken = default);
 }

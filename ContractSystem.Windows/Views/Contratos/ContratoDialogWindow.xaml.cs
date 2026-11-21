@@ -377,7 +377,8 @@ public partial class ContratoDialogWindow : Window
                 dialog.EmailTercero,
                 dialog.TipoTercero,
                 dialog.UbicacionExpediente,
-                contactos));
+                contactos,
+                dialog.DatosLegales));
 
             // Recargar la lista para incluir el nuevo tercero y seleccionarlo.
             var terceros = await mediator.Send(new GetAllTercerosQuery());

@@ -146,7 +146,8 @@ public sealed partial class TerceroViewModel : ObservableObject
                 dialog.EmailTercero,
                 dialog.TipoTercero,
                 dialog.UbicacionExpediente,
-                contactos));
+                contactos,
+                dialog.DatosLegales));
 
             MessageBox.Show("Tercero creado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
             await CargarAsync();
@@ -158,16 +159,30 @@ public sealed partial class TerceroViewModel : ObservableObject
     }
 
     [RelayCommand(CanExecute = nameof(HaySeleccionado))]
-    private void Editar()
+    private async Task EditarAsync()
     {
         if (Seleccionado is null) return;
 
+        // El tercero de la lista paginada no trae contactos, representantes ni cuentas:
+        // se carga completo para no perderlos al guardar.
+        Tercero? tercero;
+        try
+        {
+            tercero = await _sender.Send(new GetTerceroByIdQuery(Seleccionado.Id));
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Error al cargar el tercero: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+        if (tercero is null) return;
+
         var dialog = new Views.Configuracion.TerceroDialogWindow();
         dialog.Owner = System.Windows.Application.Current.MainWindow;
-        dialog.CargarTercero(Seleccionado);
+        dialog.CargarTercero(tercero);
         if (dialog.ShowDialog() == true)
         {
-            _ = ActualizarTerceroAsync(dialog, Seleccionado.Id);
+            await ActualizarTerceroAsync(dialog, tercero.Id);
         }
     }
 
@@ -189,7 +204,8 @@ public sealed partial class TerceroViewModel : ObservableObject
                 dialog.EmailTercero,
                 dialog.TipoTercero,
                 dialog.UbicacionExpediente,
-                contactos));
+                contactos,
+                dialog.DatosLegales));
 
             MessageBox.Show("Tercero actualizado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
             await CargarAsync();

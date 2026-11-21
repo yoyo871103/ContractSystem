@@ -125,6 +125,9 @@
                             Click="BtnAbrirAnexos_Click"/>
                     <Button Content="Adjuntos" Padding="12,6" Margin="0,0,8,0" Cursor="Hand"
                             Click="BtnAbrirAdjuntos_Click"/>
+                    <Button Content="Llenar en Word" Padding="12,6" Margin="0,0,8,0" Cursor="Hand"
+                            Click="BtnLlenarEnWord_Click"
+                            ToolTip="Abre el panel para insertar en Word sus datos y los de la otra parte de este contrato"/>
                     <Button x:Name="BtnAbrirFacturas" Content="Facturas" Padding="12,6" Margin="0,0,8,0" Cursor="Hand"
                             Click="BtnAbrirFacturas_Click" Visibility="Collapsed"/>
                     <Button Padding="12,6" Margin="0,0,8,0" Cursor="Hand"

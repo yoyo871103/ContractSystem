@@ -2,9 +2,10 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:controls="clr-namespace:ContractSystem.Windows.Shared.Controls"
         Title="Tercero"
-        Height="620" Width="540"
-        MinHeight="500" MinWidth="440"
+        Height="720" Width="820"
+        MinHeight="500" MinWidth="600"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None" ResizeMode="CanResize"
         Background="{StaticResource BrushBackground}"
@@ -51,7 +52,7 @@
                     <TextBlock Text="Razón social" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
                     <TextBox x:Name="TxtRazonSocial" FontSize="14" Padding="10,8" Margin="0,0,0,10"/>
 
-                    <TextBlock Text="NIF/CIF" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
+                    <TextBlock Text="NIT" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
                     <TextBox x:Name="TxtNifCif" FontSize="14" Padding="10,8" Margin="0,0,0,10"/>
 
                     <TextBlock Text="Tipo *" FontSize="11" Foreground="{StaticResource BrushTextInactive}" Margin="0,0,0,4"/>
@@ -102,6 +103,11 @@
                                 BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
                                 Cursor="Hand" Click="BtnEliminarContacto_Click"/>
                     </StackPanel>
+
+                    <!-- Datos legales: REEUP, registro, representantes y cuentas (para llenar contratos) -->
+                    <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,1,0,0" Padding="0,16,0,0" Margin="0,16,0,0">
+                        <controls:DatosLegalesEditor x:Name="EditorDatosLegales"/>
+                    </Border>
                 </StackPanel>
             </ScrollViewer>
 

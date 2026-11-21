@@ -52,6 +52,21 @@ namespace ContractSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
+                    b.Property<string>("CodigoReeup")
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("RegistroMercantil")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("DocumentoConstitucion")
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("PlantillaComparecencia")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("PlantillaFirma")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
                     b.HasKey("Id");
                     b.ToTable("BusinessInfos");
                 });
@@ -222,6 +237,15 @@ namespace ContractSystem.Infrastructure.Migrations
                     b.Property<string>("ModificadoPor")
                         .HasMaxLength(150)
                         .HasColumnType("TEXT");
+                    b.Property<string>("CodigoReeup")
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("RegistroMercantil")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("DocumentoConstitucion")
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
                     b.HasKey("Id");
                     b.HasIndex("NifCif");
                     b.HasIndex("Tipo");
@@ -254,6 +278,77 @@ namespace ContractSystem.Infrastructure.Migrations
                     b.HasKey("Id");
                     b.HasIndex("TerceroId");
                     b.ToTable("nom_ContactosTercero");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.DatosLegales.RepresentanteLegal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<int?>("BusinessInfoId")
+                        .HasColumnType("INTEGER");
+                    b.Property<int?>("TerceroId")
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Cargo")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("CarneIdentidad")
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("DocumentoNombramiento")
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+                    b.Property<DateTime?>("FechaNombramiento")
+                        .HasColumnType("TEXT");
+                    b.Property<bool>("EsPredeterminado")
+                        .HasColumnType("INTEGER");
+                    b.HasKey("Id");
+                    b.HasIndex("BusinessInfoId");
+                    b.HasIndex("TerceroId");
+                    b.ToTable("RepresentantesLegales");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.DatosLegales.CuentaBancaria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+                    b.Property<int?>("BusinessInfoId")
+                        .HasColumnType("INTEGER");
+                    b.Property<int?>("TerceroId")
+                        .HasColumnType("INTEGER");
+                    b.Property<string>("Numero")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Moneda")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Banco")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Sucursal")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("DireccionSucursal")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<string>("Titular")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+                    b.Property<bool>("EsPredeterminada")
+                        .HasColumnType("INTEGER");
+                    b.HasKey("Id");
+                    b.HasIndex("BusinessInfoId");
+                    b.HasIndex("TerceroId");
+                    b.ToTable("CuentasBancarias");
                 });
 
             modelBuilder.Entity("ContractSystem.Domain.Nomencladores.ProductoServicio", b =>
@@ -801,9 +896,45 @@ namespace ContractSystem.Infrastructure.Migrations
                     b.Navigation("UsuarioRoles");
                 });
 
+            modelBuilder.Entity("ContractSystem.Domain.DatosLegales.RepresentanteLegal", b =>
+                {
+                    b.HasOne("ContractSystem.Domain.Business.BusinessInfo", "BusinessInfo")
+                        .WithMany("Representantes")
+                        .HasForeignKey("BusinessInfoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                    b.HasOne("ContractSystem.Domain.Nomencladores.Tercero", "Tercero")
+                        .WithMany("Representantes")
+                        .HasForeignKey("TerceroId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                    b.Navigation("BusinessInfo");
+                    b.Navigation("Tercero");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.DatosLegales.CuentaBancaria", b =>
+                {
+                    b.HasOne("ContractSystem.Domain.Business.BusinessInfo", "BusinessInfo")
+                        .WithMany("CuentasBancarias")
+                        .HasForeignKey("BusinessInfoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                    b.HasOne("ContractSystem.Domain.Nomencladores.Tercero", "Tercero")
+                        .WithMany("CuentasBancarias")
+                        .HasForeignKey("TerceroId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                    b.Navigation("BusinessInfo");
+                    b.Navigation("Tercero");
+                });
+
+            modelBuilder.Entity("ContractSystem.Domain.Business.BusinessInfo", b =>
+                {
+                    b.Navigation("CuentasBancarias");
+                    b.Navigation("Representantes");
+                });
+
             modelBuilder.Entity("ContractSystem.Domain.Nomencladores.Tercero", b =>
                 {
                     b.Navigation("Contactos");
+                    b.Navigation("CuentasBancarias");
+                    b.Navigation("Representantes");
                 });
 
             modelBuilder.Entity("ContractSystem.Domain.Contratos.Contrato", b =>

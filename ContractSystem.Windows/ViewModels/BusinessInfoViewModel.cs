@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using ContractSystem.Application.Business.Commands.UpdateBusinessInfo;
 using ContractSystem.Application.Business.Queries.GetBusinessInfo;
 using ContractSystem.Application.Auth;
+using ContractSystem.Windows.ViewModels.Shared;
+using ContractSystem.Application.LlenadoContratos;
 using MediatR;
 using Microsoft.Win32;
 using System.IO;
@@ -39,6 +41,21 @@ public partial class BusinessInfoViewModel : ObservableObject
     [ObservableProperty]
     private string _nombreDueno = string.Empty;
 
+    /// <summary>REEUP, registro, constitución, representantes y cuentas bancarias.</summary>
+    public DatosLegalesEditModel DatosLegales { get; } = new();
+
+    /// <summary>Plantilla del bloque de comparecencia (con marcadores {Campo}).</summary>
+    [ObservableProperty]
+    private string _plantillaComparecencia = BloquesContrato.ComparecenciaPredeterminada;
+
+    /// <summary>Plantilla del bloque de firma (con marcadores {Campo}).</summary>
+    [ObservableProperty]
+    private string _plantillaFirma = BloquesContrato.FirmaPredeterminada;
+
+    /// <summary>Lista de marcadores disponibles, para la ayuda en pantalla.</summary>
+    public string AyudaMarcadores { get; } = string.Join("   ",
+        BloquesContrato.Marcadores.Select(m => $"{m.Marcador} {m.Descripcion.ToLowerInvariant()}"));
+
     public bool PuedeEditarDatosNegocio => _authContext.TienePermiso(Permissions.DatosNegocioEditar);
 
     public BusinessInfoViewModel(ISender sender, IAuthContext authContext)
@@ -64,6 +81,13 @@ public partial class BusinessInfoViewModel : ObservableObject
                 Email = info.Email;
                 Eslogan = info.Eslogan;
                 NombreDueno = info.NombreDueno;
+                PlantillaComparecencia = string.IsNullOrWhiteSpace(info.PlantillaComparecencia)
+                    ? BloquesContrato.ComparecenciaPredeterminada : info.PlantillaComparecencia;
+                PlantillaFirma = string.IsNullOrWhiteSpace(info.PlantillaFirma)
+                    ? BloquesContrato.FirmaPredeterminada : info.PlantillaFirma;
+                DatosLegales.Cargar(
+                    info.CodigoReeup, info.RegistroMercantil, info.DocumentoConstitucion,
+                    info.Representantes, info.CuentasBancarias);
             }
         }
         catch (Exception ex)
@@ -76,10 +100,19 @@ public partial class BusinessInfoViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(PuedeEditarDatosNegocio))]
     private async Task SaveAsync()
     {
+        var errorDatosLegales = DatosLegales.Validar();
+        if (errorDatosLegales is not null)
+        {
+            MessageBox.Show(errorDatosLegales, "Datos legales", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         try
         {
             var command = new UpdateBusinessInfoCommand(
-                Nombre, Logo, Nit, Direccion, Telefono, Email, Eslogan, NombreDueno
+                Nombre, Logo, Nit, Direccion, Telefono, Email, Eslogan, NombreDueno,
+                DatosLegales.ToDto(),
+                new PlantillasBloquesDto(PlantillaComparecencia, PlantillaFirma)
             );
 
             await _sender.Send(command);
@@ -112,6 +145,12 @@ public partial class BusinessInfoViewModel : ObservableObject
             }
         }
     }
+
+    [RelayCommand]
+    private void RestaurarComparecencia() => PlantillaComparecencia = BloquesContrato.ComparecenciaPredeterminada;
+
+    [RelayCommand]
+    private void RestaurarFirma() => PlantillaFirma = BloquesContrato.FirmaPredeterminada;
 
     [RelayCommand]
     private void RemoveLogo()

@@ -37,5 +37,8 @@ public interface IDocumentoAdjuntoStore
     Task<DocumentoAdjunto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<DocumentoAdjunto?> GetByIdConContenidoAsync(int id, CancellationToken cancellationToken = default);
     Task CreateAsync(DocumentoAdjunto adjunto, CancellationToken cancellationToken = default);
+
+    /// <summary>Sustituye el archivo (contenido, tamaño y fecha de carga). false si el adjunto no existe.</summary>
+    Task<bool> ReemplazarContenidoAsync(int id, byte[] contenido, CancellationToken cancellationToken = default);
     Task DeleteAsync(DocumentoAdjunto adjunto, CancellationToken cancellationToken = default);
 }
